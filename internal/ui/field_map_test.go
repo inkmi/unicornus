@@ -6,7 +6,7 @@ import (
 )
 
 func TestFieldMap(t *testing.T) {
-	fields := []DataField{DataField{
+	fields := []DataField{{
 		Name: "a.b.c",
 	},
 	}
