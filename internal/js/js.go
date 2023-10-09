@@ -1,10 +1,10 @@
 package js
 
 import (
+	"github.com/Inkmi/unicornus/internal/ui"
 	. "github.com/moznion/go-optional"
 	"strconv"
 	"strings"
-	"unicornus/internal/ui"
 )
 
 // Initially this was iterating over all values not types

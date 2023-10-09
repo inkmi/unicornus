@@ -2,8 +2,8 @@ package builder
 
 import (
 	"fmt"
+	"github.com/Inkmi/unicornus/internal/ui"
 	"strings"
-	"unicornus/internal/ui"
 )
 
 func (f *FormLayout) RenderForm(data any) string {

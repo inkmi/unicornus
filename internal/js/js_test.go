@@ -1,10 +1,10 @@
 package js
 
 import (
+	"github.com/Inkmi/unicornus/internal/ui"
 	. "github.com/moznion/go-optional"
 	"github.com/stretchr/testify/assert"
 	"testing"
-	"unicornus/internal/ui"
 )
 
 type Test2 struct {

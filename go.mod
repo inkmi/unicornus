@@ -1,4 +1,4 @@
-module unicornus
+module github.com/Inkmi/unicornus
 
 go 1.21
 

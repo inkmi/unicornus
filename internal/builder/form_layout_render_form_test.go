@@ -1,9 +1,9 @@
 package builder
 
 import (
+	"github.com/Inkmi/unicornus/internal/ui"
 	"github.com/stretchr/testify/assert"
 	"testing"
-	"unicornus/internal/ui"
 )
 
 type TestA struct {

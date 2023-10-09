@@ -1,6 +1,8 @@
 package builder
 
-import "unicornus/internal/ui"
+import (
+	"github.com/Inkmi/unicornus/internal/ui"
+)
 
 type ElementConfig struct {
 	Placeholder string
