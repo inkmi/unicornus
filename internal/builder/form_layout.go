@@ -10,6 +10,7 @@ type ElementConfig struct {
 	Label       string
 	Choices     []ui.Choice
 	Groups      []string
+	SubLayout   *FormLayout
 }
 
 type FormLayout struct {
@@ -31,6 +32,20 @@ func (f *FormLayout) AddHeader(name string) *FormLayout {
 		Kind: "header",
 		Name: name,
 	}
+	f.elements = append(f.elements, e)
+	return f
+}
+
+func (f *FormLayout) AddGroup(name string, layout func(f *FormLayout)) *FormLayout {
+	l := NewFormLayout()
+	e := FormElement{
+		Kind: "group",
+		Name: name,
+		Config: ElementConfig{
+			SubLayout: l,
+		},
+	}
+	layout(l)
 	f.elements = append(f.elements, e)
 	return f
 }

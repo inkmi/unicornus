@@ -53,6 +53,22 @@ func TestRenderCheckbox(t *testing.T) {
 `), html)
 }
 
+func TestRenderGroup(t *testing.T) {
+	f := NewFormLayout().
+		AddGroup("B", func(f *FormLayout) {
+			f.Add("A", "A")
+		})
+	tdata := TestBool{
+		A: true,
+	}
+	html := f.RenderForm(tdata)
+	assert.Equal(t, ui.Clean(`
+<div>B<label>A</label>
+<input type="checkbox" name="A" />
+</div>
+`), html)
+}
+
 func TestRenderMulti(t *testing.T) {
 	f := NewFormLayout().
 		Add("A", "A")

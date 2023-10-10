@@ -7,12 +7,22 @@ import (
 )
 
 func (f *FormLayout) RenderForm(data any) string {
-	m := ui.FieldsToMap(ui.FieldGenerator(data))
 	var sb strings.Builder
+	f.renderFormToBuilder(&sb, data)
+	return sb.String()
+}
+
+func (f *FormLayout) renderFormToBuilder(sb *strings.Builder, data any) {
+	m := ui.FieldsToMap(ui.FieldGenerator(data))
 	for _, e := range f.elements {
 		switch e.Kind {
 		case "header":
 			sb.WriteString(fmt.Sprintf("<h2>%s</h2>", e.Name))
+		case "group":
+			sb.WriteString("<div>")
+			sb.WriteString(e.Name)
+			e.Config.SubLayout.renderFormToBuilder(sb, data)
+			sb.WriteString("</div>")
 		case "input":
 			// take value string from MAP of name -> DataField
 			// take type if no type is given from DataField
@@ -21,26 +31,23 @@ func (f *FormLayout) RenderForm(data any) string {
 				if len(e.Config.Choices) > 0 {
 					field.Choices = e.Config.Choices
 				}
-				//sb.WriteString("<p>")
 				if field.Multi {
-					renderMulti(&sb, field, e.Config)
+					renderMulti(sb, field, e.Config)
 				} else {
 					if len(e.Config.Label) > 0 {
 						sb.WriteString(fmt.Sprintf("<label>%s</label>", e.Config.Label))
 					}
 					if field.Kind == "bool" {
-						renderCheckbox(&sb, field, e.Config)
+						renderCheckbox(sb, field, e.Config)
 					} else if !field.Multi && len(field.Choices) > 0 {
-						renderSelect(&sb, field, e.Config)
+						renderSelect(sb, field, e.Config)
 					} else {
-						renderTextInput(&sb, field, field.Val(), e.Config)
+						renderTextInput(sb, field, field.Val(), e.Config)
 					}
 				}
-				//sb.WriteString("</p>")
 			}
 		}
 	}
-	return sb.String()
 }
 
 func renderCheckbox(sb *strings.Builder, f ui.DataField, config ElementConfig) {
