@@ -55,8 +55,8 @@ func TestRenderCheckbox(t *testing.T) {
 
 func TestRenderGroup(t *testing.T) {
 	f := NewFormLayout().
-		AddGroup("B", func(f *FormLayout) {
-			f.Add("A", "A")
+		AddGroup("B", func(fl *FormLayout) {
+			fl.Add("A", "A")
 		})
 	tdata := TestBool{
 		A: true,
@@ -64,7 +64,7 @@ func TestRenderGroup(t *testing.T) {
 	html := f.RenderForm(tdata)
 	assert.Equal(t, ui.Clean(`
 <div>B<label>A</label>
-<input type="checkbox" name="A" />
+<input type="checkbox" name="B.A" />
 </div>
 `), html)
 }

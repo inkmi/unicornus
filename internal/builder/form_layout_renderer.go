@@ -8,11 +8,11 @@ import (
 
 func (f *FormLayout) RenderForm(data any) string {
 	var sb strings.Builder
-	f.renderFormToBuilder(&sb, data)
+	f.renderFormToBuilder(&sb, data, "")
 	return sb.String()
 }
 
-func (f *FormLayout) renderFormToBuilder(sb *strings.Builder, data any) {
+func (f *FormLayout) renderFormToBuilder(sb *strings.Builder, data any, prefix string) {
 	m := ui.FieldsToMap(ui.FieldGenerator(data))
 	for _, e := range f.elements {
 		switch e.Kind {
@@ -21,7 +21,11 @@ func (f *FormLayout) renderFormToBuilder(sb *strings.Builder, data any) {
 		case "group":
 			sb.WriteString("<div>")
 			sb.WriteString(e.Name)
-			e.Config.SubLayout.renderFormToBuilder(sb, data)
+			newPrefix := e.Name
+			if len(prefix) > 0 {
+				newPrefix = prefix + "." + newPrefix
+			}
+			e.Config.SubLayout.renderFormToBuilder(sb, data, newPrefix)
 			sb.WriteString("</div>")
 		case "input":
 			// take value string from MAP of name -> DataField
@@ -38,11 +42,11 @@ func (f *FormLayout) renderFormToBuilder(sb *strings.Builder, data any) {
 						sb.WriteString(fmt.Sprintf("<label>%s</label>", e.Config.Label))
 					}
 					if field.Kind == "bool" {
-						renderCheckbox(sb, field, e.Config)
+						renderCheckbox(sb, field, e.Config, prefix)
 					} else if !field.Multi && len(field.Choices) > 0 {
-						renderSelect(sb, field, e.Config)
+						renderSelect(sb, field, e.Config, prefix)
 					} else {
-						renderTextInput(sb, field, field.Val(), e.Config)
+						renderTextInput(sb, field, field.Val(), e.Config, prefix)
 					}
 				}
 			}
@@ -50,9 +54,13 @@ func (f *FormLayout) renderFormToBuilder(sb *strings.Builder, data any) {
 	}
 }
 
-func renderCheckbox(sb *strings.Builder, f ui.DataField, config ElementConfig) {
+func renderCheckbox(sb *strings.Builder, f ui.DataField, config ElementConfig, prefix string) {
 	checked := ""
-	sb.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" %s%s/>", f.Name, checked, configToHtml(config)))
+	name := f.Name
+	if len(prefix) > 0 {
+		name = prefix + "." + name
+	}
+	sb.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" %s%s/>", name, checked, configToHtml(config)))
 }
 
 func renderMulti(sb *strings.Builder, f ui.DataField, config ElementConfig) {
@@ -86,7 +94,7 @@ func renderMulti(sb *strings.Builder, f ui.DataField, config ElementConfig) {
 	}
 }
 
-func renderSelect(sb *strings.Builder, f ui.DataField, config ElementConfig) {
+func renderSelect(sb *strings.Builder, f ui.DataField, config ElementConfig, prefix string) {
 	sb.WriteString(fmt.Sprintf("<select name=\"%s\"><option value=\"0\">-</option>", f.Name))
 	for _, c := range f.Choices {
 		if c.IsSelected(f.Value) {
@@ -99,7 +107,7 @@ func renderSelect(sb *strings.Builder, f ui.DataField, config ElementConfig) {
 	sb.WriteString("</select>")
 }
 
-func renderTextInput(sb *strings.Builder, f ui.DataField, val any, config ElementConfig) {
+func renderTextInput(sb *strings.Builder, f ui.DataField, val any, config ElementConfig, prefix string) {
 	sb.WriteString(fmt.Sprintf("<input name=\"%s\" value=\"%s\"%s/>", f.Name, val, configToHtml(config)))
 }
 
