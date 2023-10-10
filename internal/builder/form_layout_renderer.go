@@ -30,7 +30,7 @@ func (f *FormLayout) RenderForm(data any) string {
 					}
 					if field.Kind == "bool" {
 						renderCheckbox(&sb, field, e.Config)
-					} else if field.Multi == false && len(field.Choices) > 0 {
+					} else if !field.Multi && len(field.Choices) > 0 {
 						renderSelect(&sb, field, e.Config)
 					} else {
 						renderTextInput(&sb, field, field.Val(), e.Config)
@@ -46,13 +46,12 @@ func (f *FormLayout) RenderForm(data any) string {
 func renderCheckbox(sb *strings.Builder, f ui.DataField, config ElementConfig) {
 	checked := ""
 	sb.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" %s%s/>", f.Name, checked, configToHtml(config)))
-	return
 }
 
 func renderMulti(sb *strings.Builder, f ui.DataField, config ElementConfig) {
 	if len(config.Groups) > 0 {
 		for _, group := range config.Groups {
-			sb.WriteString(fmt.Sprintf("<fieldset>"))
+			sb.WriteString("<fieldset>")
 			for _, c := range f.Choices {
 				if c.Group == group {
 					if c.IsSelected(f.Value) {
@@ -66,7 +65,7 @@ func renderMulti(sb *strings.Builder, f ui.DataField, config ElementConfig) {
 		}
 		sb.WriteString("</fieldset>")
 	} else {
-		sb.WriteString(fmt.Sprintf("<fieldset>"))
+		sb.WriteString("<fieldset>")
 		for _, c := range f.Choices {
 			if c.IsSelected(f.Value) {
 				sb.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" checked>", c.Label+"#"+c.Val()))
@@ -78,7 +77,6 @@ func renderMulti(sb *strings.Builder, f ui.DataField, config ElementConfig) {
 		}
 		sb.WriteString("</fieldset>")
 	}
-	return
 }
 
 func renderSelect(sb *strings.Builder, f ui.DataField, config ElementConfig) {
@@ -92,12 +90,10 @@ func renderSelect(sb *strings.Builder, f ui.DataField, config ElementConfig) {
 		}
 	}
 	sb.WriteString("</select>")
-	return
 }
 
 func renderTextInput(sb *strings.Builder, f ui.DataField, val any, config ElementConfig) {
 	sb.WriteString(fmt.Sprintf("<input name=\"%s\" value=\"%s\"%s/>", f.Name, val, configToHtml(config)))
-	return
 }
 
 func configToHtml(config ElementConfig) string {
