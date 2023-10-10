@@ -56,14 +56,17 @@ func (f *FormLayout) renderFormToBuilder(sb *strings.Builder, data any, prefix s
 
 func renderCheckbox(sb *strings.Builder, f ui.DataField, config ElementConfig, prefix string) {
 	checked := ""
-	if f.Val().(bool) == true {
-		checked = "checked"
+	v, ok := f.Val().(bool)
+	if ok {
+		if v == true {
+			checked = "checked"
+		}
+		name := f.Name
+		if len(prefix) > 0 {
+			name = prefix + "." + name
+		}
+		sb.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" %s%s/>", name, checked, configToHtml(config)))
 	}
-	name := f.Name
-	if len(prefix) > 0 {
-		name = prefix + "." + name
-	}
-	sb.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" %s%s/>", name, checked, configToHtml(config)))
 }
 
 func renderMulti(sb *strings.Builder, f ui.DataField, config ElementConfig, prefix string) {
