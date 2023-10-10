@@ -56,6 +56,9 @@ func (f *FormLayout) renderFormToBuilder(sb *strings.Builder, data any, prefix s
 
 func renderCheckbox(sb *strings.Builder, f ui.DataField, config ElementConfig, prefix string) {
 	checked := ""
+	if f.Val().(bool) == true {
+		checked = "checked"
+	}
 	name := f.Name
 	if len(prefix) > 0 {
 		name = prefix + "." + name
@@ -144,3 +147,52 @@ func containsString(slice []string, target string) bool {
 	}
 	return false
 }
+
+/*
+
+func SetChoices(setKey string, fields []ui.FieldV, allValues []string) {
+	for i := range fields {
+		if fields[i].Name == setKey {
+			var choices []ui.Choice
+			values := fields[i].Value.([]string)
+			for _, p := range allValues {
+				choices = append(choices, ui.Choice{
+					Label:    p,
+					Value:    p,
+					Selected: lo.Contains(values, p),
+				})
+			}
+
+			fields[i].Choices = choices
+			fields[i].Kind = "string"
+		}
+	}
+}
+
+func SetKey(
+	setKey string,
+	fields []ui.FieldV,
+	allValues []string,
+	group func(k string) string,
+	label func(l string) string,
+) {
+	for i := range fields {
+		if fields[i].Name == setKey {
+			var choices []ui.Choice
+			values := fields[i].Value.([]string)
+			for _, p := range allValues {
+				choices = append(choices, ui.Choice{
+					Group:    group(p),
+					Label:    label(p),
+					Value:    p,
+					Selected: lo.Contains(values, p),
+				})
+			}
+
+			fields[i].Choices = choices
+			fields[i].Kind = "string"
+		}
+	}
+}
+
+*/

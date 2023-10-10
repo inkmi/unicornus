@@ -49,6 +49,19 @@ func TestRenderCheckbox(t *testing.T) {
 	html := f.RenderForm(tdata)
 	assert.Equal(t, ui.Clean(`
 <label>A</label>
+<input type="checkbox" name="A" checked/>
+`), html)
+}
+
+func TestRenderCheckboxUnchecked(t *testing.T) {
+	f := NewFormLayout().
+		Add("A", "A")
+	tdata := TestBool{
+		A: false,
+	}
+	html := f.RenderForm(tdata)
+	assert.Equal(t, ui.Clean(`
+<label>A</label>
 <input type="checkbox" name="A" />
 `), html)
 }
@@ -64,7 +77,7 @@ func TestRenderGroup(t *testing.T) {
 	html := f.RenderForm(tdata)
 	assert.Equal(t, ui.Clean(`
 <div>B<label>A</label>
-<input type="checkbox" name="B.A" />
+<input type="checkbox" name="B.A" checked/>
 </div>
 `), html)
 }
