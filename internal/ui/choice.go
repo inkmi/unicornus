@@ -23,7 +23,6 @@ func (c *Choice) IsSelected(x any) bool {
 		return c.Value == strconv.FormatInt(x, 10)
 	case int:
 		return c.Value == strconv.Itoa(x)
-
 	case string:
 		return c.Value == x
 	default:

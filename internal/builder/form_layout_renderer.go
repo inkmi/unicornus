@@ -36,7 +36,7 @@ func (f *FormLayout) renderFormToBuilder(sb *strings.Builder, data any, prefix s
 					field.Choices = e.Config.Choices
 				}
 				if field.Multi {
-					renderMulti(sb, field, e.Config)
+					renderMulti(sb, field, e.Config, prefix)
 				} else {
 					if len(e.Config.Label) > 0 {
 						sb.WriteString(fmt.Sprintf("<label>%s</label>", e.Config.Label))
@@ -63,22 +63,34 @@ func renderCheckbox(sb *strings.Builder, f ui.DataField, config ElementConfig, p
 	sb.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" %s%s/>", name, checked, configToHtml(config)))
 }
 
-func renderMulti(sb *strings.Builder, f ui.DataField, config ElementConfig) {
+func renderMulti(sb *strings.Builder, f ui.DataField, config ElementConfig, prefix string) {
 	if len(config.Groups) > 0 {
 		for _, group := range config.Groups {
 			sb.WriteString("<fieldset>")
+			values := f.Value.([]string)
+			// range copies slice
+			for i := 0; i < len(f.Choices); i++ {
+				choice := &f.Choices[i]
+				if containsString(values, choice.Value) {
+					choice.Selected = true
+				}
+			}
 			for _, c := range f.Choices {
 				if c.Group == group {
-					if c.IsSelected(f.Value) {
-						sb.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" checked>", c.Label+"#"+c.Val()))
+					name := f.Name + "#" + c.Val()
+					if len(prefix) > 0 {
+						name = prefix + "." + name
+					}
+					if c.Selected {
+						sb.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" checked>", name))
 					} else {
-						sb.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\">", f.Name+"#"+c.Val()))
+						sb.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\">", name))
 					}
 					sb.WriteString(fmt.Sprintf(`<label>%s</label>`, c.L()))
 				}
 			}
+			sb.WriteString("</fieldset>")
 		}
-		sb.WriteString("</fieldset>")
 	} else {
 		sb.WriteString("<fieldset>")
 		for _, c := range f.Choices {
@@ -122,4 +134,13 @@ func configToHtml(config ElementConfig) string {
 	}
 	configStr := fmt.Sprintf("%s%s", id, placeholder)
 	return configStr
+}
+
+func containsString(slice []string, target string) bool {
+	for _, s := range slice {
+		if s == target {
+			return true
+		}
+	}
+	return false
 }

@@ -73,7 +73,7 @@ func TestRenderMulti(t *testing.T) {
 	f := NewFormLayout().
 		Add("A", "A")
 	tdata := TestMulti{
-		A: []string{"A", "B"},
+		A: []string{"A1", "A2"},
 	}
 	html := f.RenderForm(tdata)
 	assert.Equal(t, ui.Clean(`
@@ -116,10 +116,11 @@ func TestRenderMultiGroup(t *testing.T) {
 	html := f.RenderForm(tdata)
 	assert.Equal(t, ui.Clean(`
 <fieldset>
-<input type="checkbox" name="A#A">
+<input type="checkbox" name="A#A" checked>
 <label>A</label>
-<input type="checkbox" name="A#B">
+<input type="checkbox" name="A#B" checked>
 <label>B</label>
+</fieldset>
 <fieldset>
 <input type="checkbox" name="A#C">
 <label>C</label>
