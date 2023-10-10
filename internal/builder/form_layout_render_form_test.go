@@ -91,9 +91,9 @@ func TestRenderMulti(t *testing.T) {
 	html := f.RenderForm(tdata)
 	assert.Equal(t, ui.Clean(`
 <fieldset>
-<input type="checkbox" name="A#A1">
+<input type="checkbox" name="A#A1" checked>
 <label>A1</label>
-<input type="checkbox" name="A#A2">
+<input type="checkbox" name="A#A2" checked>
 <label>A2</label>
 <input type="checkbox" name="A#A3">
 <label>A3</label>

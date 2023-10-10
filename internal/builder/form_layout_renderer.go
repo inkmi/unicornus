@@ -70,17 +70,17 @@ func renderCheckbox(sb *strings.Builder, f ui.DataField, config ElementConfig, p
 }
 
 func renderMulti(sb *strings.Builder, f ui.DataField, config ElementConfig, prefix string) {
+	values := f.Value.([]string)
+	for i := 0; i < len(f.Choices); i++ {
+		choice := &f.Choices[i]
+		if containsString(values, choice.Value) {
+			choice.Selected = true
+		}
+	}
 	if len(config.Groups) > 0 {
 		for _, group := range config.Groups {
 			sb.WriteString("<fieldset>")
-			values := f.Value.([]string)
 			// range copies slice
-			for i := 0; i < len(f.Choices); i++ {
-				choice := &f.Choices[i]
-				if containsString(values, choice.Value) {
-					choice.Selected = true
-				}
-			}
 			for _, c := range f.Choices {
 				if c.Group == group {
 					name := f.Name + "#" + c.Val()
@@ -100,10 +100,14 @@ func renderMulti(sb *strings.Builder, f ui.DataField, config ElementConfig, pref
 	} else {
 		sb.WriteString("<fieldset>")
 		for _, c := range f.Choices {
-			if c.IsSelected(f.Value) {
-				sb.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" checked>", c.Label+"#"+c.Val()))
+			name := f.Name + "#" + c.Val()
+			if len(prefix) > 0 {
+				name = prefix + "." + name
+			}
+			if c.Selected {
+				sb.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" checked>", name))
 			} else {
-				sb.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\">", f.Name+"#"+c.Val()))
+				sb.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\">", name))
 			}
 			sb.WriteString(fmt.Sprintf(`<label>%s</label>`, c.L()))
 
