@@ -70,6 +70,7 @@ func renderCheckbox(sb *strings.Builder, f ui.DataField, config ElementConfig, p
 }
 
 func renderMulti(sb *strings.Builder, f ui.DataField, config ElementConfig, prefix string) {
+	// Should this move to Field generation?
 	values := f.Value.([]string)
 	for i := 0; i < len(f.Choices); i++ {
 		choice := &f.Choices[i]
