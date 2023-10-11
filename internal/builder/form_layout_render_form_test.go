@@ -193,19 +193,19 @@ func TestRenderSelectWithChoicesForm(t *testing.T) {
 		Add("A", "A", ElementConfig{
 			Choices: []ui.Choice{
 				{
-					Label:    "A",
-					Value:    "A",
-					Selected: false,
+					Label:   "A",
+					Value:   "A",
+					Checked: false,
 				},
 				{
-					Label:    "B",
-					Value:    "B",
-					Selected: true,
+					Label:   "B",
+					Value:   "B",
+					Checked: true,
 				},
 				{
-					Label:    "C",
-					Value:    "C",
-					Selected: false,
+					Label:   "C",
+					Value:   "C",
+					Checked: false,
 				},
 			}})
 	tdata := TestA{

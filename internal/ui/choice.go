@@ -3,10 +3,10 @@ package ui
 import "strconv"
 
 type Choice struct {
-	Group    string
-	Label    string
-	Value    string
-	Selected bool
+	Group   string
+	Label   string
+	Value   string
+	Checked bool
 }
 
 func (c *Choice) Val() string {

@@ -48,17 +48,12 @@ func translateStruct(prefix string, vals []DataField, original reflect.Value) []
 		if !optionalValue && original.Type().Field(i).Type.Kind() == reflect.Ptr {
 			df.Kind = original.Type().Field(i).Type.Elem().Name()
 			df.Optional = true
-			valid := original.Field(i).Elem().IsValid()
 			if original.Type().Field(i).Type.Elem().ConvertibleTo(reflect.TypeOf(0)) {
 				df.Kind = "int"
-				if valid {
-					df.Value = original.Field(i).Elem().Int()
-				}
+				setValue(&df, original, i)
 			} else if original.Type().Field(i).Type.Elem().ConvertibleTo(reflect.TypeOf(true)) {
 				df.Kind = "bool"
-				if valid {
-					df.Value = original.Field(i).Elem().Bool()
-				}
+				setValue(&df, original, i)
 			}
 		} else {
 			typ := ""
@@ -72,13 +67,7 @@ func translateStruct(prefix string, vals []DataField, original reflect.Value) []
 			}
 			df.Optional = hasOptional(typ)
 			df.Kind = removeOptional(typ)
-			if df.Kind == "string" {
-				setString(original, i, &df)
-			} else if df.Kind == "bool" {
-				setBool(original, i, &df)
-			} else if df.Kind == "int" {
-				setInt(&df, original, i)
-			}
+			setValue(&df, original, i)
 		}
 
 		// parse Tag for validation, choices and error messages
@@ -105,6 +94,16 @@ func translateStruct(prefix string, vals []DataField, original reflect.Value) []
 	return vals
 }
 
+func setValue(df *DataField, original reflect.Value, i int) {
+	if df.Kind == "string" {
+		setString(original, i, df)
+	} else if df.Kind == "bool" {
+		setBool(original, i, df)
+	} else if df.Kind == "int" {
+		setInt(original, i, df)
+	}
+}
+
 func setString(original reflect.Value, i int, f *DataField) {
 	if f.Multi {
 		// https://stackoverflow.com/questions/32890137/how-to-get-slice-underlying-value-via-reflect-value
@@ -118,26 +117,42 @@ func setBool(original reflect.Value, i int, f *DataField) {
 	if !f.Optional {
 		f.Value = original.Field(i).Bool()
 	} else {
-		o := original.Field(i).Interface().(Option[bool])
-		if o.IsSome() {
-			val, _ := o.Take()
-			f.Value = val
+		if hasOptional(original.Type().Field(i).Type.Name()) {
+			o := original.Field(i).Interface().(Option[bool])
+			if o.IsSome() {
+				val, _ := o.Take()
+				f.Value = val
+			} else {
+				f.Value = false
+			}
 		} else {
-			f.Value = false
+			// this is *bool
+			valid := original.Field(i).Elem().IsValid()
+			if valid {
+				f.Value = original.Field(i).Elem().Bool()
+			}
 		}
 	}
 }
 
-func setInt(f *DataField, original reflect.Value, i int) {
+func setInt(original reflect.Value, i int, f *DataField) {
 	if !f.Optional {
 		f.Value = original.Field(i).Int()
 	} else {
-		o := original.Field(i).Interface().(Option[int])
-		if o.IsSome() {
-			val, _ := o.Take()
-			f.Value = int64(val)
+		if hasOptional(original.Type().Field(i).Type.Name()) {
+			o := original.Field(i).Interface().(Option[int])
+			if o.IsSome() {
+				val, _ := o.Take()
+				f.Value = int64(val)
+			} else {
+				f.Value = nil
+			}
 		} else {
-			f.Value = nil
+			// this is *int
+			valid := original.Field(i).Elem().IsValid()
+			if valid {
+				f.Value = original.Field(i).Elem().Int()
+			}
 		}
 	}
 }

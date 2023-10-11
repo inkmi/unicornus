@@ -74,7 +74,7 @@ func renderMulti(sb *strings.Builder, f ui.DataField, config ElementConfig, pref
 	for i := 0; i < len(f.Choices); i++ {
 		choice := &f.Choices[i]
 		if containsString(values, choice.Value) {
-			choice.Selected = true
+			choice.Checked = true
 		}
 	}
 	if len(config.Groups) > 0 {
@@ -87,7 +87,7 @@ func renderMulti(sb *strings.Builder, f ui.DataField, config ElementConfig, pref
 					if len(prefix) > 0 {
 						name = prefix + "." + name
 					}
-					if c.Selected {
+					if c.Checked {
 						sb.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" checked>", name))
 					} else {
 						sb.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\">", name))
@@ -104,7 +104,7 @@ func renderMulti(sb *strings.Builder, f ui.DataField, config ElementConfig, pref
 			if len(prefix) > 0 {
 				name = prefix + "." + name
 			}
-			if c.Selected {
+			if c.Checked {
 				sb.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" checked>", name))
 			} else {
 				sb.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\">", name))
