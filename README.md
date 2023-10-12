@@ -18,6 +18,32 @@ Unicornus is a simple library for building HTML forms in Go.
 go get github.com/inkmi/unicornus
 ```
 
+## Idea
+
+```
+           ┌─────────────┐             ┌─────────────┐
+           │             │             │             │
+Validation │ Data Model  ├──────┬──────┤ Form Layout │
+           │             │      │      │             │
+           │             │      │      │             │
+           └─────────────┘      │      └─────────────┘
+                  ▲             │
+                  │             │
+                  │             │
+                  │             │
+                  │             │
+                  │             │
+                  │             ▼
+                  │       ┌───────────┐
+                  │       │           │
+           Submit │       │           │
+                  │       │   HTML    │
+                  └───────┤   Form    │
+                          │           │
+                          │           │
+                          └───────────┘
+```
+
 ## License information
 
 MIT License
