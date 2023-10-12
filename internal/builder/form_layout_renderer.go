@@ -38,6 +38,7 @@ func (f *FormLayout) renderFormToBuilder(sb *strings.Builder, data any, prefix s
 				if field.Multi {
 					renderMulti(sb, field, e.Config, prefix)
 				} else {
+					sb.WriteString("<div>")
 					if len(e.Config.Label) > 0 {
 						sb.WriteString(fmt.Sprintf("<label>%s</label>", e.Config.Label))
 					}
@@ -48,6 +49,7 @@ func (f *FormLayout) renderFormToBuilder(sb *strings.Builder, data any, prefix s
 					} else {
 						renderTextInput(sb, field, field.Val(), e.Config, prefix)
 					}
+					sb.WriteString("</div>")
 				}
 			}
 		}
