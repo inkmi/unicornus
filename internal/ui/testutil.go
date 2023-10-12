@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func ReplaceDivsWithChildren(inputHtml string) string {
+func Normalize(inputHtml string) string {
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(inputHtml))
 	if err != nil {
 		return err.Error()
@@ -18,6 +18,11 @@ func ReplaceDivsWithChildren(inputHtml string) string {
 		parent.AppendSelection(div.ChildrenFiltered("*"))
 		div.Remove()
 	})
+	// Also remove all class
+	doc.Find("[class]").Each(func(_ int, s *goquery.Selection) {
+		// Remove the class attribute from the current element
+		s.RemoveAttr("class")
+	})
 
 	html, err := doc.Find("body").Html()
 	if err != nil {
@@ -26,7 +31,7 @@ func ReplaceDivsWithChildren(inputHtml string) string {
 	return html
 }
 
-func Normalize(inputHTML string) string {
+func RemoveClass(inputHTML string) string {
 	r := strings.NewReader(inputHTML)
 	doc, err := goquery.NewDocumentFromReader(r)
 	if err != nil {

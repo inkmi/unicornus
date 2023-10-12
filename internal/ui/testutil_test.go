@@ -15,7 +15,7 @@ func TestClean(t *testing.T) {
 }
 
 func TestNormalize(t *testing.T) {
-	norm := Clean(Normalize(`
+	norm := Clean(RemoveClass(`
 <div class="a">
 <div class="b">
 </div>

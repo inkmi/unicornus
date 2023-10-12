@@ -82,13 +82,13 @@ func TestRenderGroup(t *testing.T) {
 `), html)
 }
 
-func TestRenderMulti(t *testing.T) {
+func TestRenderMultiWithDiv(t *testing.T) {
 	f := NewFormLayout().
 		Add("A", "A")
 	tdata := TestMulti{
 		A: []string{"A1", "A2"},
 	}
-	html := ui.Normalize(f.RenderForm(tdata))
+	html := ui.RemoveClass(f.RenderForm(tdata))
 	assert.Equal(t, ui.Clean(`
 <div>
 <fieldset>
@@ -106,6 +106,25 @@ func TestRenderMulti(t *testing.T) {
 </div>
 </fieldset>
 </div>
+`), html)
+}
+
+func TestRenderMulti(t *testing.T) {
+	f := NewFormLayout().
+		Add("A", "A")
+	tdata := TestMulti{
+		A: []string{"A1", "A2"},
+	}
+	html := ui.Normalize(f.RenderForm(tdata))
+	assert.Equal(t, ui.Clean(`
+<fieldset>
+<input type="checkbox" name="A#A1" checked=""/>
+<label>A1</label>
+<input type="checkbox" name="A#A2" checked=""/>
+<label>A2</label>
+<input type="checkbox" name="A#A3"/>
+<label>A3</label>
+</fieldset>
 `), html)
 }
 
@@ -134,7 +153,7 @@ func TestRenderMultiGroup(t *testing.T) {
 	tdata := TestMulti{
 		A: []string{"A", "B"},
 	}
-	html := ui.Normalize(f.RenderForm(tdata))
+	html := ui.RemoveClass(f.RenderForm(tdata))
 	assert.Equal(t, ui.Clean(`
 <div>
   <fieldset>
