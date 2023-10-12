@@ -104,7 +104,7 @@ func renderMulti(sb *strings.Builder, f ui.DataField, config ElementConfig, pref
 		}
 
 	} else {
-		sb.WriteString("<div>.")
+		sb.WriteString("<div>")
 		sb.WriteString("<fieldset>")
 		for _, c := range f.Choices {
 			name := f.Name + "#" + c.Val()
