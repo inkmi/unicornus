@@ -58,7 +58,7 @@ func renderCheckbox(sb *strings.Builder, f ui.DataField, config ElementConfig, p
 	checked := ""
 	v, ok := f.Val().(bool)
 	if ok {
-		if v == true {
+		if v {
 			checked = "checked"
 		}
 		name := f.Name
@@ -104,7 +104,7 @@ func renderMulti(sb *strings.Builder, f ui.DataField, config ElementConfig, pref
 		}
 
 	} else {
-		sb.WriteString("<div>")
+		sb.WriteString("<div>.")
 		sb.WriteString("<fieldset>")
 		for _, c := range f.Choices {
 			name := f.Name + "#" + c.Val()
