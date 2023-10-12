@@ -6,11 +6,31 @@ import (
 	"strings"
 )
 
+func ReplaceDivsWithChildren(inputHtml string) string {
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(inputHtml))
+	if err != nil {
+		return err.Error()
+	}
+
+	doc.Find("div").Each(func(index int, div *goquery.Selection) {
+		// Move the children of the div element to the parent
+		parent := div.Parent()
+		parent.AppendSelection(div.ChildrenFiltered("*"))
+		div.Remove()
+	})
+
+	html, err := doc.Find("body").Html()
+	if err != nil {
+		return err.Error()
+	}
+	return html
+}
+
 func Normalize(inputHTML string) string {
 	r := strings.NewReader(inputHTML)
 	doc, err := goquery.NewDocumentFromReader(r)
-	if err == nil {
-		return inputHTML
+	if err != nil {
+		return err.Error()
 	}
 
 	// Find all elements with class attributes
@@ -20,7 +40,7 @@ func Normalize(inputHTML string) string {
 	})
 
 	// Print the modified HTML
-	html, err := doc.Html()
+	html, err := doc.Find("body").Html()
 	if err != nil {
 		return err.Error()
 	}

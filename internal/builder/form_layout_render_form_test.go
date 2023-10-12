@@ -88,20 +88,20 @@ func TestRenderMulti(t *testing.T) {
 	tdata := TestMulti{
 		A: []string{"A1", "A2"},
 	}
-	html := f.RenderForm(tdata)
+	html := ui.Normalize(f.RenderForm(tdata))
 	assert.Equal(t, ui.Clean(`
 <div>
 <fieldset>
 <div>
-<input type="checkbox" name="A#A1" checked>
+<input type="checkbox" name="A#A1" checked=""/>
 <label>A1</label>
 </div>
 <div>
-<input type="checkbox" name="A#A2" checked>
+<input type="checkbox" name="A#A2" checked=""/>
 <label>A2</label>
 </div>
 <div>
-<input type="checkbox" name="A#A3">
+<input type="checkbox" name="A#A3"/>
 <label>A3</label>
 </div>
 </fieldset>
@@ -139,11 +139,11 @@ func TestRenderMultiGroup(t *testing.T) {
 <div>
   <fieldset>
 <div>
-  <input type="checkbox" name="A#A" checked>
+  <input type="checkbox" name="A#A" checked=""/>
   <label>A</label>
 </div>
 <div>
-  <input type="checkbox" name="A#B" checked>
+  <input type="checkbox" name="A#B" checked=""/>
   <label>B</label>
 </div>
 </fieldset>
@@ -151,7 +151,7 @@ func TestRenderMultiGroup(t *testing.T) {
 <div>
 <fieldset>
 <div>
-  <input type="checkbox" name="A#C">
+  <input type="checkbox" name="A#C"/>
   <label>C</label>
 </div>
 </fieldset>

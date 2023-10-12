@@ -13,3 +13,13 @@ func TestClean(t *testing.T) {
 `)
 	assert.Equal(t, "<html><body  class=\"body\"></body></html>", cleaned)
 }
+
+func TestNormalize(t *testing.T) {
+	norm := Clean(Normalize(`
+<div class="a">
+<div class="b">
+</div>
+</div>
+`))
+	assert.Equal(t, "<div><div></div></div>", norm)
+}
