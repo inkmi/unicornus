@@ -134,7 +134,7 @@ func renderSelect(sb *strings.Builder, f DataField, config ElementConfig, prefix
 }
 
 func renderTextInput(sb *strings.Builder, f DataField, val any, config ElementConfig, prefix string) {
-	sb.WriteString(fmt.Sprintf("<input name=\"%s\" value=\"%s\"%s/>", f.Name, val, configToHtml(config)))
+	sb.WriteString(fmt.Sprintf("<input name=\"%s\" value=\"%v\"%s/>", f.Name, val, configToHtml(config)))
 }
 
 func configToHtml(config ElementConfig) string {

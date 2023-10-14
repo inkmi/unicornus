@@ -36,7 +36,11 @@ func (f DataField) Val() any {
 			}
 			return f.Value
 		} else {
-			return f.Value
+			if f.Optional {
+				return f.Value
+			} else {
+				return f.Value
+			}
 		}
 	} else {
 		return ""

@@ -19,6 +19,8 @@ type TestBool struct {
 
 type TestGroup struct {
 	B bool
+	C *int
+	D *int
 }
 
 type TestSubGroup struct {
@@ -76,15 +78,27 @@ func TestRenderCheckboxUnchecked(t *testing.T) {
 func TestRenderGroup(t *testing.T) {
 	f := NewFormLayout().
 		AddGroup("A", func(fl *FormLayout) {
-			fl.Add("B", "B")
+			fl.Add("B", "B").
+				Add("C", "C").
+				Add("D", "D")
 		})
+	c := 10
 	tdata := TestSubGroup{
-		A: TestGroup{B: true},
+		A: TestGroup{B: true, C: &c},
 	}
 	html := RemoveClass(f.RenderForm(tdata))
 	assert.Equal(t, Clean(`
-<div>A<div><label>B</label>
+<div>A<div>
+<label>B</label>
 <input type="checkbox" name="A.B" checked=""/>
+</div>
+<div>
+<label>C</label>
+<input name="A.C" value="10"/>
+</div>
+<div>
+<label>D</label>
+<input name="A.D" value=""/>
 </div>
 </div>
 `), html)
