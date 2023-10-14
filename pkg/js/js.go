@@ -1,7 +1,7 @@
 package js
 
 import (
-	"github.com/Inkmi/unicornus/internal/ui"
+	"github.com/inkmi/unicornus/pkg/ui"
 	. "github.com/moznion/go-optional"
 	"strconv"
 	"strings"

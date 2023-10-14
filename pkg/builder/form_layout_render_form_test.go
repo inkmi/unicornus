@@ -1,7 +1,7 @@
 package builder
 
 import (
-	"github.com/Inkmi/unicornus/internal/ui"
+	"github.com/inkmi/unicornus/pkg/ui"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

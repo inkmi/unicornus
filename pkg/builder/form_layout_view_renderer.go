@@ -2,7 +2,7 @@ package builder
 
 import (
 	"fmt"
-	"github.com/Inkmi/unicornus/internal/ui"
+	"github.com/inkmi/unicornus/pkg/ui"
 	"strings"
 )
 

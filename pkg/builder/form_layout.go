@@ -1,7 +1,7 @@
 package builder
 
 import (
-	"github.com/Inkmi/unicornus/internal/ui"
+	"github.com/inkmi/unicornus/pkg/ui"
 )
 
 type ElementConfig struct {
