@@ -1,7 +1,7 @@
 package js
 
 import (
-	"github.com/inkmi/unicornus/pkg/ui"
+	"github.com/inkmi/unicornus/pkg"
 	. "github.com/moznion/go-optional"
 	"strconv"
 	"strings"
@@ -11,14 +11,14 @@ import (
 // might be useful
 // from: https://gist.github.com/tamalsaha/5badc2d686995d787715278c968c0bf0
 
-func FillDataFromFields(fields []ui.DataField, data map[string]any) {
+func FillDataFromFields(fields []pkg.DataField, data map[string]any) {
 	for _, v := range fields {
 		key := v.Name
 		data[key] = v
 	}
 }
 
-func Validation(v ui.DataField) string {
+func Validation(v pkg.DataField) string {
 	validation := ""
 	if v.Optional && len(v.Validation) > 0 {
 		validation = "v.trim().length === 0 || "
@@ -71,7 +71,7 @@ func Validation(v ui.DataField) string {
 	return js
 }
 
-func Generate(vals []ui.DataField) string {
+func Generate(vals []pkg.DataField) string {
 	valJson := "{"
 	for i, v := range vals {
 		valJson = valJson + Validation(v)

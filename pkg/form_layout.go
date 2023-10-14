@@ -1,14 +1,10 @@
-package builder
-
-import (
-	"github.com/inkmi/unicornus/pkg/ui"
-)
+package pkg
 
 type ElementConfig struct {
 	Placeholder string
 	Id          string
 	Label       string
-	Choices     []ui.Choice
+	Choices     []Choice
 	Groups      []string
 	SubLayout   *FormLayout
 }

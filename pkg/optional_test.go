@@ -1,4 +1,4 @@
-package ui
+package pkg
 
 import (
 	"github.com/stretchr/testify/assert"

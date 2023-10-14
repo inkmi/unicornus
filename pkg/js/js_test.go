@@ -1,7 +1,7 @@
 package js
 
 import (
-	"github.com/inkmi/unicornus/pkg/ui"
+	"github.com/inkmi/unicornus/pkg"
 	. "github.com/moznion/go-optional"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -32,20 +32,20 @@ func TestFillDataFromFields(t *testing.T) {
 	}
 
 	data := map[string]any{}
-	fields := ui.FieldGenerator(d)
+	fields := pkg.FieldGenerator(d)
 	FillDataFromFields(fields, data)
 
 	value, isPresent := data["D"]
 	assert.True(t, isPresent)
-	assert.Equal(t, int64(3), value.(ui.DataField).Value)
+	assert.Equal(t, int64(3), value.(pkg.DataField).Value)
 
 	value, isPresent = data["C"]
 	assert.True(t, isPresent)
-	assert.Equal(t, int64(4), value.(ui.DataField).Value)
+	assert.Equal(t, int64(4), value.(pkg.DataField).Value)
 
 	value, isPresent = data["E"]
 	assert.True(t, isPresent)
-	assert.Equal(t, nil, value.(ui.DataField).Value)
+	assert.Equal(t, nil, value.(pkg.DataField).Value)
 
 }
 
@@ -53,7 +53,7 @@ func TestValidation(t *testing.T) {
 	d := Test2{
 		MaxAge: 3,
 	}
-	fields := ui.FieldGenerator(d)
+	fields := pkg.FieldGenerator(d)
 	validation := Validation(fields[0])
 	expected := "\"MaxAge\" : { \"typ\":\"int\", \"validate\" : function(v) { return validator.isInt(v, { min: 10, max: 20 }); },\"error\" : \"The age is 10\", }"
 	assert.Equal(t, expected, validation)
@@ -67,7 +67,7 @@ func TestGenerate(t *testing.T) {
 		B: 8,
 		C: &x,
 	}
-	fields := ui.FieldGenerator(d)
+	fields := pkg.FieldGenerator(d)
 	g := Generate(fields)
 	assert.Equal(t, expected, g)
 }

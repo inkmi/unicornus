@@ -1,8 +1,7 @@
-package builder
+package pkg
 
 import (
 	"fmt"
-	"github.com/inkmi/unicornus/pkg/ui"
 	"strings"
 )
 
@@ -13,7 +12,7 @@ func (f *FormLayout) RenderForm(data any) string {
 }
 
 func (f *FormLayout) renderFormToBuilder(sb *strings.Builder, data any, prefix string) {
-	m := ui.FieldsToMap(ui.FieldGenerator(data))
+	m := FieldsToMap(FieldGenerator(data))
 	for _, e := range f.elements {
 		switch e.Kind {
 		case "header":
@@ -56,7 +55,7 @@ func (f *FormLayout) renderFormToBuilder(sb *strings.Builder, data any, prefix s
 	}
 }
 
-func renderCheckbox(sb *strings.Builder, f ui.DataField, config ElementConfig, prefix string) {
+func renderCheckbox(sb *strings.Builder, f DataField, config ElementConfig, prefix string) {
 	checked := ""
 	v, ok := f.Val().(bool)
 	if ok {
@@ -71,7 +70,7 @@ func renderCheckbox(sb *strings.Builder, f ui.DataField, config ElementConfig, p
 	}
 }
 
-func renderMulti(sb *strings.Builder, f ui.DataField, config ElementConfig, prefix string) {
+func renderMulti(sb *strings.Builder, f DataField, config ElementConfig, prefix string) {
 	// Should this move to Field generation?
 	values := f.Value.([]string)
 	for i := 0; i < len(f.Choices); i++ {
@@ -127,7 +126,7 @@ func renderMulti(sb *strings.Builder, f ui.DataField, config ElementConfig, pref
 	}
 }
 
-func renderSelect(sb *strings.Builder, f ui.DataField, config ElementConfig, prefix string) {
+func renderSelect(sb *strings.Builder, f DataField, config ElementConfig, prefix string) {
 	sb.WriteString(fmt.Sprintf("<select name=\"%s\"><option value=\"0\">-</option>", f.Name))
 	for _, c := range f.Choices {
 		if c.IsSelected(f.Value) {
@@ -140,7 +139,7 @@ func renderSelect(sb *strings.Builder, f ui.DataField, config ElementConfig, pre
 	sb.WriteString("</select>")
 }
 
-func renderTextInput(sb *strings.Builder, f ui.DataField, val any, config ElementConfig, prefix string) {
+func renderTextInput(sb *strings.Builder, f DataField, val any, config ElementConfig, prefix string) {
 	sb.WriteString(fmt.Sprintf("<input name=\"%s\" value=\"%s\"%s/>", f.Name, val, configToHtml(config)))
 }
 
@@ -168,13 +167,13 @@ func containsString(slice []string, target string) bool {
 
 /*
 
-func SetChoices(setKey string, fields []ui.FieldV, allValues []string) {
+func SetChoices(setKey string, fields []FieldV, allValues []string) {
 	for i := range fields {
 		if fields[i].Name == setKey {
-			var choices []ui.Choice
+			var choices []Choice
 			values := fields[i].Value.([]string)
 			for _, p := range allValues {
-				choices = append(choices, ui.Choice{
+				choices = append(choices, Choice{
 					Label:    p,
 					Value:    p,
 					Selected: lo.Contains(values, p),
@@ -189,17 +188,17 @@ func SetChoices(setKey string, fields []ui.FieldV, allValues []string) {
 
 func SetKey(
 	setKey string,
-	fields []ui.FieldV,
+	fields []FieldV,
 	allValues []string,
 	group func(k string) string,
 	label func(l string) string,
 ) {
 	for i := range fields {
 		if fields[i].Name == setKey {
-			var choices []ui.Choice
+			var choices []Choice
 			values := fields[i].Value.([]string)
 			for _, p := range allValues {
-				choices = append(choices, ui.Choice{
+				choices = append(choices, Choice{
 					Group:    group(p),
 					Label:    label(p),
 					Value:    p,

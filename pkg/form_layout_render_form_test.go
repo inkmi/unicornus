@@ -1,7 +1,6 @@
-package builder
+package pkg
 
 import (
-	"github.com/inkmi/unicornus/pkg/ui"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -33,8 +32,8 @@ func TestRenderForm(t *testing.T) {
 	tdata := TestA{
 		A: "b",
 	}
-	html := ui.Normalize(f.RenderForm(tdata))
-	assert.Equal(t, ui.Clean(`
+	html := Normalize(f.RenderForm(tdata))
+	assert.Equal(t, Clean(`
 <label>A</label>
 <input name="A" value="b"/>
 `), html)
@@ -46,8 +45,8 @@ func TestRenderCheckbox(t *testing.T) {
 	tdata := TestBool{
 		A: true,
 	}
-	html := ui.Normalize(f.RenderForm(tdata))
-	assert.Equal(t, ui.Clean(`
+	html := Normalize(f.RenderForm(tdata))
+	assert.Equal(t, Clean(`
 <label>A</label>
 <input type="checkbox" name="A" checked=""/>
 `), html)
@@ -59,8 +58,8 @@ func TestRenderCheckboxUnchecked(t *testing.T) {
 	tdata := TestBool{
 		A: false,
 	}
-	html := ui.Normalize(ui.Normalize(f.RenderForm(tdata)))
-	assert.Equal(t, ui.Clean(`
+	html := Normalize(Normalize(f.RenderForm(tdata)))
+	assert.Equal(t, Clean(`
 <label>A</label>
 <input type="checkbox" name="A"/>
 `), html)
@@ -74,8 +73,8 @@ func TestRenderGroup(t *testing.T) {
 	tdata := TestBool{
 		A: true,
 	}
-	html := ui.RemoveClass(f.RenderForm(tdata))
-	assert.Equal(t, ui.Clean(`
+	html := RemoveClass(f.RenderForm(tdata))
+	assert.Equal(t, Clean(`
 <div>B<div><label>A</label>
 <input type="checkbox" name="B.A" checked=""/>
 </div>
@@ -89,8 +88,8 @@ func TestRenderMultiWithDiv(t *testing.T) {
 	tdata := TestMulti{
 		A: []string{"A1", "A2"},
 	}
-	html := ui.RemoveClass(f.RenderForm(tdata))
-	assert.Equal(t, ui.Clean(`
+	html := RemoveClass(f.RenderForm(tdata))
+	assert.Equal(t, Clean(`
 <div>
 <fieldset>
 <div>
@@ -116,8 +115,8 @@ func TestRenderMulti(t *testing.T) {
 	tdata := TestMulti{
 		A: []string{"A1", "A2"},
 	}
-	html := ui.Normalize(f.RenderForm(tdata))
-	assert.Equal(t, ui.Clean(`
+	html := Normalize(f.RenderForm(tdata))
+	assert.Equal(t, Clean(`
 <fieldset>
 <input type="checkbox" name="A#A1" checked=""/>
 <label>A1</label>
@@ -132,7 +131,7 @@ func TestRenderMulti(t *testing.T) {
 func TestRenderMultiGroup(t *testing.T) {
 	f := NewFormLayout().
 		Add("A", "A", ElementConfig{
-			Choices: []ui.Choice{
+			Choices: []Choice{
 				{
 					Label: "A",
 					Value: "A",
@@ -154,8 +153,8 @@ func TestRenderMultiGroup(t *testing.T) {
 	tdata := TestMulti{
 		A: []string{"A", "B"},
 	}
-	html := ui.RemoveClass(f.RenderForm(tdata))
-	assert.Equal(t, ui.Clean(`
+	html := RemoveClass(f.RenderForm(tdata))
+	assert.Equal(t, Clean(`
 <div>
   <fieldset>
 <div>
@@ -187,8 +186,8 @@ func TestTwoElementRenderForm(t *testing.T) {
 		A: "a",
 		B: "b",
 	}
-	html := ui.Normalize(f.RenderForm(tdata))
-	assert.Equal(t, ui.Clean(`
+	html := Normalize(f.RenderForm(tdata))
+	assert.Equal(t, Clean(`
 <label>A</label>
 <input name="A" value="a"/>
 <label>B</label>
@@ -203,7 +202,7 @@ func TestHeaderRenderForm(t *testing.T) {
 		A: "a",
 	}
 	html := f.RenderForm(tdata)
-	assert.Equal(t, ui.Clean(`
+	assert.Equal(t, Clean(`
 <h2>A</h2>
 `), html)
 }
@@ -214,8 +213,8 @@ func TestRenderSelectForm(t *testing.T) {
 	tdata := TestB{
 		B: 3,
 	}
-	html := ui.Normalize(f.RenderForm(tdata))
-	assert.Equal(t, ui.Clean(`
+	html := Normalize(f.RenderForm(tdata))
+	assert.Equal(t, Clean(`
 <label>B</label>
 <select name="B">
    <option value="0">-</option>
@@ -229,7 +228,7 @@ func TestRenderSelectForm(t *testing.T) {
 func TestRenderSelectWithChoicesForm(t *testing.T) {
 	f := NewFormLayout().
 		Add("A", "A", ElementConfig{
-			Choices: []ui.Choice{
+			Choices: []Choice{
 				{
 					Label:   "A",
 					Value:   "A",
@@ -249,8 +248,8 @@ func TestRenderSelectWithChoicesForm(t *testing.T) {
 	tdata := TestA{
 		A: "B",
 	}
-	html := ui.Normalize(f.RenderForm(tdata))
-	assert.Equal(t, ui.Clean(`
+	html := Normalize(f.RenderForm(tdata))
+	assert.Equal(t, Clean(`
 <label>A</label>
 <select name="A">
    <option value="0">-</option>
@@ -278,8 +277,8 @@ func TestRenderFormPlaceHolder(t *testing.T) {
 	tdata := TestA{
 		A: "b",
 	}
-	html := ui.Normalize(f.RenderForm(tdata))
-	assert.Equal(t, ui.Clean(`
+	html := Normalize(f.RenderForm(tdata))
+	assert.Equal(t, Clean(`
 <label>A</label>
 <input name="A" value="b" placeholder="c"/>
 `), html)
@@ -293,8 +292,8 @@ func TestRenderFormPlaceId(t *testing.T) {
 	tdata := TestA{
 		A: "b",
 	}
-	html := ui.Normalize(f.RenderForm(tdata))
-	assert.Equal(t, ui.Clean(`
+	html := Normalize(f.RenderForm(tdata))
+	assert.Equal(t, Clean(`
 <label>A</label>
 <input name="A" value="b" id="c"/>
 `), html)

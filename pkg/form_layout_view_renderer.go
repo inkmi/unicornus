@@ -1,14 +1,13 @@
-package builder
+package pkg
 
 import (
 	"fmt"
-	"github.com/inkmi/unicornus/pkg/ui"
 	"strings"
 )
 
 func (f *FormLayout) RenderView(data any) string {
-	fields := ui.FieldGenerator(data)
-	m := ui.FieldsToMap(fields)
+	fields := FieldGenerator(data)
+	m := FieldsToMap(fields)
 	var sb strings.Builder
 	for _, e := range f.elements {
 		field, ok := m[e.Name]
