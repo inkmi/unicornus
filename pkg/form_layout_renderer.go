@@ -29,7 +29,11 @@ func (f *FormLayout) renderFormToBuilder(sb *strings.Builder, data any, prefix s
 		case "input":
 			// take value string from MAP of name -> DataField
 			// take type if no type is given from DataField
-			field, ok := m[e.Name]
+			fieldName := e.Name
+			if len(prefix) > 0 {
+				fieldName = prefix + "." + fieldName
+			}
+			field, ok := m[fieldName]
 			if ok {
 				if len(e.Config.Choices) > 0 {
 					field.Choices = e.Config.Choices
@@ -63,9 +67,6 @@ func renderCheckbox(sb *strings.Builder, f DataField, config ElementConfig, pref
 			checked = "checked"
 		}
 		name := f.Name
-		if len(prefix) > 0 {
-			name = prefix + "." + name
-		}
 		sb.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" %s%s/>", name, checked, configToHtml(config)))
 	}
 }
@@ -87,9 +88,6 @@ func renderMulti(sb *strings.Builder, f DataField, config ElementConfig, prefix 
 			for _, c := range f.Choices {
 				if c.Group == group {
 					name := f.Name + "#" + c.Val()
-					if len(prefix) > 0 {
-						name = prefix + "." + name
-					}
 					sb.WriteString("<div>")
 					if c.Checked {
 						sb.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" checked>", name))
@@ -109,9 +107,6 @@ func renderMulti(sb *strings.Builder, f DataField, config ElementConfig, prefix 
 		sb.WriteString("<fieldset>")
 		for _, c := range f.Choices {
 			name := f.Name + "#" + c.Val()
-			if len(prefix) > 0 {
-				name = prefix + "." + name
-			}
 			sb.WriteString("<div>")
 			if c.Checked {
 				sb.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" checked>", name))
@@ -131,7 +126,6 @@ func renderSelect(sb *strings.Builder, f DataField, config ElementConfig, prefix
 	for _, c := range f.Choices {
 		if c.IsSelected(f.Value) {
 			sb.WriteString(fmt.Sprintf("<option value=\"%s\" selected=\"selected\">%s</option>", c.Val(), c.L()))
-
 		} else {
 			sb.WriteString(fmt.Sprintf("<option value=\"%s\">%s</option>", c.Val(), c.L()))
 		}
