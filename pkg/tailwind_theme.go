@@ -43,15 +43,15 @@ func (t TailwindTheme) themeRenderMulti(sb *strings.Builder, f DataField, e Form
 	// Should this move to Field generation?
 	if len(e.Config.Groups) > 0 {
 		for _, group := range e.Config.Groups {
-			t.renderGroup(sb, f, group, "", "")
+			t.renderMultiGroup(sb, f, group, "", "")
 		}
 	} else {
-		t.renderGroup(sb, f, "", "", "")
+		t.renderMultiGroup(sb, f, "", "", "")
 	}
 	sb.WriteString("</div>")
 }
 
-func (t TailwindTheme) renderGroup(sb *strings.Builder, f DataField, group string, class1 string, class2 string) {
+func (t TailwindTheme) renderMultiGroup(sb *strings.Builder, f DataField, group string, class1 string, class2 string) {
 	sb.WriteString(fmt.Sprintf("<div class=\"%s\">", class1))
 	sb.WriteString("<fieldset class=\"space-y-1\">")
 	// range copies slice
@@ -81,8 +81,9 @@ func (t TailwindTheme) themeRenderHeader(sb *strings.Builder, e FormElement) {
 }
 
 func (t TailwindTheme) themeRenderGroup(sb *strings.Builder, data any, prefix string, e FormElement) {
-	sb.WriteString("<div>")
-	sb.WriteString(e.Name)
+	sb.WriteString("<div class=\"py-6 px-4 sm:p-6 lg:pb-8\">")
+	sb.WriteString(fmt.Sprintf("<h2 class=\"text-lg leading-6 font-bold text-gray-900\">%s</h2>", e.Label))
+	sb.WriteString(fmt.Sprintf("<p class=\"mt-1 text-sm text-gray-500\">%s</p>", e.Description))
 	e.Config.SubLayout.renderFormToBuilder(sb, data, prefix)
 	sb.WriteString("</div>")
 }

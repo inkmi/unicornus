@@ -77,7 +77,7 @@ func TestRenderCheckboxUnchecked(t *testing.T) {
 
 func TestRenderGroup(t *testing.T) {
 	f := NewFormLayout().
-		AddGroup("A", func(fl *FormLayout) {
+		AddGroup("A", "X", "Y", func(fl *FormLayout) {
 			fl.Add("B", "B").
 				Add("C", "C").
 				Add("D", "D")
@@ -88,7 +88,9 @@ func TestRenderGroup(t *testing.T) {
 	}
 	html := RemoveClass(f.RenderForm(tdata))
 	assert.Equal(t, Clean(`
-<div>A<div>
+<div>
+<h2>X</h2><p>Y</p>
+<div>
 <label>B</label>
 <input type="checkbox" name="A.B" checked=""/>
 </div>
