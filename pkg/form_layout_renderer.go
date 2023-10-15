@@ -16,16 +16,9 @@ func (f *FormLayout) renderFormToBuilder(sb *strings.Builder, data any, prefix s
 	for _, e := range f.elements {
 		switch e.Kind {
 		case "header":
-			sb.WriteString(fmt.Sprintf("<h2>%s</h2>", e.Name))
+			themeRenderHeader(sb, e)
 		case "group":
-			sb.WriteString("<div>")
-			sb.WriteString(e.Name)
-			newPrefix := e.Name
-			if len(prefix) > 0 {
-				newPrefix = prefix + "." + newPrefix
-			}
-			e.Config.SubLayout.renderFormToBuilder(sb, data, newPrefix)
-			sb.WriteString("</div>")
+			themeRenderGroup(sb, data, prefix, e)
 		case "input":
 			// take value string from MAP of name -> DataField
 			// take type if no type is given from DataField
@@ -39,24 +32,67 @@ func (f *FormLayout) renderFormToBuilder(sb *strings.Builder, data any, prefix s
 					field.Choices = e.Config.Choices
 				}
 				if field.Multi {
-					renderMulti(sb, field, e.Config, prefix)
+					themeRenderMulti(sb, field, e, prefix)
 				} else {
-					sb.WriteString("<div>")
-					if len(e.Config.Label) > 0 {
-						sb.WriteString(fmt.Sprintf("<label>%s</label>", e.Config.Label))
-					}
 					if field.Kind == "bool" {
-						renderCheckbox(sb, field, e.Config, prefix)
+						themeRenderCheckbox(sb, e, field, prefix)
 					} else if !field.Multi && len(field.Choices) > 0 {
-						renderSelect(sb, field, e.Config, prefix)
+						themeRenderSelect(sb, e, field, prefix)
 					} else {
-						renderTextInput(sb, field, field.Val(), e.Config, prefix)
+						themeRenderInput(sb, e, field, prefix)
 					}
-					sb.WriteString("</div>")
 				}
 			}
 		}
 	}
+}
+
+func themeRenderInput(sb *strings.Builder, e FormElement, field DataField, prefix string) {
+	sb.WriteString("<div>")
+	if len(e.Config.Label) > 0 {
+		sb.WriteString(fmt.Sprintf("<label>%s</label>", e.Config.Label))
+	}
+	renderTextInput(sb, field, field.Val(), e.Config, prefix)
+	sb.WriteString("</div>")
+}
+
+func themeRenderSelect(sb *strings.Builder, e FormElement, field DataField, prefix string) {
+	sb.WriteString("<div>")
+	if len(e.Config.Label) > 0 {
+		sb.WriteString(fmt.Sprintf("<label>%s</label>", e.Config.Label))
+	}
+	renderSelect(sb, field, e.Config, prefix)
+	sb.WriteString("</div>")
+}
+
+func themeRenderCheckbox(sb *strings.Builder, e FormElement, field DataField, prefix string) {
+	sb.WriteString("<div>")
+	if len(e.Config.Label) > 0 {
+		sb.WriteString(fmt.Sprintf("<label>%s</label>", e.Config.Label))
+	}
+	renderCheckbox(sb, field, e.Config, prefix)
+	sb.WriteString("</div>")
+}
+
+func themeRenderMulti(sb *strings.Builder, field DataField, e FormElement, prefix string) {
+	sb.WriteString("<div>")
+	renderMulti(sb, field, e.Config, prefix)
+	sb.WriteString("</div>")
+}
+
+func themeRenderHeader(sb *strings.Builder, e FormElement) {
+	sb.WriteString(fmt.Sprintf("<h2>%s</h2>", e.Name))
+}
+
+func themeRenderGroup(sb *strings.Builder, data any, prefix string, e FormElement) {
+	newPrefix := e.Name
+	if len(prefix) > 0 {
+		newPrefix = prefix + "." + newPrefix
+	}
+	sb.WriteString("<div>")
+	sb.WriteString(e.Name)
+	e.Config.SubLayout.renderFormToBuilder(sb, data, newPrefix)
+	sb.WriteString("</div>")
 }
 
 func renderCheckbox(sb *strings.Builder, f DataField, config ElementConfig, prefix string) {

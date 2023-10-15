@@ -113,6 +113,7 @@ func TestRenderMultiWithDiv(t *testing.T) {
 	html := RemoveClass(f.RenderForm(tdata))
 	assert.Equal(t, Clean(`
 <div>
+<div>
 <fieldset>
 <div>
 <input type="checkbox" name="A#A1" checked=""/>
@@ -127,6 +128,7 @@ func TestRenderMultiWithDiv(t *testing.T) {
 <label>A3</label>
 </div>
 </fieldset>
+</div>
 </div>
 `), html)
 }
@@ -178,6 +180,7 @@ func TestRenderMultiGroup(t *testing.T) {
 	html := RemoveClass(f.RenderForm(tdata))
 	assert.Equal(t, Clean(`
 <div>
+<div>
   <fieldset>
 <div>
   <input type="checkbox" name="A#A" checked=""/>
@@ -196,6 +199,7 @@ func TestRenderMultiGroup(t *testing.T) {
   <label>C</label>
 </div>
 </fieldset>
+</div>
 </div>
 `), html)
 }
