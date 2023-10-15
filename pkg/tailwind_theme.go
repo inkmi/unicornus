@@ -9,7 +9,7 @@ type TailwindTheme struct {
 }
 
 func (t TailwindTheme) themeRenderInput(sb *strings.Builder, e FormElement, field DataField, prefix string) {
-	sb.WriteString("<div>")
+	sb.WriteString("<div class=\"mt-6\">")
 	if len(e.Config.Label) > 0 {
 		sb.WriteString(fmt.Sprintf("<label class=\"block text-sm font-medium text-gray-700\">%s</label>", e.Config.Label))
 	}
@@ -19,7 +19,7 @@ func (t TailwindTheme) themeRenderInput(sb *strings.Builder, e FormElement, fiel
 }
 
 func (t TailwindTheme) themeRenderSelect(sb *strings.Builder, e FormElement, field DataField, prefix string) {
-	sb.WriteString("<div>")
+	sb.WriteString("<div class=\"mt-6\">")
 	if len(e.Config.Label) > 0 {
 		sb.WriteString(fmt.Sprintf("<label class=\"block text-sm font-medium text-gray-700\">%s</label>", e.Config.Label))
 	}
@@ -29,7 +29,7 @@ func (t TailwindTheme) themeRenderSelect(sb *strings.Builder, e FormElement, fie
 }
 
 func (t TailwindTheme) themeRenderCheckbox(sb *strings.Builder, e FormElement, field DataField, prefix string) {
-	sb.WriteString("<div>")
+	sb.WriteString("<div class=\"mt-6\">")
 	if len(e.Config.Label) > 0 {
 		sb.WriteString(fmt.Sprintf("<label class=\"block text-sm font-medium text-gray-700\">%s</label>", e.Config.Label))
 	}
@@ -39,20 +39,20 @@ func (t TailwindTheme) themeRenderCheckbox(sb *strings.Builder, e FormElement, f
 }
 
 func (t TailwindTheme) themeRenderMulti(sb *strings.Builder, f DataField, e FormElement, prefix string) {
-	sb.WriteString("<div>")
+	sb.WriteString("<div class=\"mt-6\">")
 	// Should this move to Field generation?
 	if len(e.Config.Groups) > 0 {
 		for _, group := range e.Config.Groups {
-			t.renderMultiGroup(sb, f, group, "", "")
+			t.renderMultiGroup(sb, f, group)
 		}
 	} else {
-		t.renderMultiGroup(sb, f, "", "", "")
+		t.renderMultiGroup(sb, f, "")
 	}
 	sb.WriteString("</div>")
 }
 
-func (t TailwindTheme) renderMultiGroup(sb *strings.Builder, f DataField, group string, class1 string, class2 string) {
-	sb.WriteString(fmt.Sprintf("<div class=\"%s\">", class1))
+func (t TailwindTheme) renderMultiGroup(sb *strings.Builder, f DataField, group string) {
+	sb.WriteString("<div>")
 	sb.WriteString("<fieldset class=\"space-y-1\">")
 	// range copies slice
 	for _, c := range f.Choices {
