@@ -51,7 +51,7 @@ func (f *FormLayout) renderFormToBuilder(sb *strings.Builder, data any, prefix s
 	}
 }
 
-func renderCheckbox(sb *strings.Builder, f DataField, config ElementConfig, prefix string) {
+func renderCheckbox(sb *strings.Builder, f DataField, config ElementConfig, prefix string, class string) {
 	checked := ""
 	v, ok := f.Val().(bool)
 	if ok {
@@ -59,11 +59,11 @@ func renderCheckbox(sb *strings.Builder, f DataField, config ElementConfig, pref
 			checked = "checked"
 		}
 		name := f.Name
-		sb.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" %s%s/>", name, checked, configToHtml(config)))
+		sb.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" class=\"%s\" %s%s/>", name, class, checked, configToHtml(config)))
 	}
 }
 
-func renderMulti(sb *strings.Builder, f DataField, config ElementConfig, prefix string) {
+func renderMulti(sb *strings.Builder, f DataField, config ElementConfig, prefix string, class1 string, class2 string) {
 	// Should this move to Field generation?
 	values := f.Value.([]string)
 	for i := 0; i < len(f.Choices); i++ {
@@ -74,13 +74,13 @@ func renderMulti(sb *strings.Builder, f DataField, config ElementConfig, prefix 
 	}
 	if len(config.Groups) > 0 {
 		for _, group := range config.Groups {
-			sb.WriteString("<div>")
+			sb.WriteString(fmt.Sprintf("<div class=\"%s\">", class1))
 			sb.WriteString("<fieldset>")
 			// range copies slice
 			for _, c := range f.Choices {
 				if c.Group == group {
 					name := f.Name + "#" + c.Val()
-					sb.WriteString("<div>")
+					sb.WriteString(fmt.Sprintf("<div class=\"%s\">", class2))
 					if c.Checked {
 						sb.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" checked>", name))
 					} else {
@@ -113,8 +113,9 @@ func renderMulti(sb *strings.Builder, f DataField, config ElementConfig, prefix 
 	}
 }
 
-func renderSelect(sb *strings.Builder, f DataField, config ElementConfig, prefix string) {
-	sb.WriteString(fmt.Sprintf("<select name=\"%s\"><option value=\"0\">-</option>", f.Name))
+func renderSelect(sb *strings.Builder, f DataField, config ElementConfig, prefix string, class string) {
+	sb.WriteString(fmt.Sprintf("<select name=\"%s\" class=\"%s\"><option value=\"0\">-</option>", f.Name, class))
+
 	for _, c := range f.Choices {
 		if c.IsSelected(f.Value) {
 			sb.WriteString(fmt.Sprintf("<option value=\"%s\" selected=\"selected\">%s</option>", c.Val(), c.L()))
@@ -125,8 +126,8 @@ func renderSelect(sb *strings.Builder, f DataField, config ElementConfig, prefix
 	sb.WriteString("</select>")
 }
 
-func renderTextInput(sb *strings.Builder, f DataField, val any, config ElementConfig, prefix string) {
-	sb.WriteString(fmt.Sprintf("<input name=\"%s\" value=\"%v\"%s/>", f.Name, val, configToHtml(config)))
+func renderTextInput(sb *strings.Builder, f DataField, val any, config ElementConfig, prefix string, class string) {
+	sb.WriteString(fmt.Sprintf("<input name=\"%s\" value=\"%v\"%s/ class=\"%s\">", f.Name, val, configToHtml(config), class))
 }
 
 func configToHtml(config ElementConfig) string {
