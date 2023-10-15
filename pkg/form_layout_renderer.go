@@ -36,6 +36,13 @@ func (f *FormLayout) renderFormToBuilder(sb *strings.Builder, data any, prefix s
 					field.Choices = e.Config.Choices
 				}
 				if field.Multi {
+					values := field.Value.([]string)
+					for i := 0; i < len(field.Choices); i++ {
+						choice := &field.Choices[i]
+						if containsString(values, choice.Value) {
+							choice.Checked = true
+						}
+					}
 					f.Theme.themeRenderMulti(sb, field, e, prefix)
 				} else {
 					if field.Kind == "bool" {

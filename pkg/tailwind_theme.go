@@ -41,13 +41,6 @@ func (t TailwindTheme) themeRenderCheckbox(sb *strings.Builder, e FormElement, f
 func (t TailwindTheme) themeRenderMulti(sb *strings.Builder, f DataField, e FormElement, prefix string) {
 	sb.WriteString("<div>")
 	// Should this move to Field generation?
-	values := f.Value.([]string)
-	for i := 0; i < len(f.Choices); i++ {
-		choice := &f.Choices[i]
-		if containsString(values, choice.Value) {
-			choice.Checked = true
-		}
-	}
 	if len(e.Config.Groups) > 0 {
 		for _, group := range e.Config.Groups {
 			t.renderGroup(sb, f, group, "", "")
