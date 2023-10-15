@@ -51,30 +51,6 @@ func (t TailwindTheme) themeRenderMulti(sb *strings.Builder, f DataField, e Form
 	sb.WriteString("</div>")
 }
 
-/*
-{{ block multi(title, key, id, values, group) }}
-<fieldset class="space-y-1">
-
-	{{ range .[key].Choices }}
-	{{ if group == false || .Group == group }}
-	<div class="relative flex items-start">
-	    <div class="flex h-5 items-center">
-	        <input id="comments" {{ if .Selected }} checked {{ end }} aria-describedby="comments-description"
-	               name="{{ key }}#{{ .Value }}"
-	               type="checkbox"
-	               class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-	    </div>
-	    <div class="ml-3 text-sm">
-	        <label for="comments" class="font-medium text-gray-700">{{ .Label }}</label>
-	        <span id="comments-description" class="text-gray-500"><span class="sr-only">{{ .Label }}</span></span>
-	    </div>
-	</div>
-	{{end}}
-	{{end}}
-
-</fieldset>
-{{ end }}
-*/
 func (t TailwindTheme) renderGroup(sb *strings.Builder, f DataField, group string, class1 string, class2 string) {
 	sb.WriteString(fmt.Sprintf("<div class=\"%s\">", class1))
 	sb.WriteString("<fieldset class=\"space-y-1\">")
@@ -91,7 +67,7 @@ func (t TailwindTheme) renderGroup(sb *strings.Builder, f DataField, group strin
 			}
 			sb.WriteString("</div>")
 			sb.WriteString("<div class=\"ml-3 text-sm\">")
-			sb.WriteString(fmt.Sprintf(`<label>%s</label>`, c.L()))
+			sb.WriteString(fmt.Sprintf(`<label class="font-medium text-gray-700">%s</label>`, c.L()))
 			sb.WriteString("</div>")
 			sb.WriteString("</div>")
 		}
