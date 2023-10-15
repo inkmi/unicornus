@@ -10,6 +10,7 @@ type ElementConfig struct {
 }
 
 type FormLayout struct {
+	Theme    TailwindTheme
 	elements []FormElement
 }
 
