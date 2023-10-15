@@ -51,20 +51,48 @@ func (t TailwindTheme) themeRenderMulti(sb *strings.Builder, f DataField, e Form
 	sb.WriteString("</div>")
 }
 
+/*
+{{ block multi(title, key, id, values, group) }}
+<fieldset class="space-y-1">
+
+	{{ range .[key].Choices }}
+	{{ if group == false || .Group == group }}
+	<div class="relative flex items-start">
+	    <div class="flex h-5 items-center">
+	        <input id="comments" {{ if .Selected }} checked {{ end }} aria-describedby="comments-description"
+	               name="{{ key }}#{{ .Value }}"
+	               type="checkbox"
+	               class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+	    </div>
+	    <div class="ml-3 text-sm">
+	        <label for="comments" class="font-medium text-gray-700">{{ .Label }}</label>
+	        <span id="comments-description" class="text-gray-500"><span class="sr-only">{{ .Label }}</span></span>
+	    </div>
+	</div>
+	{{end}}
+	{{end}}
+
+</fieldset>
+{{ end }}
+*/
 func (t TailwindTheme) renderGroup(sb *strings.Builder, f DataField, group string, class1 string, class2 string) {
 	sb.WriteString(fmt.Sprintf("<div class=\"%s\">", class1))
-	sb.WriteString("<fieldset>")
+	sb.WriteString("<fieldset class=\"space-y-1\">")
 	// range copies slice
 	for _, c := range f.Choices {
 		if len(group) == 0 || c.Group == group {
 			name := f.Name + "#" + c.Val()
-			sb.WriteString(fmt.Sprintf("<div class=\"%s\">", class2))
+			sb.WriteString("<div class=\"relative flex items-start\">")
+			sb.WriteString("<div class=\"flex h-5 items-center\">")
 			if c.Checked {
-				sb.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" checked>", name))
+				sb.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" checked class=\"h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500\">", name))
 			} else {
-				sb.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\">", name))
+				sb.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" class=\"h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500\">", name))
 			}
+			sb.WriteString("</div>")
+			sb.WriteString("<div class=\"ml-3 text-sm\">")
 			sb.WriteString(fmt.Sprintf(`<label>%s</label>`, c.L()))
+			sb.WriteString("</div>")
 			sb.WriteString("</div>")
 		}
 	}

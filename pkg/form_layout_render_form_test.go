@@ -116,16 +116,28 @@ func TestRenderMultiWithDiv(t *testing.T) {
 <div>
 <fieldset>
 <div>
+<div>
 <input type="checkbox" name="A#A1" checked=""/>
+</div>
+<div>
 <label>A1</label>
 </div>
-<div>
-<input type="checkbox" name="A#A2" checked=""/>
-<label>A2</label>
 </div>
 <div>
+<div>
+<input type="checkbox" name="A#A2" checked=""/>
+</div>
+<div>
+<label>A2</label>
+</div>
+</div>
+<div>
+<div>
 <input type="checkbox" name="A#A3"/>
+</div>
+<div>
 <label>A3</label>
+</div>
 </div>
 </fieldset>
 </div>
@@ -183,20 +195,32 @@ func TestRenderMultiGroup(t *testing.T) {
 <div>
   <fieldset>
 <div>
+<div>
   <input type="checkbox" name="A#A" checked=""/>
+  </div>
+  <div>
   <label>A</label>
+  </div>
 </div>
 <div>
+<div>
   <input type="checkbox" name="A#B" checked=""/>
+  </div>
+  <div>
   <label>B</label>
+  </div>
 </div>
 </fieldset>
 </div>
 <div>
 <fieldset>
 <div>
+<div>
   <input type="checkbox" name="A#C"/>
+  </div>
+  <div>
   <label>C</label>
+  </div>
 </div>
 </fieldset>
 </div>
