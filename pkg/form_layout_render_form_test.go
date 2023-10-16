@@ -57,8 +57,9 @@ func TestRenderCheckbox(t *testing.T) {
 	}
 	html := Normalize(f.RenderForm(tdata))
 	assert.Equal(t, Clean(`
-<label>A</label>
 <input type="checkbox" name="A" checked=""/>
+<label>A</label>
+<p></p>
 `), html)
 }
 
@@ -70,15 +71,16 @@ func TestRenderCheckboxUnchecked(t *testing.T) {
 	}
 	html := Normalize(Normalize(f.RenderForm(tdata)))
 	assert.Equal(t, Clean(`
-<label>A</label>
 <input type="checkbox" name="A"/>
+<label>A</label>
+<p></p>
 `), html)
 }
 
 func TestRenderGroup(t *testing.T) {
 	f := NewFormLayout().
 		AddGroup("A", "X", "Y", func(fl *FormLayout) {
-			fl.Add("B", "B").
+			fl.Add("B", "B", ElementConfig{Description: "What a description"}).
 				Add("C", "C").
 				Add("D", "D")
 		})
@@ -91,8 +93,12 @@ func TestRenderGroup(t *testing.T) {
 <div>
 <h2>X</h2><p>Y</p>
 <div>
-<label>B</label>
+<div>
 <input type="checkbox" name="A.B" checked=""/>
+</div><div>
+<label>B</label>
+<p>What a description</p>
+</div>
 </div>
 <div>
 <label>C</label>

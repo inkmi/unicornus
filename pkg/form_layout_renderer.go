@@ -45,8 +45,12 @@ func (f *FormLayout) renderFormToBuilder(sb *strings.Builder, data any, prefix s
 					}
 					f.Theme.themeRenderMulti(sb, field, e, prefix)
 				} else {
+					description := e.Description
+					if len(e.Config.Description) > 0 {
+						description = e.Config.Description
+					}
 					if field.Kind == "bool" {
-						f.Theme.themeRenderCheckbox(sb, e, field, prefix)
+						f.Theme.themeRenderCheckbox(sb, e, field, description, prefix)
 					} else if !field.Multi && len(field.Choices) > 0 {
 						f.Theme.themeRenderSelect(sb, e, field, prefix)
 					} else {

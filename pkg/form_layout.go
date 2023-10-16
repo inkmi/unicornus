@@ -4,6 +4,7 @@ type ElementConfig struct {
 	Placeholder string
 	Id          string
 	Label       string
+	Description string
 	Choices     []Choice
 	Groups      []string
 	SubLayout   *FormLayout
@@ -23,7 +24,8 @@ type FormElement struct {
 }
 
 func NewFormLayout() *FormLayout {
-	return new(FormLayout)
+	fl := &FormLayout{}
+	return fl
 }
 
 func (f *FormLayout) AddHeader(name string) *FormLayout {

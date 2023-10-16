@@ -28,13 +28,30 @@ func (t TailwindTheme) themeRenderSelect(sb *strings.Builder, e FormElement, fie
 	sb.WriteString("</div>")
 }
 
-func (t TailwindTheme) themeRenderCheckbox(sb *strings.Builder, e FormElement, field DataField, prefix string) {
-	sb.WriteString("<div class=\"mt-6\">")
+/*
+<div class="relative flex items-start">
+	    <div class="flex h-5 items-center">
+	        {{ yield checkbox(  key="EditCompanyCto.CeoTechie" ) }}
+	    </div>
+	    <div class="ml-3 text-sm">
+	        <label for="EditCompanyCto.CeoTechie" class="font-medium text-gray-700">CEO is a techie</label>
+	        <p  class="text-gray-500">CEO has not studied economics but is a coder</p>
+	    </div>
+	</div>
+*/
+
+func (t TailwindTheme) themeRenderCheckbox(sb *strings.Builder, e FormElement, field DataField, description string, prefix string) {
+	sb.WriteString("<div class=\"mt-6 py-6 px-4 sm:p-6 lg:pb-8 relative flex items-start\">")
+	sb.WriteString("<div class=\"flex h-5 items-center\">")
+	class := "h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+	renderCheckbox(sb, field, e.Config, prefix, class)
+	sb.WriteString("</div>")
+	sb.WriteString("<div class=\"ml-3 text-sm\">")
 	if len(e.Config.Label) > 0 {
 		sb.WriteString(fmt.Sprintf("<label class=\"block text-sm font-medium text-gray-700\">%s</label>", e.Config.Label))
 	}
-	class := "h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-	renderCheckbox(sb, field, e.Config, prefix, class)
+	sb.WriteString(fmt.Sprintf("<p class=\"text-gray-500\">%s</p>", description))
+	sb.WriteString("</div>")
 	sb.WriteString("</div>")
 }
 
