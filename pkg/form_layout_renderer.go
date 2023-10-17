@@ -69,9 +69,10 @@ func renderCheckbox(sb *strings.Builder, f DataField, config ElementConfig, pref
 		if v {
 			checked = "checked"
 		}
-		name := f.Name
-		sb.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" class=\"%s\" %s%s/>", name, class, checked, configToHtml(config)))
 	}
+	name := f.Name
+	sb.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" class=\"%s\" %s%s/>", name, class, checked, configToHtml(config)))
+
 }
 
 func renderSelect(sb *strings.Builder, f DataField, config ElementConfig, prefix string, class string) {

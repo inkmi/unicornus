@@ -41,7 +41,7 @@ func (t TailwindTheme) themeRenderSelect(sb *strings.Builder, e FormElement, fie
 */
 
 func (t TailwindTheme) themeRenderCheckbox(sb *strings.Builder, e FormElement, field DataField, description string, prefix string) {
-	sb.WriteString("<div class=\"mt-6 py-6 px-4 sm:p-6 lg:pb-8 relative flex items-start\">")
+	sb.WriteString("<div class=\"py-2 px-4 sm:p-2 lg:pb-8 relative flex items-start\">")
 	sb.WriteString("<div class=\"flex h-5 items-center\">")
 	class := "h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
 	renderCheckbox(sb, field, e.Config, prefix, class)
@@ -59,7 +59,7 @@ func (t TailwindTheme) themeRenderMulti(sb *strings.Builder, f DataField, e Form
 	sb.WriteString("<div class=\"mt-6\">")
 	// Should this move to Field generation?
 	if len(e.Config.Groups) > 0 {
-		for _, group := range e.Config.Groups {
+		for group, _ := range e.Config.Groups {
 			t.renderMultiGroup(sb, f, group)
 		}
 	} else {

@@ -10,6 +10,10 @@ type TestNestG struct {
 	Nest TestG
 }
 
+type TestOptionalCheckbox struct {
+	A *bool
+}
+
 type TestG struct {
 	B int  `validate:"int|min:10" message:"The age is 10" label:"Minimum Age"`
 	C *int `validate:"int|min:20" message:"The age is 20" label:"Minimum Age"`
@@ -19,6 +23,17 @@ type TestG struct {
 
 type TestG2 struct {
 	A []string `choices:"A1|A2|A3"`
+}
+
+func TestFieldOptionalCheckbox(t *testing.T) {
+	d := TestOptionalCheckbox{
+		A: nil,
+	}
+	fields := FieldGenerator(d)
+	assert.Equal(t, 1, len(fields))
+	assert.Equal(t, "A", fields[0].Name)
+	assert.Equal(t, "bool", fields[0].Kind)
+	assert.False(t, fields[0].Multi)
 }
 
 func TestFieldsMulti(t *testing.T) {

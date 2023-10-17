@@ -6,7 +6,7 @@ type ElementConfig struct {
 	Label       string
 	Description string
 	Choices     []Choice
-	Groups      []string
+	Groups      map[string]string
 	SubLayout   *FormLayout
 }
 
