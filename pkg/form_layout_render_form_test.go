@@ -179,6 +179,7 @@ func TestRenderMulti(t *testing.T) {
 	}
 	html := Normalize(f.RenderForm(data))
 	assert.Equal(t, Clean(`
+
 <fieldset>
 <input type="checkbox" name="A#A1" checked=""/>
 <label>A1</label>
@@ -219,6 +220,7 @@ func TestRenderMultiGroup(t *testing.T) {
 	assert.Equal(t, Clean(`
 <div>
 <div>
+<h3>Group 1</h3>
   <fieldset>
 <div>
 <div>
@@ -239,6 +241,7 @@ func TestRenderMultiGroup(t *testing.T) {
 </fieldset>
 </div>
 <div>
+<h3>Group 2</h3>
 <fieldset>
 <div>
 <div>

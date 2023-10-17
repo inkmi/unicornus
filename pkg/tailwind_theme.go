@@ -59,17 +59,20 @@ func (t TailwindTheme) themeRenderMulti(sb *strings.Builder, f DataField, e Form
 	sb.WriteString("<div class=\"mt-6\">")
 	// Should this move to Field generation?
 	if len(e.Config.Groups) > 0 {
-		for group, _ := range e.Config.Groups {
-			t.renderMultiGroup(sb, f, group)
+		for group, name := range e.Config.Groups {
+			t.renderMultiGroup(sb, f, group, name)
 		}
 	} else {
-		t.renderMultiGroup(sb, f, "")
+		t.renderMultiGroup(sb, f, "", "")
 	}
 	sb.WriteString("</div>")
 }
 
-func (t TailwindTheme) renderMultiGroup(sb *strings.Builder, f DataField, group string) {
+func (t TailwindTheme) renderMultiGroup(sb *strings.Builder, f DataField, group string, groupName string) {
 	sb.WriteString("<div>")
+	if len(groupName) > 0 {
+		sb.WriteString(fmt.Sprintf("<h3>%s</h3>", groupName))
+	}
 	sb.WriteString("<fieldset class=\"space-y-1\">")
 	// range copies slice
 	for _, c := range f.Choices {
