@@ -120,11 +120,11 @@ func TestRenderGroup(t *testing.T) {
 </div>
 <div>
 <label>C</label>
-<input name="A.C" value="10"/>
+<input name="A.C:int" value="10"/>
 </div>
 <div>
 <label>D</label>
-<input name="A.D" value=""/>
+<input name="A.D:int" value=""/>
 </div>
 </div>
 `), html)
@@ -274,6 +274,26 @@ func TestTwoElementRenderForm(t *testing.T) {
 `), html)
 }
 
+func TestTwoElementRenderFormWithError(t *testing.T) {
+	f := NewFormLayout().
+		Add("A", "A").
+		Add("B", "B")
+	data := TestAB{
+		A: "a",
+		B: "b",
+	}
+
+	errors := map[string]string{"B": "B not long enough"}
+	html := Normalize(f.RenderFormWithErrors(data, errors))
+	assert.Equal(t, Clean(`
+<label>A</label>
+<input name="A" value="a"/>
+<label>B</label>
+<input name="B" value="b"/>
+<p>B not long enough</p>
+`), html)
+}
+
 func TestHeaderRenderForm(t *testing.T) {
 	f := NewFormLayout().
 		AddHeader("A")
@@ -295,7 +315,7 @@ func TestRenderSelectForm(t *testing.T) {
 	html := Normalize(f.RenderForm(data))
 	assert.Equal(t, Clean(`
 <label>B</label>
-<select name="B">
+<select name="B:int">
    <option value="0">-</option>
    <option value="1">B1</option>
    <option value="2">B2</option>

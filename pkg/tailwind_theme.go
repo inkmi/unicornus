@@ -8,13 +8,13 @@ import (
 type TailwindTheme struct {
 }
 
-func (t TailwindTheme) themeRenderInput(sb *strings.Builder, e FormElement, field DataField, prefix string) {
+func (t TailwindTheme) themeRenderInput(sb *strings.Builder, e FormElement, field DataField, prefix string, errors map[string]string) {
 	sb.WriteString("<div class=\"mt-6\">")
 	if len(e.Config.Label) > 0 {
 		sb.WriteString(fmt.Sprintf("<label class=\"block text-sm font-medium text-gray-700\">%s</label>", e.Config.Label))
 	}
 	class := "mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
-	renderTextInput(sb, field, field.Val(), e.Config, prefix, class)
+	renderTextInput(sb, field, field.Val(), e.Config, prefix, class, errors)
 	sb.WriteString("</div>")
 }
 
@@ -69,9 +69,9 @@ func (t TailwindTheme) themeRenderMulti(sb *strings.Builder, f DataField, e Form
 }
 
 func (t TailwindTheme) renderMultiGroup(sb *strings.Builder, f DataField, group string, groupName string) {
-	sb.WriteString("<div>")
+	sb.WriteString("<div class=\"mt-6\">")
 	if len(groupName) > 0 {
-		sb.WriteString(fmt.Sprintf("<h3>%s</h3>", groupName))
+		sb.WriteString(fmt.Sprintf("<h3 class=\"font-bold text-gray-900\">%s</h3>", groupName))
 	}
 	sb.WriteString("<fieldset class=\"space-y-1\">")
 	// range copies slice
@@ -100,10 +100,10 @@ func (t TailwindTheme) themeRenderHeader(sb *strings.Builder, e FormElement) {
 	sb.WriteString(fmt.Sprintf("<h2>%s</h2>", e.Name))
 }
 
-func (t TailwindTheme) themeRenderGroup(sb *strings.Builder, data any, prefix string, e FormElement) {
+func (t TailwindTheme) themeRenderGroup(sb *strings.Builder, data any, prefix string, e FormElement, errors map[string]string) {
 	sb.WriteString("<div class=\"py-6 px-4 sm:p-6 lg:pb-8\">")
 	sb.WriteString(fmt.Sprintf("<h2 class=\"text-lg leading-6 font-bold text-gray-900\">%s</h2>", e.Label))
 	sb.WriteString(fmt.Sprintf("<p class=\"mt-1 text-sm text-gray-500\">%s</p>", e.Description))
-	e.Config.SubLayout.renderFormToBuilder(sb, data, prefix)
+	e.Config.SubLayout.renderFormToBuilder(sb, data, prefix, errors)
 	sb.WriteString("</div>")
 }

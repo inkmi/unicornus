@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"github.com/microcosm-cc/bluemonday"
 	"strconv"
 )
 
@@ -21,28 +22,40 @@ type DataField struct {
 }
 
 func (f DataField) Val() any {
+	var returnValue any
 	if f.Value != nil {
 		if f.Choices != nil {
 			for _, v := range f.Choices {
 				if f.Kind == "int" {
 					if v.Value == strconv.FormatInt(f.Value.(int64), 10) {
-						return v.Label
+						returnValue = v.Label
 					}
 				} else if f.Kind == "string" {
 					if v.Value == f.Value {
-						return v.Label
+						returnValue = v.Label
 					}
 				}
 			}
-			return f.Value
+			returnValue = f.Value
 		} else {
 			if f.Optional {
-				return f.Value
+				returnValue = f.Value
 			} else {
-				return f.Value
+				returnValue = f.Value
 			}
 		}
 	} else {
-		return ""
+		returnValue = ""
+	}
+	return sanitize(returnValue)
+}
+
+func sanitize(value any) any {
+	p := bluemonday.StrictPolicy()
+	switch v := value.(type) {
+	case string:
+		return p.Sanitize(v)
+	default:
+		return v
 	}
 }

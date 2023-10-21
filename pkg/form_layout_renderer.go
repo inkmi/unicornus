@@ -5,13 +5,23 @@ import (
 	"strings"
 )
 
+/*
+6:47PM DBG logger.go:48 > People.Min
+6:47PM DBG logger.go:48 > The unrealistic maximum is 10.000
+*/
+
 func (f *FormLayout) RenderForm(data any) string {
+	errors := make(map[string]string)
+	return f.RenderFormWithErrors(data, errors)
+}
+
+func (f *FormLayout) RenderFormWithErrors(data any, errors map[string]string) string {
 	var sb strings.Builder
-	f.renderFormToBuilder(&sb, data, "")
+	f.renderFormToBuilder(&sb, data, "", errors)
 	return sb.String()
 }
 
-func (f *FormLayout) renderFormToBuilder(sb *strings.Builder, data any, prefix string) {
+func (f *FormLayout) renderFormToBuilder(sb *strings.Builder, data any, prefix string, errors map[string]string) {
 	m := FieldsToMap(FieldGenerator(data))
 	for _, e := range f.elements {
 		switch e.Kind {
@@ -22,7 +32,7 @@ func (f *FormLayout) renderFormToBuilder(sb *strings.Builder, data any, prefix s
 			if len(prefix) > 0 {
 				newPrefix = prefix + "." + newPrefix
 			}
-			f.Theme.themeRenderGroup(sb, data, newPrefix, e)
+			f.Theme.themeRenderGroup(sb, data, newPrefix, e, errors)
 		case "input":
 			// take value string from MAP of name -> DataField
 			// take type if no type is given from DataField
@@ -54,7 +64,7 @@ func (f *FormLayout) renderFormToBuilder(sb *strings.Builder, data any, prefix s
 					} else if !field.Multi && len(field.Choices) > 0 {
 						f.Theme.themeRenderSelect(sb, e, field, prefix)
 					} else {
-						f.Theme.themeRenderInput(sb, e, field, prefix)
+						f.Theme.themeRenderInput(sb, e, field, prefix, errors)
 					}
 				}
 			}
@@ -76,7 +86,11 @@ func renderCheckbox(sb *strings.Builder, f DataField, config ElementConfig, pref
 }
 
 func renderSelect(sb *strings.Builder, f DataField, config ElementConfig, prefix string, class string) {
-	sb.WriteString(fmt.Sprintf("<select name=\"%s\" class=\"%s\"><option value=\"0\">-</option>", f.Name, class))
+	name := f.Name
+	if f.Kind == "int" {
+		name = name + ":int"
+	}
+	sb.WriteString(fmt.Sprintf("<select name=\"%s\" class=\"%s\"><option value=\"0\">-</option>", name, class))
 
 	for _, c := range f.Choices {
 		if c.IsSelected(f.Value) {
@@ -88,8 +102,23 @@ func renderSelect(sb *strings.Builder, f DataField, config ElementConfig, prefix
 	sb.WriteString("</select>")
 }
 
-func renderTextInput(sb *strings.Builder, f DataField, val any, config ElementConfig, prefix string, class string) {
-	sb.WriteString(fmt.Sprintf("<input name=\"%s\" value=\"%v\"%s/ class=\"%s\">", f.Name, val, configToHtml(config), class))
+// TODO: DOES THIS CREATE A COPY?
+func renderTextInput(sb *strings.Builder, f DataField, val any, config ElementConfig, prefix string, class string, errors map[string]string) {
+	name := f.Name
+	errorMsg, hasError := errors[name]
+	if f.Kind == "int" {
+		name = name + ":int"
+	}
+	sb.WriteString(fmt.Sprintf("<input name=\"%s\" value=\"%v\"%s/ class=\"%s\">", name, val, configToHtml(config), class))
+	if hasError {
+		//	sb.WriteString(`
+		//<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+		//  <svg class="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+		//    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+		//  </svg>
+		//</div>`)
+		sb.WriteString(fmt.Sprintf("<p class=\"mt-2 text-sm text-red-600\">%s</p>", errorMsg))
+	}
 }
 
 func configToHtml(config ElementConfig) string {
