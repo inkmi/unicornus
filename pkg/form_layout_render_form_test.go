@@ -40,6 +40,10 @@ type TestB struct {
 	B int `validate:"int|in:1,2,3" choices:"B1|B2|B3"`
 }
 
+type TestMinMax struct {
+	S string `validate:"min:10|max:20"`
+}
+
 func TestRenderForm(t *testing.T) {
 	f := NewFormLayout().
 		Add("A", "A")
@@ -49,7 +53,19 @@ func TestRenderForm(t *testing.T) {
 	html := Normalize(f.RenderForm(data))
 	assert.Equal(t, Clean(`
 <label>A</label>
-<input name="A" value="b"/>
+<input name="A" type="text" required="" value="b"/>
+`), html)
+}
+
+func TestRenderValidationForm(t *testing.T) {
+	f := NewFormLayout().Add("S", "S")
+	data := TestMinMax{
+		S: "b",
+	}
+	html := Normalize(f.RenderForm(data))
+	assert.Equal(t, Clean(`
+<label>S</label>
+<input name="S" type="text" required="" minlength="10" maxlength="20" value="b"/>
 `), html)
 }
 
@@ -98,7 +114,7 @@ func TestRenderCheckboxUnchecked(t *testing.T) {
 func TestRenderGroup(t *testing.T) {
 	f := NewFormLayout().
 		AddGroup("A", "X", "Y", func(fl *FormLayout) {
-			fl.Add("B", "B", ElementConfig{Description: "What a description"}).
+			fl.Add("B", "B", WithDescription("What a description")).
 				Add("C", "C").
 				Add("D", "D")
 		})
@@ -120,11 +136,11 @@ func TestRenderGroup(t *testing.T) {
 </div>
 <div>
 <label>C</label>
-<input name="A.C:int" value="10"/>
+<input name="A.C:int" type="text" value="10"/>
 </div>
 <div>
 <label>D</label>
-<input name="A.D:int" value=""/>
+<input name="A.D:int" type="text" value=""/>
 </div>
 </div>
 `), html)
@@ -193,8 +209,8 @@ func TestRenderMulti(t *testing.T) {
 
 func TestRenderMultiGroup(t *testing.T) {
 	f := NewFormLayout().
-		Add("A", "A", ElementConfig{
-			Choices: []Choice{
+		Add("A", "A", WithChoices(
+			[]Choice{
 				{
 					Label: "A",
 					Value: "A",
@@ -210,9 +226,9 @@ func TestRenderMultiGroup(t *testing.T) {
 					Value: "C",
 					Group: "G2",
 				},
-			},
-			Groups: map[string]string{"G1": "Group 1", "G2": "Group 2"},
-		})
+			}),
+			WithGroups(map[string]string{"G1": "Group 1", "G2": "Group 2"}),
+		)
 	data := TestMulti{
 		A: []string{"A", "B"},
 	}
@@ -268,9 +284,9 @@ func TestTwoElementRenderForm(t *testing.T) {
 	html := Normalize(f.RenderForm(data))
 	assert.Equal(t, Clean(`
 <label>A</label>
-<input name="A" value="a"/>
+<input name="A" type="text" required="" value="a"/>
 <label>B</label>
-<input name="B" value="b"/>
+<input name="B" type="text" required="" value="b"/>
 `), html)
 }
 
@@ -287,9 +303,9 @@ func TestTwoElementRenderFormWithError(t *testing.T) {
 	html := Normalize(f.RenderFormWithErrors(data, errors))
 	assert.Equal(t, Clean(`
 <label>A</label>
-<input name="A" value="a"/>
+<input name="A" type="text" required="" value="a"/>
 <label>B</label>
-<input name="B" value="b"/>
+<input name="B" type="text" required="" value="b"/>
 <p>B not long enough</p>
 `), html)
 }
@@ -326,24 +342,23 @@ func TestRenderSelectForm(t *testing.T) {
 
 func TestRenderSelectWithChoicesForm(t *testing.T) {
 	f := NewFormLayout().
-		Add("A", "A", ElementConfig{
-			Choices: []Choice{
-				{
-					Label:   "A",
-					Value:   "A",
-					Checked: false,
-				},
-				{
-					Label:   "B",
-					Value:   "B",
-					Checked: true,
-				},
-				{
-					Label:   "C",
-					Value:   "C",
-					Checked: false,
-				},
-			}})
+		Add("A", "A", WithChoices([]Choice{
+			{
+				Label:   "A",
+				Value:   "A",
+				Checked: false,
+			},
+			{
+				Label:   "B",
+				Value:   "B",
+				Checked: true,
+			},
+			{
+				Label:   "C",
+				Value:   "C",
+				Checked: false,
+			},
+		}))
 	data := TestA{
 		A: "B",
 	}
@@ -360,7 +375,7 @@ func TestRenderSelectWithChoicesForm(t *testing.T) {
 }
 
 func TestConfigToHtml(t *testing.T) {
-	configHtml := configToHtml(ElementConfig{
+	configHtml := configToHtml(ElementOpts{
 		Id:          "id",
 		Placeholder: "p",
 		Label:       "l",
@@ -370,30 +385,26 @@ func TestConfigToHtml(t *testing.T) {
 
 func TestRenderFormPlaceHolder(t *testing.T) {
 	f := NewFormLayout().
-		Add("A", "A", ElementConfig{
-			Placeholder: "c",
-		})
+		Add("A", "A", WithPlaceholder("c"))
 	data := TestA{
 		A: "b",
 	}
 	html := Normalize(f.RenderForm(data))
 	assert.Equal(t, Clean(`
 <label>A</label>
-<input name="A" value="b" placeholder="c"/>
+<input name="A" type="text" required="" value="b" placeholder="c"/>
 `), html)
 }
 
 func TestRenderFormPlaceId(t *testing.T) {
 	f := NewFormLayout().
-		Add("A", "A", ElementConfig{
-			Id: "c",
-		})
+		Add("A", "A", WithId("c"))
 	data := TestA{
 		A: "b",
 	}
 	html := Normalize(f.RenderForm(data))
 	assert.Equal(t, Clean(`
 <label>A</label>
-<input name="A" value="b" id="c"/>
+<input name="A" type="text" required="" value="b" id="c"/>
 `), html)
 }

@@ -9,8 +9,9 @@ import (
 // from annotated structs
 
 type DataField struct {
-	Name string
-	Kind string
+	Name    string
+	Kind    string
+	SubKind string
 	// https://stackoverflow.com/questions/3518002/how-can-i-set-the-default-value-for-an-html-select-element
 	Choices    []Choice
 	Multi      bool

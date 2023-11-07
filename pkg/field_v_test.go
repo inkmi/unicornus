@@ -13,3 +13,12 @@ func TestVal(t *testing.T) {
 	}
 	assert.Equal(t, 10, d.Val())
 }
+
+func TestSanitizeVal(t *testing.T) {
+	v := "<b>x</b><script>alert(\"hello\");</script>"
+	d := DataField{
+		Optional: true,
+		Value:    v,
+	}
+	assert.Equal(t, "x", d.Val())
+}

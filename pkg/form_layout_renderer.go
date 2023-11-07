@@ -25,6 +25,15 @@ func (f *FormLayout) renderFormToBuilder(sb *strings.Builder, data any, prefix s
 	m := FieldsToMap(FieldGenerator(data))
 	for _, e := range f.elements {
 		switch e.Kind {
+		case "hidden":
+			fieldName := e.Name
+			if len(prefix) > 0 {
+				fieldName = prefix + "." + fieldName
+			}
+			field, ok := m[fieldName]
+			if ok {
+				sb.WriteString(fmt.Sprintf("<input type=\"hidden\" name=\"%s\" value=\"%v\" />", fieldName, field.Val()))
+			}
 		case "header":
 			f.Theme.themeRenderHeader(sb, e)
 		case "group":
@@ -41,6 +50,7 @@ func (f *FormLayout) renderFormToBuilder(sb *strings.Builder, data any, prefix s
 				fieldName = prefix + "." + fieldName
 			}
 			field, ok := m[fieldName]
+
 			if ok {
 				if len(e.Config.Choices) > 0 {
 					field.Choices = e.Config.Choices
@@ -72,7 +82,7 @@ func (f *FormLayout) renderFormToBuilder(sb *strings.Builder, data any, prefix s
 	}
 }
 
-func renderCheckbox(sb *strings.Builder, f DataField, config ElementConfig, prefix string, class string) {
+func renderCheckbox(sb *strings.Builder, f DataField, config ElementOpts, prefix string, class string) {
 	checked := ""
 	v, ok := f.Val().(bool)
 	if ok {
@@ -85,11 +95,12 @@ func renderCheckbox(sb *strings.Builder, f DataField, config ElementConfig, pref
 
 }
 
-func renderSelect(sb *strings.Builder, f DataField, config ElementConfig, prefix string, class string) {
+func renderSelect(sb *strings.Builder, f DataField, config ElementOpts, prefix string, class string) {
 	name := f.Name
 	if f.Kind == "int" {
 		name = name + ":int"
 	}
+
 	sb.WriteString(fmt.Sprintf("<select name=\"%s\" class=\"%s\"><option value=\"0\">-</option>", name, class))
 
 	for _, c := range f.Choices {
@@ -103,13 +114,41 @@ func renderSelect(sb *strings.Builder, f DataField, config ElementConfig, prefix
 }
 
 // TODO: DOES THIS CREATE A COPY?
-func renderTextInput(sb *strings.Builder, f DataField, val any, config ElementConfig, prefix string, class string, errors map[string]string) {
+func renderTextInput(sb *strings.Builder, f DataField, val any, config ElementOpts, prefix string, class string, errors map[string]string) {
+	validation := GetValidation(f)
+	inputConstraints := ""
+
+	inputType := "text"
 	name := f.Name
 	errorMsg, hasError := errors[name]
 	if f.Kind == "int" {
 		name = name + ":int"
 	}
-	sb.WriteString(fmt.Sprintf("<input name=\"%s\" value=\"%v\"%s/ class=\"%s\">", name, val, configToHtml(config), class))
+	if f.SubKind == "email" {
+		inputType = "email"
+	} else if f.SubKind == "url" {
+		inputType = "url"
+	}
+	if f.Optional == false {
+		inputConstraints = inputConstraints + "required "
+	}
+	if f.SubKind == "" {
+		if validation.Min.IsSome() {
+			if f.Kind == "int" {
+				//	minMax = minMax + fmt.Sprintf("min=\"%v\"", validation.Min.Unwrap())
+			} else {
+				inputConstraints = inputConstraints + fmt.Sprintf("minlength=\"%v\" ", validation.Min.Unwrap())
+			}
+		}
+		if validation.Max.IsSome() {
+			if f.Kind == "int" {
+				//	minMax = minMax + fmt.Sprintf("max=\"%v\"", validation.Max.Unwrap())
+			} else {
+				inputConstraints = inputConstraints + fmt.Sprintf("maxlength=\"%v\" ", validation.Max.Unwrap())
+			}
+		}
+	}
+	sb.WriteString(fmt.Sprintf("<input name=\"%s\" type=\"%s\"%s value=\"%v\"%s class=\"%s\"/>", name, inputType, strings.TrimSpace(inputConstraints), val, configToHtml(config), class))
 	if hasError {
 		//	sb.WriteString(`
 		//<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
@@ -121,7 +160,7 @@ func renderTextInput(sb *strings.Builder, f DataField, val any, config ElementCo
 	}
 }
 
-func configToHtml(config ElementConfig) string {
+func configToHtml(config ElementOpts) string {
 	id := ""
 	if len(config.Id) > 0 {
 		id = fmt.Sprintf(" id=\"%s\"", config.Id)
