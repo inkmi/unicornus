@@ -16,68 +16,140 @@ func (f *FormLayout) RenderForm(data any) string {
 }
 
 func (f *FormLayout) RenderFormWithErrors(data any, errors map[string]string) string {
+	m := FieldsToMap(FieldGenerator(data))
 	var sb strings.Builder
-	f.renderFormToBuilder(&sb, data, "", errors)
+	f.renderFormToBuilder(&sb, "", errors, m)
 	return sb.String()
 }
 
-func (f *FormLayout) renderFormToBuilder(sb *strings.Builder, data any, prefix string, errors map[string]string) {
-	m := FieldsToMap(FieldGenerator(data))
+func (f *FormLayout) renderFormToBuilder(sb *strings.Builder, prefix string, errors map[string]string, m map[string]DataField,
+) {
 	for _, e := range f.elements {
-		switch e.Kind {
-		case "hidden":
-			fieldName := e.Name
-			if len(prefix) > 0 {
-				fieldName = prefix + "." + fieldName
-			}
-			field, ok := m[fieldName]
-			if ok {
-				sb.WriteString(fmt.Sprintf("<input type=\"hidden\" name=\"%s\" value=\"%v\" />", fieldName, field.Val()))
-			}
-		case "header":
-			f.Theme.themeRenderHeader(sb, e)
-		case "group":
-			newPrefix := e.Name
-			if len(prefix) > 0 {
-				newPrefix = prefix + "." + newPrefix
-			}
-			f.Theme.themeRenderGroup(sb, data, newPrefix, e, errors)
-		case "input":
-			// take value string from MAP of name -> DataField
-			// take type if no type is given from DataField
-			fieldName := e.Name
-			if len(prefix) > 0 {
-				fieldName = prefix + "." + fieldName
-			}
-			field, ok := m[fieldName]
+		f.renderElement(e, sb, prefix, errors, m)
+	}
+}
 
-			if ok {
-				if len(e.Config.Choices) > 0 {
-					field.Choices = e.Config.Choices
+func (f *FormLayout) RenderElement(
+	name string,
+	data any,
+	errors map[string]string,
+) string {
+	e := f.findByName(name)
+	m := FieldsToMap(FieldGenerator(data))
+	var sb strings.Builder
+	// probably prefix taken from name instead of ""
+	f.renderElement(*e, &sb, "", errors, m)
+	return sb.String()
+}
+
+func (f *FormLayout) renderElement(
+	e FormElement,
+	sb *strings.Builder,
+	prefix string,
+	errors map[string]string,
+	m map[string]DataField,
+) {
+	switch e.Kind {
+	case "hidden":
+		fieldName := e.Name
+		if len(prefix) > 0 {
+			fieldName = prefix + "." + fieldName
+		}
+		field, ok := m[fieldName]
+		if ok {
+			sb.WriteString(fmt.Sprintf("<input type=\"hidden\" name=\"%s\" value=\"%v\" />", fieldName, field.Val()))
+		}
+	case "header":
+		f.Theme.themeRenderHeader(sb, e)
+	case "group":
+		newPrefix := e.Name
+		if len(prefix) > 0 {
+			newPrefix = prefix + "." + newPrefix
+		}
+		f.Theme.themeRenderGroup(sb, m, newPrefix, e, errors)
+	case "input":
+		// take value string from MAP of name -> DataField
+		// take type if no type is given from DataField
+		fieldName := e.Name
+		if len(prefix) > 0 {
+			fieldName = prefix + "." + fieldName
+		}
+		field, ok := m[fieldName]
+
+		if ok {
+			if len(e.Config.Choices) > 0 {
+				field.Choices = e.Config.Choices
+			}
+			if field.Multi {
+				values := field.Value.([]string)
+				for i := 0; i < len(field.Choices); i++ {
+					choice := &field.Choices[i]
+					if containsString(values, choice.Value) {
+						choice.Checked = true
+					}
 				}
-				if field.Multi {
-					values := field.Value.([]string)
-					for i := 0; i < len(field.Choices); i++ {
-						choice := &field.Choices[i]
-						if containsString(values, choice.Value) {
-							choice.Checked = true
-						}
-					}
-					f.Theme.themeRenderMulti(sb, field, e, prefix)
+				f.Theme.themeRenderMulti(sb, field, e, prefix)
+			} else {
+				description := e.Description
+				if len(e.Config.Description) > 0 {
+					description = e.Config.Description
+				}
+				if field.Kind == "bool" {
+					f.Theme.themeRenderCheckbox(sb, e, field, description, prefix, errors)
+				} else if !field.Multi && len(field.Choices) > 0 {
+					f.Theme.themeRenderSelect(sb, e, field, description, prefix, errors)
 				} else {
-					description := e.Description
-					if len(e.Config.Description) > 0 {
-						description = e.Config.Description
-					}
-					if field.Kind == "bool" {
-						f.Theme.themeRenderCheckbox(sb, e, field, description, prefix)
-					} else if !field.Multi && len(field.Choices) > 0 {
-						f.Theme.themeRenderSelect(sb, e, field, prefix)
-					} else {
-						f.Theme.themeRenderInput(sb, e, field, prefix, errors)
-					}
+					f.Theme.themeRenderInput(sb, e, field, prefix, errors)
 				}
 			}
+		}
+	case "yesno":
+		// take value string from MAP of name -> DataField
+		// take type if no type is given from DataField
+		fieldName := e.Name
+		if len(prefix) > 0 {
+			fieldName = prefix + "." + fieldName
+		}
+		field, ok := m[fieldName]
+
+		if ok {
+			if len(e.Config.Choices) > 0 {
+				field.Choices = e.Config.Choices
+			}
+			description := e.Description
+			if len(e.Config.Description) > 0 {
+				description = e.Config.Description
+			}
+			f.Theme.themeRenderYesNo(sb, e, field, description, prefix, errors)
+		}
+	case "dropdown":
+		// take value string from MAP of name -> DataField
+		// take type if no type is given from DataField
+		fieldName := e.Name
+		if len(prefix) > 0 {
+			fieldName = prefix + "." + fieldName
+		}
+		field, ok := m[fieldName]
+		if ok {
+			if len(e.Config.Choices) > 0 {
+				field.Choices = e.Config.Choices
+			}
+			//if field.Multi {
+			//	values := field.Value.([]string)
+			//	for i := 0; i < len(field.Choices); i++ {
+			//		choice := &field.Choices[i]
+			//		if containsString(values, choice.Value) {
+			//			choice.Checked = true
+			//		}
+			//	}
+			//	f.Theme.themeRenderMulti(sb, field, e, prefix)
+			//} else {
+			description := e.Description
+			if len(e.Config.Description) > 0 {
+				description = e.Config.Description
+			}
+			f.Theme.themeRenderSelect(sb, e, field, description, prefix, errors)
+			//}
 		}
 	}
 }
@@ -92,35 +164,49 @@ func renderCheckbox(sb *strings.Builder, f DataField, config ElementOpts, prefix
 	}
 	name := f.Name
 	sb.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" class=\"%s\" %s%s/>", name, class, checked, configToHtml(config)))
-
 }
 
-func renderSelect(sb *strings.Builder, f DataField, config ElementOpts, prefix string, class string) {
+func renderSelect(sb *strings.Builder, f DataField, config ElementOpts, prefix string, class string, e FormElement) {
 	name := f.Name
 	if f.Kind == "int" {
 		name = name + ":int"
 	}
-
-	sb.WriteString(fmt.Sprintf("<select name=\"%s\" class=\"%s\"><option value=\"0\">-</option>", name, class))
-
-	for _, c := range f.Choices {
-		if c.IsSelected(f.Value) {
-			sb.WriteString(fmt.Sprintf("<option value=\"%s\" selected=\"selected\">%s</option>", c.Val(), c.L()))
-		} else {
-			sb.WriteString(fmt.Sprintf("<option value=\"%s\">%s</option>", c.Val(), c.L()))
+	// optgroup https://developer.mozilla.org/en-US/docs/Web/HTML/Element/optgroup
+	if len(e.Config.Groups) > 0 {
+		sb.WriteString(fmt.Sprintf("<select name=\"%s\" class=\"%s\"><option value=\"0\">-</option>", name, class))
+		for group, name := range e.Config.Groups {
+			sb.WriteString(fmt.Sprintf("<optgroup label=\"%s\">", name))
+			for _, c := range f.Choices {
+				if len(group) == 0 || c.Group == group {
+					if c.IsSelected(f.Value) {
+						sb.WriteString(fmt.Sprintf("<option value=\"%s\" selected=\"selected\">%s</option>", c.Val(), c.L()))
+					} else {
+						sb.WriteString(fmt.Sprintf("<option value=\"%s\">%s</option>", c.Val(), c.L()))
+					}
+				}
+			}
+			sb.WriteString("</optgroup>")
 		}
+		sb.WriteString("</select>")
+	} else {
+		sb.WriteString(fmt.Sprintf("<select name=\"%s\" class=\"%s\"><option value=\"0\">-</option>", name, class))
+		for _, c := range f.Choices {
+			if c.IsSelected(f.Value) {
+				sb.WriteString(fmt.Sprintf("<option value=\"%s\" selected=\"selected\">%s</option>", c.Val(), c.L()))
+			} else {
+				sb.WriteString(fmt.Sprintf("<option value=\"%s\">%s</option>", c.Val(), c.L()))
+			}
+		}
+		sb.WriteString("</select>")
 	}
-	sb.WriteString("</select>")
 }
 
 // TODO: DOES THIS CREATE A COPY?
 func renderTextInput(sb *strings.Builder, f DataField, val any, config ElementOpts, prefix string, class string, errors map[string]string) {
-	validation := GetValidation(f)
 	inputConstraints := ""
 
 	inputType := "text"
 	name := f.Name
-	errorMsg, hasError := errors[name]
 	if f.Kind == "int" {
 		name = name + ":int"
 	}
@@ -129,27 +215,11 @@ func renderTextInput(sb *strings.Builder, f DataField, val any, config ElementOp
 	} else if f.SubKind == "url" {
 		inputType = "url"
 	}
-	if f.Optional == false {
-		inputConstraints = inputConstraints + "required "
-	}
-	if f.SubKind == "" {
-		if validation.Min.IsSome() {
-			if f.Kind == "int" {
-				//	minMax = minMax + fmt.Sprintf("min=\"%v\"", validation.Min.Unwrap())
-			} else {
-				inputConstraints = inputConstraints + fmt.Sprintf("minlength=\"%v\" ", validation.Min.Unwrap())
-			}
-		}
-		if validation.Max.IsSome() {
-			if f.Kind == "int" {
-				//	minMax = minMax + fmt.Sprintf("max=\"%v\"", validation.Max.Unwrap())
-			} else {
-				inputConstraints = inputConstraints + fmt.Sprintf("maxlength=\"%v\" ", validation.Max.Unwrap())
-			}
-		}
-	}
-	sb.WriteString(fmt.Sprintf("<input name=\"%s\" type=\"%s\"%s value=\"%v\"%s class=\"%s\"/>", name, inputType, strings.TrimSpace(inputConstraints), val, configToHtml(config), class))
-	if hasError {
+	sb.WriteString(fmt.Sprintf("<input name=\"%s\" type=\"%s\"%s value=\"%v\"%s class=\"%s\"/>",
+		name, inputType,
+		strings.TrimSpace(inputConstraints), val, configToHtml(config), class))
+
+	if errorMsg, hasError := errors[name]; hasError {
 		//	sb.WriteString(`
 		//<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
 		//  <svg class="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">

@@ -40,12 +40,35 @@ func translateStruct(prefix string, vals []DataField, original reflect.Value) []
 		} else {
 			df.Name = prefix + "." + original.Type().Field(i).Name
 		}
-		optionalValue := hasOptional(original.Type().Field(i).Type.Name())
+		// parse Tag for validation, choices and error messages
+		tagS := string(original.Type().Field(i).Tag)
+		if tagS != "" {
+			t := ParseTag(tagS)
+			if t.Optional {
+				df.Optional = t.Optional
+			}
+			if t.Validation != nil {
+				df.Validation = *t.Validation
+			}
+			if t.ErrorMessage != nil {
+				df.ErrorMessage = *t.ErrorMessage
+			}
+			if t.Choices != nil && len(t.Choices) > 0 {
+				df.Choices = t.Choices
+			}
+		}
+
+		// Optional:
+		// 1: With Type e.g. Option[int]
+		// 2: By pointer, e.g. *bool
+		// 3: By validation, e.g. "validate:"optional"
+
+		optionalValue := df.Optional || hasOptional(original.Type().Field(i).Type.Name())
 		// Handle setFromStructPtr of type
 		// those are handled as optional
 		// *bool
 		// *int
-		if !optionalValue && original.Type().Field(i).Type.Kind() == reflect.Ptr {
+		if original.Type().Field(i).Type.Kind() == reflect.Ptr {
 			df.Kind = original.Type().Field(i).Type.Elem().Name()
 			df.Optional = true
 			if original.Type().Field(i).Type.Elem().ConvertibleTo(reflect.TypeOf(0)) {
@@ -65,25 +88,13 @@ func translateStruct(prefix string, vals []DataField, original reflect.Value) []
 			} else {
 				typ = original.Type().Field(i).Type.Name()
 			}
-			df.Optional = hasOptional(typ)
+			if df.Optional == false {
+				df.Optional = hasOptional(typ)
+			}
 			df.Kind = removeOptional(typ)
 			setValue(&df, original, i)
 		}
 
-		// parse Tag for validation, choices and error messages
-		tagS := string(original.Type().Field(i).Tag)
-		if tagS != "" {
-			t := ParseTag(tagS)
-			if t.Validation != nil {
-				df.Validation = *t.Validation
-			}
-			if t.ErrorMessage != nil {
-				df.ErrorMessage = *t.ErrorMessage
-			}
-			if t.Choices != nil && len(t.Choices) > 0 {
-				df.Choices = t.Choices
-			}
-		}
 		vals = append(vals, df)
 		newPrefix := prefix + " ." + original.Type().Field(i).Name
 		if len(prefix) == 0 {
@@ -147,11 +158,17 @@ func setInt(original reflect.Value, i int, f *DataField) {
 			} else {
 				f.Value = nil
 			}
-		} else {
+		} else if original.Field(i).Kind() == reflect.Ptr {
 			// this is *int
 			valid := original.Field(i).Elem().IsValid()
 			if valid {
 				f.Value = original.Field(i).Elem().Int()
+			}
+		} else {
+			// this is int `validate:"optional"`
+			valid := original.Field(i).IsValid()
+			if valid {
+				f.Value = original.Field(i).Int()
 			}
 		}
 	}

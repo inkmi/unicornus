@@ -24,6 +24,9 @@ func ParseTag(tag string) Tag {
 			if t.Key == "validate" {
 				v := t.Value()
 				tg.Validation = &v
+				if strings.Contains(v, "optional") {
+					tg.Optional = true
+				}
 			}
 			if t.Key == "choices" {
 				choices = strings.Split(t.Value(), "|")

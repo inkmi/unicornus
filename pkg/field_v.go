@@ -39,6 +39,9 @@ func (f DataField) Val() any {
 			}
 			returnValue = f.Value
 		} else {
+			if f.Kind == "int" && f.Value.(int64) == 0 {
+				return ""
+			}
 			if f.Optional {
 				returnValue = f.Value
 			} else {

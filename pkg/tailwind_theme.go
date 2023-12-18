@@ -1,7 +1,9 @@
 package pkg
 
 import (
+	"crypto/rand"
 	"fmt"
+	"log"
 	"strings"
 )
 
@@ -18,13 +20,16 @@ func (t TailwindTheme) themeRenderInput(sb *strings.Builder, e FormElement, fiel
 	sb.WriteString("</div>")
 }
 
-func (t TailwindTheme) themeRenderSelect(sb *strings.Builder, e FormElement, field DataField, prefix string) {
+func (t TailwindTheme) themeRenderSelect(sb *strings.Builder, e FormElement, field DataField, description string, prefix string, errors map[string]string) {
 	sb.WriteString("<div class=\"mt-6\">")
 	if len(e.Config.Label) > 0 {
 		sb.WriteString(fmt.Sprintf("<label class=\"block text-sm font-medium text-gray-700\">%s</label>", e.Config.Label))
 	}
 	class := "mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-	renderSelect(sb, field, e.Config, prefix, class)
+	renderSelect(sb, field, e.Config, prefix, class, e)
+	if errorMsg, hasError := errors[field.Name]; hasError {
+		sb.WriteString(fmt.Sprintf("<p class=\"mt-2 text-sm text-red-600\">%s</p>", errorMsg))
+	}
 	sb.WriteString("</div>")
 }
 
@@ -40,8 +45,49 @@ func (t TailwindTheme) themeRenderSelect(sb *strings.Builder, e FormElement, fie
 	</div>
 */
 
-func (t TailwindTheme) themeRenderCheckbox(sb *strings.Builder, e FormElement, field DataField, description string, prefix string) {
-	sb.WriteString("<div class=\"py-2 px-4 sm:p-2 lg:pb-8 relative flex items-start\">")
+func (t TailwindTheme) themeRenderYesNo(sb *strings.Builder, e FormElement, field DataField, description string, prefix string, errors map[string]string) {
+	id := generateRandomID(10)
+	checked := ""
+	v, ok := field.Val().(bool)
+	if ok {
+		if v {
+			checked = "checked"
+		}
+	}
+	name := field.Name
+	sb.WriteString(fmt.Sprintf(`
+<div class="mt-6">
+  <div class="block pb-3 font-medium text-gray-900">%s</div>
+  <label for="%s" class="inline-flex cursor-pointer items-center space-x-4 text-gray-900">
+    <span class="text-sm font-medium text-gray-700">%s</span>
+    <span class="relative">`, e.Config.Label, id, "No"))
+	sb.WriteString(fmt.Sprintf("<input id=\"%s\" type=\"checkbox\" name=\"%s\" class=\"hidden peer\" %s%s/>", id, name, checked,
+		configToHtml(e.Config)))
+	sb.WriteString(fmt.Sprintf(`
+<div class="h-7 w-11 rounded-full shadow-inner bg-gray-200 peer-checked:bg-indigo-500"></div>
+      <div class="absolute inset-y-0 left-0 m-1 h-5 w-5 rounded-full 
+      ring-1 ring-gray-800
+      bg-gray-100 shadow peer-checked:left-auto peer-checked:right-0 peer-checked:bg-gray-100 peer-checked:ring-1 peer-checked:ring-indigo-800"></div>
+    </span>
+    <span class="text-sm font-medium text-gray-700">%s</span>
+  </label>
+</div>`, "Yes"))
+}
+
+func generateRandomID(n int) string {
+	const letters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+	bytes := make([]byte, n)
+	if _, err := rand.Read(bytes); err != nil {
+		log.Fatal(err)
+	}
+	for i, b := range bytes {
+		bytes[i] = letters[b%byte(len(letters))]
+	}
+	return string(bytes)
+}
+
+func (t TailwindTheme) themeRenderCheckbox(sb *strings.Builder, e FormElement, field DataField, description string, prefix string, errors map[string]string) {
+	sb.WriteString("<div class=\"py-2 px-4 sm:p-2 lg:pb-4 relative flex items-start\">")
 	sb.WriteString("<div class=\"flex h-5 items-center\">")
 	class := "h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
 	renderCheckbox(sb, field, e.Config, prefix, class)
@@ -51,6 +97,9 @@ func (t TailwindTheme) themeRenderCheckbox(sb *strings.Builder, e FormElement, f
 		sb.WriteString(fmt.Sprintf("<label class=\"block text-sm font-medium text-gray-700\">%s</label>", e.Config.Label))
 	}
 	sb.WriteString(fmt.Sprintf("<p class=\"text-gray-500\">%s</p>", description))
+	if errorMsg, hasError := errors[field.Name]; hasError {
+		sb.WriteString(fmt.Sprintf("<p class=\"mt-2 text-sm text-red-600\">%s</p>", errorMsg))
+	}
 	sb.WriteString("</div>")
 	sb.WriteString("</div>")
 }
@@ -100,10 +149,10 @@ func (t TailwindTheme) themeRenderHeader(sb *strings.Builder, e FormElement) {
 	sb.WriteString(fmt.Sprintf("<h2>%s</h2>", e.Name))
 }
 
-func (t TailwindTheme) themeRenderGroup(sb *strings.Builder, data any, prefix string, e FormElement, errors map[string]string) {
-	sb.WriteString("<div class=\"py-6 px-4 sm:p-6 lg:pb-8\">")
+func (t TailwindTheme) themeRenderGroup(sb *strings.Builder, m map[string]DataField, prefix string, e FormElement, errors map[string]string) {
+	sb.WriteString("<div class=\"py-6\">")
 	sb.WriteString(fmt.Sprintf("<h2 class=\"text-lg leading-6 font-bold text-gray-900\">%s</h2>", e.Label))
 	sb.WriteString(fmt.Sprintf("<p class=\"mt-1 text-sm text-gray-500\">%s</p>", e.Description))
-	e.Config.SubLayout.renderFormToBuilder(sb, data, prefix, errors)
+	e.Config.SubLayout.renderFormToBuilder(sb, prefix, errors, m)
 	sb.WriteString("</div>")
 }

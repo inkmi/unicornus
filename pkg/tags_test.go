@@ -43,6 +43,12 @@ func TestChoices(t *testing.T) {
 	assert.Equal(t, expected, tag.Choices)
 }
 
+func TestOptional(t *testing.T) {
+	tagString := `validate:"optional"`
+	tag := ParseTag(tagString)
+	assert.True(t, tag.Optional)
+}
+
 func TestGetInValidation(t *testing.T) {
 	val1 := `in:0,2,3|int`
 	assert.Equal(t, "0,2,3", GetInValidation(val1))

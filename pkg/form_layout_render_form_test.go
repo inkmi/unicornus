@@ -53,7 +53,7 @@ func TestRenderForm(t *testing.T) {
 	html := Normalize(f.RenderForm(data))
 	assert.Equal(t, Clean(`
 <label>A</label>
-<input name="A" type="text" required="" value="b"/>
+<input name="A" type="text" value="b"/>
 `), html)
 }
 
@@ -65,7 +65,7 @@ func TestRenderValidationForm(t *testing.T) {
 	html := Normalize(f.RenderForm(data))
 	assert.Equal(t, Clean(`
 <label>S</label>
-<input name="S" type="text" required="" minlength="10" maxlength="20" value="b"/>
+<input name="S" type="text" value="b"/>
 `), html)
 }
 
@@ -284,9 +284,9 @@ func TestTwoElementRenderForm(t *testing.T) {
 	html := Normalize(f.RenderForm(data))
 	assert.Equal(t, Clean(`
 <label>A</label>
-<input name="A" type="text" required="" value="a"/>
+<input name="A" type="text" value="a"/>
 <label>B</label>
-<input name="B" type="text" required="" value="b"/>
+<input name="B" type="text" value="b"/>
 `), html)
 }
 
@@ -303,9 +303,9 @@ func TestTwoElementRenderFormWithError(t *testing.T) {
 	html := Normalize(f.RenderFormWithErrors(data, errors))
 	assert.Equal(t, Clean(`
 <label>A</label>
-<input name="A" type="text" required="" value="a"/>
+<input name="A" type="text" value="a"/>
 <label>B</label>
-<input name="B" type="text" required="" value="b"/>
+<input name="B" type="text" value="b"/>
 <p>B not long enough</p>
 `), html)
 }
@@ -392,7 +392,7 @@ func TestRenderFormPlaceHolder(t *testing.T) {
 	html := Normalize(f.RenderForm(data))
 	assert.Equal(t, Clean(`
 <label>A</label>
-<input name="A" type="text" required="" value="b" placeholder="c"/>
+<input name="A" type="text" value="b" placeholder="c"/>
 `), html)
 }
 
@@ -405,6 +405,6 @@ func TestRenderFormPlaceId(t *testing.T) {
 	html := Normalize(f.RenderForm(data))
 	assert.Equal(t, Clean(`
 <label>A</label>
-<input name="A" type="text" required="" value="b" id="c"/>
+<input name="A" type="text" value="b" id="c"/>
 `), html)
 }

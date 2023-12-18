@@ -21,8 +21,24 @@ type TestG struct {
 	E []string
 }
 
+type TestIntOptional struct {
+	A int `validate:"optional|int|min:30" message:"The age is 30" label:"Minimum Age"`
+}
+
 type TestG2 struct {
 	A []string `choices:"A1|A2|A3"`
+}
+
+func TestFieldOptionalInt(t *testing.T) {
+	d := TestIntOptional{
+		A: 3,
+	}
+	fields := FieldGenerator(d)
+	assert.Equal(t, 1, len(fields))
+	assert.Equal(t, "A", fields[0].Name)
+	assert.Equal(t, "int", fields[0].Kind)
+	assert.False(t, fields[0].Multi)
+	assert.True(t, fields[0].Optional)
 }
 
 func TestFieldOptionalCheckbox(t *testing.T) {
