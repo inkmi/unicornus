@@ -106,8 +106,19 @@ func generateRandomID(n int) string {
 func (t TailwindTheme) themeRenderCheckbox(rctx *RenderContext, e FormElement, field DataField, description string, prefix string) {
 	rctx.out.WriteString("<div class=\"py-2 px-4 sm:p-2 lg:pb-4 relative flex items-start\">")
 	rctx.out.WriteString("<div class=\"flex h-5 items-center\">")
-	class := "h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-	renderCheckbox(rctx, field, e.Config, prefix, class)
+	if rctx.OnlyDisplay(field.Name) {
+		v, ok := field.Val().(bool)
+		if ok {
+			if v {
+				rctx.out.WriteString("[x]")
+			} else {
+				rctx.out.WriteString("[ ]")
+			}
+		}
+	} else {
+		class := "h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+		renderCheckbox(rctx, field, e.Config, prefix, class)
+	}
 	rctx.out.WriteString("</div>")
 	rctx.out.WriteString("<div class=\"ml-3 text-sm\">")
 	if len(e.Config.Label) > 0 {

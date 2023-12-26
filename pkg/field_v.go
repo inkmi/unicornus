@@ -34,6 +34,13 @@ func (f DataField) Errors() string {
 }
 
 func (f DataField) ViewVal() string {
+	if f.Value == nil {
+		return "-"
+	}
+	v, ok := f.Value.(int64)
+	if ok && v == 0 {
+		return "-"
+	}
 	if f.Choices != nil {
 		return fmt.Sprintf("%s", f.choiceLabel())
 	} else {
