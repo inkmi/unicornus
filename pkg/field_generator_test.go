@@ -33,7 +33,7 @@ func TestFieldOptionalInt(t *testing.T) {
 	d := TestIntOptional{
 		A: 3,
 	}
-	fields := FieldGenerator(d)
+	fields := FieldGenerator(d, nil)
 	assert.Equal(t, 1, len(fields))
 	assert.Equal(t, "A", fields[0].Name)
 	assert.Equal(t, "int", fields[0].Kind)
@@ -45,7 +45,7 @@ func TestFieldOptionalCheckbox(t *testing.T) {
 	d := TestOptionalCheckbox{
 		A: nil,
 	}
-	fields := FieldGenerator(d)
+	fields := FieldGenerator(d, nil)
 	assert.Equal(t, 1, len(fields))
 	assert.Equal(t, "A", fields[0].Name)
 	assert.Equal(t, "bool", fields[0].Kind)
@@ -56,7 +56,7 @@ func TestFieldsMulti(t *testing.T) {
 	d := TestG2{
 		A: []string{"A1", "A2"},
 	}
-	fields := FieldGenerator(d)
+	fields := FieldGenerator(d, nil)
 	assert.Equal(t, 1, len(fields))
 
 	assert.Equal(t, "A", fields[0].Name)
@@ -76,7 +76,7 @@ func TestFields(t *testing.T) {
 			E: []string{"a"},
 		},
 	}
-	fields := FieldGenerator(d)
+	fields := FieldGenerator(d, nil)
 	assert.Equal(t, 6, len(fields))
 
 	assert.Equal(t, "A", fields[0].Name)

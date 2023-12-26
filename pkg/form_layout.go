@@ -54,11 +54,9 @@ type FormLayout struct {
 }
 
 type FormElement struct {
-	Kind        string
-	Name        string
-	Label       string
-	Description string
-	Config      ElementOpts
+	Kind   string
+	Name   string
+	Config ElementOpts
 }
 
 func NewFormLayout() *FormLayout {
@@ -113,12 +111,12 @@ func (f *FormLayout) AddGroup(name string,
 ) *FormLayout {
 	l := NewFormLayout()
 	e := FormElement{
-		Kind:        "group",
-		Name:        name,
-		Label:       label,
-		Description: description,
+		Kind: "group",
+		Name: name,
 		Config: ElementOpts{
-			SubLayout: l,
+			SubLayout:   l,
+			Label:       label,
+			Description: description,
 		},
 	}
 	layout(l)

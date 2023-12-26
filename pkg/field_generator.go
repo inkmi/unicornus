@@ -5,34 +5,33 @@ import (
 )
 import . "github.com/moznion/go-optional"
 
-func FieldGenerator(obj interface{}) []DataField {
+func FieldGenerator(obj interface{}, errors map[string]string) []DataField {
 	vals := make([]DataField, 0, 20)
 	original := reflect.ValueOf(obj)
-	return translateRecursive(vals, "", original)
-	// return translateRecursive(vals, original.Type().Name(), original)
+	return translateRecursive(vals, "", original, errors)
 }
 
-func translateRecursive(vals []DataField, prefix string, original reflect.Value) []DataField {
+func translateRecursive(vals []DataField, prefix string, original reflect.Value, errors map[string]string) []DataField {
 	switch original.Kind() {
 	case reflect.Struct:
-		vals = translateStruct(prefix, vals, original)
+		vals = translateStruct(prefix, vals, original, errors)
 		return vals
 	case reflect.Ptr:
 		originalValue := original.Elem()
 		if !originalValue.IsValid() {
 			return vals
 		}
-		return translateRecursive(vals, prefix, originalValue)
+		return translateRecursive(vals, prefix, originalValue, errors)
 	case reflect.Interface:
 		originalValue := original.Elem()
-		translateRecursive(vals, prefix, originalValue)
+		translateRecursive(vals, prefix, originalValue, errors)
 		return vals
 	default:
 		return vals
 	}
 }
 
-func translateStruct(prefix string, vals []DataField, original reflect.Value) []DataField {
+func translateStruct(prefix string, vals []DataField, original reflect.Value, errors map[string]string) []DataField {
 	for i := 0; i < original.NumField(); i += 1 {
 		df := DataField{}
 		if len(prefix) == 0 {
@@ -40,6 +39,11 @@ func translateStruct(prefix string, vals []DataField, original reflect.Value) []
 		} else {
 			df.Name = prefix + "." + original.Type().Field(i).Name
 		}
+
+		if errorMsg, hasError := errors[df.Name]; hasError {
+			df.ErrorMessages = []string{errorMsg}
+		}
+
 		// parse Tag for validation, choices and error messages
 		tagS := string(original.Type().Field(i).Tag)
 		if tagS != "" {
@@ -100,7 +104,7 @@ func translateStruct(prefix string, vals []DataField, original reflect.Value) []
 		if len(prefix) == 0 {
 			newPrefix = original.Type().Field(i).Name
 		}
-		vals = translateRecursive(vals, newPrefix, original.Field(i))
+		vals = translateRecursive(vals, newPrefix, original.Field(i), nil)
 	}
 	return vals
 }

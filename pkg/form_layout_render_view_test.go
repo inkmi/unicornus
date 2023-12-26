@@ -12,5 +12,5 @@ func TestRenderView(t *testing.T) {
 		A: "b",
 	}
 	html := f.RenderView(tdata)
-	assert.Equal(t, "b", html)
+	assert.Equal(t, "<div class=\"mt-6\"><div class=\"block text-sm font-medium text-gray-700\">A</div><div>b</div></div>", html)
 }

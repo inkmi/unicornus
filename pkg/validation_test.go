@@ -17,7 +17,7 @@ func TestValidation(t *testing.T) {
 		Url:    "https://www.inkmi.com",
 		Email:  "test@example.com",
 	}
-	fields := FieldGenerator(d)
+	fields := FieldGenerator(d, nil)
 	assert.Equal(t, 3, len(fields))
 
 	vds := GetValidations(fields)

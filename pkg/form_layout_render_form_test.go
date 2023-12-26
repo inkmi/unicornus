@@ -124,6 +124,7 @@ func TestRenderGroup(t *testing.T) {
 	}
 	html := RemoveClass(f.RenderForm(data))
 	assert.Equal(t, Clean(`
+<a name="formgroup-X"></a>
 <div>
 <h2>X</h2><p>Y</p>
 <div>

@@ -1,5 +1,6 @@
 module github.com/inkmi/unicornus
 
+
 go 1.21
 
 require (
