@@ -1,0 +1,51 @@
+
+<div style="margin-top: 1.5rem;">
+  <div style="display: block; font-size: 0.875rem; font-weight: 500; color: #6B7280;">[Label from e.Config.Label]</div>
+  <div style="font-size: 0.875rem; font-weight: 500; color: #111827;">[Field View Value]</div>
+  <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #4B5563;">[Label from
+    e.Config.Label]</label>
+  <input
+    style="margin-top: 0.25rem; display: block; width: 100%; border: 1px solid #D1D5DB; border-radius: 0.375rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); padding: 0.5rem 0.75rem; outline: none; transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out; font-size: 0.875rem;"/>
+  <p style="margin-top: 0.5rem; font-size: 0.875rem; color: #6B7280;">[Description from e.Config.Description]</p>
+</div>
+
+<div class="mt-6">
+  <!-- Conditionally rendered based on OnlyDisplay method -->
+  <!-- If OnlyDisplay is true and there is a label -->
+  <div class="block text-sm font-medium text-gray-500">[Label from e.Config.Label]</div>
+  <div class="text-sm font-medium text-gray-900">[Field View Value]</div>
+  <!-- Else part for input element rendering -->
+  <!-- If there is a label -->
+  <label class="block text-sm font-medium text-gray-700">[Label from e.Config.Label]</label>
+  <!-- Input element with classes for styling -->
+  <!-- [RenderTextInput with specific class] -->
+  <!-- If there is a description -->
+  <p class="mt-2 text-sm text-gray-500">[Description from e.Config.Description]</p>
+</div>
+
+
+<div style="margin-top: 1.5rem;">
+  <div style="display: block; font-size: 0.875rem; font-weight: 500; color: #4B5563;">[Label from e.Config.Label]</div>
+  <div style="font-size: 0.875rem; font-weight: 500; color: #111827;">[Field View Value]</div>
+  <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #4B5563;">[Label from
+    e.Config.Label]</label>
+  <select
+    style="margin-top: 0.25rem; display: block; width: 100%; border-radius: 0.375rem; border: 1px solid #D1D5DB; padding: 0.5rem 0.75rem 0.5rem 0.75rem; font-size: 0.875rem; outline: none; transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;">
+  </select>
+  <p style="margin-top: 0.5rem; font-size: 0.875rem; color: #DC2626;">[Error message from field.Errors()]</p>
+</div>
+
+
+<div class="mt-6">
+  <!-- Conditionally rendered based on OnlyDisplay method -->
+  <!-- If OnlyDisplay is true and there is a label -->
+  <div class="block text-sm font-medium text-gray-700">[Label from e.Config.Label]</div>
+  <div class="text-sm font-medium text-gray-900">[Field View Value]</div>
+  <!-- Else part for select element rendering -->
+  <!-- If there is a label -->
+  <label class="block text-sm font-medium text-gray-700">[Label from e.Config.Label]</label>
+  <!-- Select element with classes for styling -->
+  <!-- [RenderSelect with specific class and additional handling for errors] -->
+  <!-- If field has error -->
+  <p class="mt-2 text-sm text-red-600">[Error message from field.Errors()]</p>
+</div>

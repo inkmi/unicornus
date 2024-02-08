@@ -10,6 +10,7 @@ type ElementOpts struct {
 	Choices     []Choice
 	Groups      map[string]string
 	SubLayout   *FormLayout
+	ViewOnly    bool
 }
 
 type OptFunc func(config *ElementOpts)
@@ -102,6 +103,27 @@ func (f *FormLayout) findByName(name string) *FormElement {
 		}
 	}
 	return nil
+}
+
+func (f *FormLayout) AddViewOnlyGroup(name string,
+	label string,
+	description string,
+	layout func(f *FormLayout),
+) *FormLayout {
+	l := NewFormLayout()
+	e := FormElement{
+		Kind: "group",
+		Name: name,
+		Config: ElementOpts{
+			SubLayout:   l,
+			Label:       label,
+			Description: description,
+			ViewOnly:    true,
+		},
+	}
+	layout(l)
+	f.elements = append(f.elements, e)
+	return f
 }
 
 func (f *FormLayout) AddGroup(name string,

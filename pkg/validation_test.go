@@ -6,7 +6,7 @@ import (
 )
 
 type Test2 struct {
-	MaxAge int    `validate:"int|max:20|min:10" message:"The age is 10" label:"Maximum and Minimum Age"`
+	MaxAge int    `validate:"int|max:20|min:10" message:"The age is 10" LABEL:"Maximum and Minimum Age"`
 	Url    string `validate:"url"`
 	Email  string `validate:"email"`
 }

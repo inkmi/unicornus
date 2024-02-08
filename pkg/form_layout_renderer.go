@@ -8,22 +8,89 @@ import (
 type RenderContext struct {
 	out          *strings.Builder
 	AnchorGroups bool
-	DisplayMode  bool
+	ViewMode     bool
 }
 
-func (rctx *RenderContext) OnlyDisplay(name string) bool {
-	return rctx.DisplayMode
+func (r *RenderContext) divV(content string, class ...string) {
+	r.out.WriteString("<div class=\"")
+	for i := 0; i < len(class); i++ {
+		r.out.WriteString(class[i])
+		r.out.WriteString(" ")
+	}
+	r.out.WriteString("\">")
+	r.out.WriteString(content)
+	r.out.WriteString("</div>")
+}
+
+func (r *RenderContext) h2No(content string) {
+	r.out.WriteString("<h2>")
+	r.out.WriteString(content)
+	r.out.WriteString("</h2>")
+}
+
+func (r *RenderContext) divClose() {
+	r.out.WriteString("</div>")
+}
+
+func (r *RenderContext) h2(content string, class string) {
+	r.out.WriteString("<h2 class=\"")
+	r.out.WriteString(class)
+	r.out.WriteString("\">")
+	r.out.WriteString(content)
+	r.out.WriteString("</h2>")
+}
+
+func (r *RenderContext) h3(content string, class string) {
+	r.out.WriteString("<h3 class=\"")
+	r.out.WriteString(class)
+	r.out.WriteString("\">")
+	r.out.WriteString(content)
+	r.out.WriteString("</h3>")
+}
+
+func (r *RenderContext) DIV(content string, class string) {
+	r.out.WriteString("<div class=\"")
+	r.out.WriteString(class)
+	r.out.WriteString("\">")
+	r.out.WriteString(content)
+	r.out.WriteString("</div>")
+}
+
+func (r *RenderContext) divOpen(class string) {
+	r.out.WriteString("<div class=\"")
+	r.out.WriteString(class)
+	r.out.WriteString("\">")
+}
+
+func (r *RenderContext) LABEL(content string, class string) {
+	r.out.WriteString("<label class=\"")
+	r.out.WriteString(class)
+	r.out.WriteString("\">")
+	r.out.WriteString(content)
+	r.out.WriteString("</label>")
+}
+
+func (r *RenderContext) p(content string, class string) {
+	r.out.WriteString("<p class=\"")
+	r.out.WriteString(class)
+	r.out.WriteString("\">")
+	r.out.WriteString(content)
+	r.out.WriteString("</p>")
+}
+
+func (r *RenderContext) OnlyDisplay(name string) bool {
+	return r.ViewMode
 }
 
 type RenderContextFunc func(ctx *RenderContext)
 
 func defaultContext() *RenderContext {
 	var sb strings.Builder
-	rctx := RenderContext{
+	r := RenderContext{
 		out:          &sb,
 		AnchorGroups: true,
 	}
-	return &rctx
+	return &r
 }
 
 func WithAnchorGroups(anchorGroups bool) RenderContextFunc {
@@ -34,7 +101,7 @@ func WithAnchorGroups(anchorGroups bool) RenderContextFunc {
 
 func WithDisplayMode() RenderContextFunc {
 	return func(ctx *RenderContext) {
-		ctx.DisplayMode = true
+		ctx.ViewMode = true
 	}
 }
 
@@ -46,12 +113,17 @@ func NewRenderContext(config ...RenderContextFunc) *RenderContext {
 	return c
 }
 
-func (f *FormLayout) RenderView(data any) string {
+func (f *FormLayout) RenderView(data ...any) string {
 	errors := make(map[string]string)
-	m := FieldsToMap(FieldGenerator(data, errors))
-	rctx := NewRenderContext(WithDisplayMode())
-	f.renderFormToBuilder(rctx, "", m)
-	return rctx.out.String()
+	datas := make([]DataField, 0)
+	for _, d := range data {
+		// [:]... MAGIC from chatgpt
+		datas = append(datas, FieldGenerator(d, errors)[:]...)
+	}
+	m := FieldsToMap(datas)
+	r := NewRenderContext(WithDisplayMode())
+	f.renderFormToBuilder(r, "", m)
+	return r.out.String()
 }
 
 func (f *FormLayout) RenderForm(data any) string {
@@ -61,9 +133,9 @@ func (f *FormLayout) RenderForm(data any) string {
 
 func (f *FormLayout) RenderFormWithErrors(data any, errors map[string]string) string {
 	m := FieldsToMap(FieldGenerator(data, errors))
-	rctx := NewRenderContext()
-	f.renderFormToBuilder(rctx, "", m)
-	return rctx.out.String()
+	r := NewRenderContext()
+	f.renderFormToBuilder(r, "", m)
+	return r.out.String()
 }
 
 func (f *FormLayout) RenderElementWithErrors(
@@ -74,24 +146,24 @@ func (f *FormLayout) RenderElementWithErrors(
 	e := f.findByName(name)
 	m := FieldsToMap(FieldGenerator(data, errors))
 	var sb strings.Builder
-	rctx := RenderContext{
+	r := RenderContext{
 		out: &sb,
 	}
 	// probably prefix taken from name instead of ""
-	f.renderElement(*e, &rctx, "", m)
+	f.renderElement(*e, &r, "", m)
 	return sb.String()
 }
 
-func (f *FormLayout) renderFormToBuilder(rctx *RenderContext, prefix string, m map[string]DataField,
+func (f *FormLayout) renderFormToBuilder(r *RenderContext, prefix string, m map[string]DataField,
 ) {
 	for _, e := range f.elements {
-		f.renderElement(e, rctx, prefix, m)
+		f.renderElement(e, r, prefix, m)
 	}
 }
 
 func (f *FormLayout) renderElement(
 	e FormElement,
-	rctx *RenderContext,
+	r *RenderContext,
 	prefix string,
 	m map[string]DataField,
 ) {
@@ -103,19 +175,21 @@ func (f *FormLayout) renderElement(
 		}
 		field, ok := m[fieldName]
 		if ok {
-			rctx.out.WriteString(fmt.Sprintf("<input type=\"hidden\" name=\"%s\" value=\"%v\" />", fieldName, field.Val()))
+			r.out.WriteString(fmt.Sprintf("<input type=\"hidden\" name=\"%s\" value=\"%v\" />", fieldName, field.Val()))
 		}
 	case "header":
-		f.Theme.themeRenderHeader(rctx, e)
+		f.Theme.themeRenderHeader(r, e)
 	case "group":
-		newPrefix := e.Name
-		if len(prefix) > 0 {
-			newPrefix = prefix + "." + newPrefix
+		if (!e.Config.ViewOnly) || r.ViewMode {
+			newPrefix := e.Name
+			if len(prefix) > 0 {
+				newPrefix = prefix + "." + newPrefix
+			}
+			if r.AnchorGroups {
+				r.out.WriteString(fmt.Sprintf("<a name=\"formgroup-%s\"></a>", stringToAnchor(e.Config.Label)))
+			}
+			f.Theme.themeRenderGroup(r, m, newPrefix, e)
 		}
-		if rctx.AnchorGroups {
-			rctx.out.WriteString(fmt.Sprintf("<a name=\"formgroup-%s\"></a>", stringToAnchor(e.Config.Label)))
-		}
-		f.Theme.themeRenderGroup(rctx, m, newPrefix, e)
 	case "input":
 		// take value string from MAP of name -> DataField
 		// take type if no type is given from DataField
@@ -137,18 +211,18 @@ func (f *FormLayout) renderElement(
 						choice.Checked = true
 					}
 				}
-				f.Theme.themeRenderMulti(rctx, field, e, prefix)
+				f.Theme.themeRenderMulti(r, field, e, prefix)
 			} else {
 				description := e.Config.Description
 				if len(e.Config.Description) > 0 {
 					description = e.Config.Description
 				}
 				if field.Kind == "bool" {
-					f.Theme.themeRenderCheckbox(rctx, e, field, description, prefix)
+					f.Theme.themeRenderCheckbox(r, e, field, description, prefix)
 				} else if !field.Multi && len(field.Choices) > 0 {
-					f.Theme.themeRenderSelect(rctx, e, field, description, prefix)
+					f.Theme.themeRenderSelect(r, e, field, description, prefix)
 				} else {
-					f.Theme.themeRenderInput(rctx, e, field, prefix)
+					f.Theme.themeRenderInput(r, e, field, prefix)
 				}
 			}
 		}
@@ -169,7 +243,7 @@ func (f *FormLayout) renderElement(
 			if len(e.Config.Description) > 0 {
 				description = e.Config.Description
 			}
-			f.Theme.themeRenderYesNo(rctx, e, field, description, prefix)
+			f.Theme.themeRenderYesNo(r, e, field, description, prefix)
 		}
 	case "dropdown":
 		// take value string from MAP of name -> DataField
@@ -193,13 +267,13 @@ func (f *FormLayout) renderElement(
 			//	}
 			//	f.Theme.themeRenderMulti(sb, field, e, prefix)
 			//} else {
-			f.Theme.themeRenderSelect(rctx, e, field, e.Config.Description, prefix)
+			f.Theme.themeRenderSelect(r, e, field, e.Config.Description, prefix)
 			//}
 		}
 	}
 }
 
-func renderCheckbox(rctx *RenderContext, f DataField, config ElementOpts, prefix string, class string) {
+func renderCheckbox(r *RenderContext, f DataField, config ElementOpts, prefix string, class string) {
 	checked := ""
 	v, ok := f.Val().(bool)
 	if ok {
@@ -208,45 +282,45 @@ func renderCheckbox(rctx *RenderContext, f DataField, config ElementOpts, prefix
 		}
 	}
 	name := f.Name
-	rctx.out.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" class=\"%s\" %s%s/>", name, class, checked, configToHtml(config)))
+	r.out.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" class=\"%s\" %s%s/>", name, class, checked, configToHtml(config)))
 }
 
-func renderSelect(rctx *RenderContext, f DataField, config ElementOpts, prefix string, class string, e FormElement) {
+func renderSelect(r *RenderContext, f DataField, config ElementOpts, prefix string, class string, e FormElement) {
 	name := f.Name
 	if f.Kind == "int" {
 		name = name + ":int"
 	}
 	// optgroup https://developer.mozilla.org/en-US/docs/Web/HTML/Element/optgroup
 	if len(e.Config.Groups) > 0 {
-		rctx.out.WriteString(fmt.Sprintf("<select name=\"%s\" class=\"%s\"><option value=\"0\">-</option>", name, class))
+		r.out.WriteString(fmt.Sprintf("<select name=\"%s\" class=\"%s\"><option value=\"0\">-</option>", name, class))
 		for group, name := range e.Config.Groups {
-			rctx.out.WriteString(fmt.Sprintf("<optgroup label=\"%s\">", name))
+			r.out.WriteString(fmt.Sprintf("<optgroup LABEL=\"%s\">", name))
 			for _, c := range f.Choices {
 				if len(group) == 0 || c.Group == group {
 					if c.IsSelected(f.Value) {
-						rctx.out.WriteString(fmt.Sprintf("<option value=\"%s\" selected=\"selected\">%s</option>", c.Val(), c.L()))
+						r.out.WriteString(fmt.Sprintf("<option value=\"%s\" selected=\"selected\">%s</option>", c.Val(), c.L()))
 					} else {
-						rctx.out.WriteString(fmt.Sprintf("<option value=\"%s\">%s</option>", c.Val(), c.L()))
+						r.out.WriteString(fmt.Sprintf("<option value=\"%s\">%s</option>", c.Val(), c.L()))
 					}
 				}
 			}
-			rctx.out.WriteString("</optgroup>")
+			r.out.WriteString("</optgroup>")
 		}
-		rctx.out.WriteString("</select>")
+		r.out.WriteString("</select>")
 	} else {
-		rctx.out.WriteString(fmt.Sprintf("<select name=\"%s\" class=\"%s\"><option value=\"0\">-</option>", name, class))
+		r.out.WriteString(fmt.Sprintf("<select name=\"%s\" class=\"%s\"><option value=\"0\">-</option>", name, class))
 		for _, c := range f.Choices {
 			if c.IsSelected(f.Value) {
-				rctx.out.WriteString(fmt.Sprintf("<option value=\"%s\" selected=\"selected\">%s</option>", c.Val(), c.L()))
+				r.out.WriteString(fmt.Sprintf("<option value=\"%s\" selected=\"selected\">%s</option>", c.Val(), c.L()))
 			} else {
-				rctx.out.WriteString(fmt.Sprintf("<option value=\"%s\">%s</option>", c.Val(), c.L()))
+				r.out.WriteString(fmt.Sprintf("<option value=\"%s\">%s</option>", c.Val(), c.L()))
 			}
 		}
-		rctx.out.WriteString("</select>")
+		r.out.WriteString("</select>")
 	}
 }
 
-func renderTextInput(rctx *RenderContext, f DataField, val any, config ElementOpts, prefix string, class string) {
+func renderTextInput(r *RenderContext, f DataField, val any, config ElementOpts, prefix string, class string) {
 	inputConstraints := ""
 
 	inputType := "text"
@@ -271,11 +345,11 @@ func renderTextInput(rctx *RenderContext, f DataField, val any, config ElementOp
 	//	sb.WriteString("</div>")
 	//
 	//} else {
-	rctx.out.WriteString(fmt.Sprintf("<input name=\"%s\" type=\"%s\"%s value=\"%v\"%s class=\"%s\"/>",
+	r.out.WriteString(fmt.Sprintf("<input name=\"%s\" type=\"%s\"%s value=\"%v\"%s class=\"%s\"/>",
 		name, inputType,
 		strings.TrimSpace(inputConstraints), val, configToHtml(config), class))
 	if f.HasError() {
-		rctx.out.WriteString(fmt.Sprintf("<p class=\"mt-2 text-sm text-red-600\">%s</p>", f.Errors()))
+		r.out.WriteString(fmt.Sprintf("<p class=\"mt-2 text-sm text-red-600\">%s</p>", f.Errors()))
 		//}
 	}
 
@@ -329,7 +403,7 @@ func SetKey(
 	fields []FieldV,
 	allValues []string,
 	group func(k string) string,
-	label func(l string) string,
+	LABEL func(l string) string,
 ) {
 	for i := range fields {
 		if fields[i].Name == setKey {
@@ -338,7 +412,7 @@ func SetKey(
 			for _, p := range allValues {
 				choices = append(choices, Choice{
 					Group:    group(p),
-					Label:    label(p),
+					Label:    LABEL(p),
 					Value:    p,
 					Selected: lo.Contains(values, p),
 				})

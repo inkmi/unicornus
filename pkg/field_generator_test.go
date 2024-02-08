@@ -15,14 +15,14 @@ type TestOptionalCheckbox struct {
 }
 
 type TestG struct {
-	B int  `validate:"int|min:10" message:"The age is 10" label:"Minimum Age"`
-	C *int `validate:"int|min:20" message:"The age is 20" label:"Minimum Age"`
-	D *int `validate:"int|min:30" message:"The age is 30" label:"Minimum Age"`
+	B int  `validate:"int|min:10" message:"The age is 10" LABEL:"Minimum Age"`
+	C *int `validate:"int|min:20" message:"The age is 20" LABEL:"Minimum Age"`
+	D *int `validate:"int|min:30" message:"The age is 30" LABEL:"Minimum Age"`
 	E []string
 }
 
 type TestIntOptional struct {
-	A int `validate:"optional|int|min:30" message:"The age is 30" label:"Minimum Age"`
+	A int `validate:"optional|int|min:30" message:"The age is 30" LABEL:"Minimum Age"`
 }
 
 type TestG2 struct {
