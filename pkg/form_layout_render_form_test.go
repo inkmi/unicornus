@@ -122,7 +122,7 @@ func TestRenderGroup(t *testing.T) {
 	data := TestSubGroup{
 		A: TestGroup{B: true, C: &c},
 	}
-	html := RemoveClass(f.RenderForm(data))
+	html := RemoveClassAndStyle(f.RenderForm(data))
 	assert.Equal(t, Clean(`
 <a name="formgroup-X"></a>
 <div>
@@ -153,7 +153,7 @@ func TestRenderMultiWithDiv(t *testing.T) {
 	data := TestMulti{
 		A: []string{"A1", "A2"},
 	}
-	html := RemoveClass(f.RenderForm(data))
+	html := RemoveClassAndStyle(f.RenderForm(data))
 	assert.Equal(t, Clean(`
 <div>
 <div>
@@ -233,7 +233,7 @@ func TestRenderMultiGroup(t *testing.T) {
 	data := TestMulti{
 		A: []string{"A", "B"},
 	}
-	html := RemoveClass(f.RenderForm(data))
+	html := RemoveClassAndStyle(f.RenderForm(data))
 	assert.Equal(t, Clean(`
 <div>
 <div>

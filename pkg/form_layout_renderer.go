@@ -61,6 +61,11 @@ func (r *RenderContext) divOpen(class string) {
 	r.out.WriteString(class)
 	r.out.WriteString("\">")
 }
+func (r *RenderContext) divOpenS(style string) {
+	r.out.WriteString("<div style=\"")
+	r.out.WriteString(style)
+	r.out.WriteString("\">")
+}
 
 func (r *RenderContext) LABEL(content string, class string) {
 	r.out.WriteString("<label class=\"")

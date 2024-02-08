@@ -61,7 +61,14 @@ type FormElement struct {
 }
 
 func NewFormLayout() *FormLayout {
-	fl := &FormLayout{}
+	fl := &FormLayout{
+		Theme: TailwindTheme{
+			// TopSeparator
+			NewStyles(
+				TopSeparator("1.5rem"),
+			),
+		},
+	}
 	return fl
 }
 

@@ -31,7 +31,7 @@ func Normalize(inputHtml string) string {
 	return html
 }
 
-func RemoveClass(inputHTML string) string {
+func RemoveClassAndStyle(inputHTML string) string {
 	r := strings.NewReader(inputHTML)
 	doc, err := goquery.NewDocumentFromReader(r)
 	if err != nil {
@@ -43,7 +43,10 @@ func RemoveClass(inputHTML string) string {
 		// Remove the class attribute from the current element
 		s.RemoveAttr("class")
 	})
-
+	doc.Find("[style]").Each(func(_ int, s *goquery.Selection) {
+		// Remove the class attribute from the current element
+		s.RemoveAttr("style")
+	})
 	// Print the modified HTML
 	html, err := doc.Find("body").Html()
 	if err != nil {
