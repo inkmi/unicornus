@@ -70,6 +70,10 @@ errors := map[string]string{"Name": "Name can't be Unicornus"}
 html := ui.RenderFormWithErrors(d, errors)
 ```
 
+Results in
+
+<img src="https://raw.githubusercontent.com/inkmi/unicornus/master/formexample.png" width="600">
+
 ## Examples
 
 You can run the examples with

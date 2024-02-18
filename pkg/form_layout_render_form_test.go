@@ -72,9 +72,7 @@ func TestRenderValidationForm(t *testing.T) {
 func TestRenderOptionalCheckbox(t *testing.T) {
 	f := NewFormLayout().
 		Add("A", "A")
-	data := TestOptionCheckbox{
-		A: nil,
-	}
+	data := TestOptionCheckbox{A: nil}
 	html := Normalize(f.RenderForm(data))
 	assert.Equal(t, RemoveSpacesInHtml(`
 <input type="checkbox" name="A"/>
