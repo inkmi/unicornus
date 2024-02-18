@@ -51,6 +51,10 @@ Validation │ Data Model  ├──────┬──────┤ Form La
 ## Code Example
 
 ```go
+import (
+  uni "github.com/inkmi/unicornus/pkg"
+)
+
 type data struct {
   Name string
 }
