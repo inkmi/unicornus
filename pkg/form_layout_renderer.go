@@ -118,6 +118,16 @@ func (r *RenderContext) LABELS(content string, style string) {
 	r.out.WriteString("</label>")
 }
 
+func (r *RenderContext) LABELopenS(style string) {
+	r.out.WriteString("<label style=\"")
+	r.out.WriteString(style)
+	r.out.WriteString("\">")
+}
+func (r *RenderContext) LABELclose() {
+	r.out.WriteString("</label>")
+
+}
+
 func (r *RenderContext) PS(content string, style string) {
 	r.out.WriteString("<p style=\"")
 	r.out.WriteString(style)
@@ -329,6 +339,18 @@ func (f *FormLayout) renderElement(
 	}
 }
 
+func renderCheckboxS(r *RenderContext, f DataField, config ElementOpts, prefix string, style string) {
+	checked := ""
+	v, ok := f.Val().(bool)
+	if ok {
+		if v {
+			checked = "checked"
+		}
+	}
+	name := f.Name
+	r.out.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" style=\"%s\" %s%s/>", name, style, checked, configToHtml(config)))
+}
+
 func renderCheckbox(r *RenderContext, f DataField, config ElementOpts, prefix string, class string) {
 	checked := ""
 	v, ok := f.Val().(bool)
@@ -341,14 +363,14 @@ func renderCheckbox(r *RenderContext, f DataField, config ElementOpts, prefix st
 	r.out.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" class=\"%s\" %s%s/>", name, class, checked, configToHtml(config)))
 }
 
-func renderSelect(r *RenderContext, f DataField, config ElementOpts, prefix string, class string, e FormElement) {
+func renderSelect(r *RenderContext, f DataField, config ElementOpts, prefix string, style string, e FormElement) {
 	name := f.Name
 	if f.Kind == "int" {
 		name = name + ":int"
 	}
 	// optgroup https://developer.mozilla.org/en-US/docs/Web/HTML/Element/optgroup
 	if len(e.Config.Groups) > 0 {
-		r.out.WriteString(fmt.Sprintf("<select name=\"%s\" class=\"%s\"><option value=\"0\">-</option>", name, class))
+		r.out.WriteString(fmt.Sprintf("<select name=\"%s\" style=\"%s\"><option value=\"0\">-</option>", name, style))
 		for group, name := range e.Config.Groups {
 			r.out.WriteString(fmt.Sprintf("<optgroup LABEL=\"%s\">", name))
 			for _, c := range f.Choices {
@@ -364,7 +386,7 @@ func renderSelect(r *RenderContext, f DataField, config ElementOpts, prefix stri
 		}
 		r.out.WriteString("</select>")
 	} else {
-		r.out.WriteString(fmt.Sprintf("<select name=\"%s\" class=\"%s\"><option value=\"0\">-</option>", name, class))
+		r.out.WriteString(fmt.Sprintf("<select name=\"%s\" style=\"%s\"><option value=\"0\">-</option>", name, style))
 		for _, c := range f.Choices {
 			if c.IsSelected(f.Value) {
 				r.out.WriteString(fmt.Sprintf("<option value=\"%s\" selected=\"selected\">%s</option>", c.Val(), c.L()))

@@ -6,11 +6,15 @@ import (
 	"net/http"
 )
 
+type data2 struct {
+	Name string
+}
+
 func example2(w http.ResponseWriter, req *http.Request) {
-	fmt.Fprintf(w, "<!DOCTYPE html><html><body>")
+	fmt.Fprintf(w, "<!DOCTYPE html><html><body><div>")
 
 	// The data of the form
-	d := data{
+	d := data2{
 		Name: "Unicornus",
 	}
 	// Create a FormLayout
@@ -27,6 +31,6 @@ func example2(w http.ResponseWriter, req *http.Request) {
 	html := ui.RenderFormWithErrors(d, errors)
 	fmt.Fprintf(w, html)
 
-	fmt.Fprintf(w, "</body></html>")
+	fmt.Fprintf(w, "</div></body></html>")
 
 }

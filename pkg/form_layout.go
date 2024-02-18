@@ -65,7 +65,7 @@ func NewFormLayout() *FormLayout {
 		Theme: BaseTheme{
 			// TopSeparator
 			NewStyles(
-				InputStyle("display: block; width: 100%%; margin-top: 0.25rem; border: 1px solid #D1D5DB; border-radius: 0.375rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); padding-top: 0.5rem; padding-bottom: 0.5rem; padding-left: 0.75rem; padding-right: 0.75rem; outline: none;"),
+				InputStyle("width: 95%%; margin-top: 0.25rem; border: 1px solid #D1D5DB; border-radius: 0.375rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); padding-top: 0.5rem; padding-bottom: 0.5rem; padding-left: 0.75rem; padding-right: 0.75rem; outline: none;"),
 				LabelStyle("display: block; font-size: 0.875rem; font-weight: 500; color: #6B7280"),
 				ErrorStyle("margin-top: 0.5rem; font-size: 0.875rem; color: #e3342f;"),
 				TopSeparator("1.5rem"),

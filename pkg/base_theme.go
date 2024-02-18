@@ -62,7 +62,7 @@ func (t BaseTheme) themeRenderInput(r *RenderContext, e FormElement, field DataF
 		if len(e.Config.Label) > 0 {
 			r.DIVS(e.Config.Label, t.styles.labelStyle)
 		}
-		r.DIV(Safe(field.ViewVal()), "font-size: 0.875rem; font-weight: 500; color: #1F2937;")
+		r.DIV(Safe(field.ViewVal()), "font-weight: 500; color: #1F2937;")
 	} else {
 		// Label for input
 		if len(e.Config.Label) > 0 {
@@ -72,7 +72,7 @@ func (t BaseTheme) themeRenderInput(r *RenderContext, e FormElement, field DataF
 		renderTextInputS(r, field, field.Val(), e.Config, t.styles.inputStyle, t.styles.errorStyle)
 		// Render description
 		if len(e.Config.Description) > 0 {
-			r.PS(e.Config.Description, "margin-top: 0.5rem; font-size: 0.875rem; color: #6B7280; ")
+			r.PS(e.Config.Description, "margin-top: 0.5rem; color: #6B7280; ")
 		}
 	}
 	r.DIVclose()
@@ -84,15 +84,18 @@ func (t BaseTheme) themeRenderSelect(r *RenderContext, e FormElement, field Data
 		if len(e.Config.Label) > 0 {
 			r.DIVS(e.Config.Label, t.styles.labelStyle)
 		}
-		r.DIV(Safe(field.ViewVal()), "font-size: 0.875rem; font-weight: 500; color: #1F2937;")
+		r.DIV(Safe(field.ViewVal()), "font-weight: 500; color: #1F2937;")
 	} else {
 		if len(e.Config.Label) > 0 {
 			r.LABELS(e.Config.Label, t.styles.labelStyle)
 		}
-		class := "mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-		renderSelect(r, field, e.Config, prefix, class, e)
+		style := "margin-top: 4px; display: block; width: 100%; border-radius: 6px; border: 1px solid #D1D5DB; padding: 8px 40px 8px 12px; font-size: 16px;"
+		renderSelect(r, field, e.Config, prefix, style, e)
 		if field.HasError() {
 			r.PS(field.Errors(), t.styles.errorStyle)
+		}
+		if len(description) > 0 {
+			r.PS(description, "margin-top: 0.5rem; color: #6B7280; ")
 		}
 	}
 	r.DIVclose()
@@ -128,8 +131,8 @@ func (t BaseTheme) themeRenderYesNo(r *RenderContext, e FormElement, field DataF
 }
 
 func (t BaseTheme) themeRenderCheckbox(r *RenderContext, e FormElement, field DataField, description string, prefix string) {
-	r.DIVopen("py-2 px-4 sm:p-2 lg:pb-4 relative flex items-start")
-	r.DIVopen("flex h-5 items-center")
+	r.DIVopenS("display: flex; padding: 8px 16px; align-items: flex-start;")
+	r.DIVopenS("display: flex; height: 20px; align-items: center;")
 	if r.OnlyDisplay(field.Name) {
 		v, ok := field.Val().(bool)
 		if ok {
@@ -140,15 +143,21 @@ func (t BaseTheme) themeRenderCheckbox(r *RenderContext, e FormElement, field Da
 			}
 		}
 	} else {
-		class := "h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-		renderCheckbox(r, field, e.Config, prefix, class)
+		if len(e.Config.Label) > 0 {
+			r.LABELopenS(t.styles.labelStyle)
+		}
+		style := "height: 16px; vertical-align: -4px; width: 16px; border-radius: 4px; border: 1px solid #D1D5DB; color: #4F46E5;"
+		renderCheckboxS(r, field, e.Config, prefix, style)
+		if len(e.Config.Label) > 0 {
+			r.DIVS(e.Config.Label, "display: inline; padding-left: 0.5rem;")
+			r.LABELclose()
+		}
 	}
 	r.DIVclose()
-	r.DIVopen("ml-3 text-sm")
-	if len(e.Config.Label) > 0 {
-		r.LABELS(e.Config.Label, t.styles.labelStyle)
+	r.DIVopenS("margin-left: 12px; font-size: 14px;")
+	if len(description) > 0 {
+		r.PS(description, "margin-left: 12px; font-size: 14px;")
 	}
-	r.p(description, "text-gray-500")
 	if field.HasError() {
 		r.PS(field.Errors(), t.styles.errorStyle)
 	}
@@ -181,14 +190,14 @@ func (t BaseTheme) renderMultiGroup(r *RenderContext, f DataField, group string,
 			name := f.Name + "#" + c.Val()
 			r.DIVopen("relative flex items-start")
 			r.DIVopen("flex h-5 items-center")
+			r.LABELopenS(t.styles.labelStyle)
 			if c.Checked {
 				r.out.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" checked class=\"h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500\">", name))
 			} else {
 				r.out.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" class=\"h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500\">", name))
 			}
-			r.DIVclose()
-			r.DIVopen("ml-3 text-sm")
-			r.LABEL(c.L(), "font-medium text-gray-700")
+			r.DIVS(c.L(), "display: inline; padding-left: 0.5rem;")
+			r.LABELclose()
 			r.DIVclose()
 			r.DIVclose()
 		}
@@ -202,7 +211,7 @@ func (t BaseTheme) themeRenderHeader(r *RenderContext, e FormElement) {
 }
 
 func (t BaseTheme) themeRenderGroup(r *RenderContext, m map[string]DataField, prefix string, e FormElement) {
-	r.DIVopen("py-6")
+	r.DIVopenS(t.styles.topSeparator)
 	r.H2(e.Config.Label, "text-lg leading-6 font-bold text-gray-900")
 	r.p(e.Config.Description, "mt-1 text-sm text-gray-500")
 	e.Config.SubLayout.renderFormToBuilder(r, prefix, m)

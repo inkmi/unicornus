@@ -92,7 +92,7 @@ func translateStruct(prefix string, vals []DataField, original reflect.Value, er
 			} else {
 				typ = original.Type().Field(i).Type.Name()
 			}
-			if df.Optional == false {
+			if !df.Optional {
 				df.Optional = hasOptional(typ)
 			}
 			df.Kind = removeOptional(typ)
