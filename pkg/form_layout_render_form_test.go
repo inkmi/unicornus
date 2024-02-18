@@ -51,7 +51,7 @@ func TestRenderForm(t *testing.T) {
 		A: "b",
 	}
 	html := Normalize(f.RenderForm(data))
-	assert.Equal(t, Clean(`
+	assert.Equal(t, RemoveSpacesInHtml(`
 <label>A</label>
 <input name="A" type="text" value="b"/>
 `), html)
@@ -63,7 +63,7 @@ func TestRenderValidationForm(t *testing.T) {
 		S: "b",
 	}
 	html := Normalize(f.RenderForm(data))
-	assert.Equal(t, Clean(`
+	assert.Equal(t, RemoveSpacesInHtml(`
 <label>S</label>
 <input name="S" type="text" value="b"/>
 `), html)
@@ -76,7 +76,7 @@ func TestRenderOptionalCheckbox(t *testing.T) {
 		A: nil,
 	}
 	html := Normalize(f.RenderForm(data))
-	assert.Equal(t, Clean(`
+	assert.Equal(t, RemoveSpacesInHtml(`
 <input type="checkbox" name="A"/>
 <label>A</label>
 <p></p>
@@ -90,7 +90,7 @@ func TestRenderCheckbox(t *testing.T) {
 		A: true,
 	}
 	html := Normalize(f.RenderForm(data))
-	assert.Equal(t, Clean(`
+	assert.Equal(t, RemoveSpacesInHtml(`
 <input type="checkbox" name="A" checked=""/>
 <label>A</label>
 <p></p>
@@ -104,7 +104,7 @@ func TestRenderCheckboxUnchecked(t *testing.T) {
 		A: false,
 	}
 	html := Normalize(Normalize(f.RenderForm(data)))
-	assert.Equal(t, Clean(`
+	assert.Equal(t, RemoveSpacesInHtml(`
 <input type="checkbox" name="A"/>
 <label>A</label>
 <p></p>
@@ -123,7 +123,7 @@ func TestRenderGroup(t *testing.T) {
 		A: TestGroup{B: true, C: &c},
 	}
 	html := RemoveClassAndStyle(f.RenderForm(data))
-	assert.Equal(t, Clean(`
+	assert.Equal(t, RemoveSpacesInHtml(`
 <a name="formgroup-X"></a>
 <div>
 <h2>X</h2><p>Y</p>
@@ -154,7 +154,7 @@ func TestRenderMultiWithDiv(t *testing.T) {
 		A: []string{"A1", "A2"},
 	}
 	html := RemoveClassAndStyle(f.RenderForm(data))
-	assert.Equal(t, Clean(`
+	assert.Equal(t, RemoveSpacesInHtml(`
 <div>
 <div>
 <fieldset>
@@ -195,7 +195,7 @@ func TestRenderMulti(t *testing.T) {
 		A: []string{"A1", "A2"},
 	}
 	html := Normalize(f.RenderForm(data))
-	assert.Equal(t, Clean(`
+	assert.Equal(t, RemoveSpacesInHtml(`
 
 <fieldset>
 <input type="checkbox" name="A#A1" checked=""/>
@@ -234,7 +234,7 @@ func TestRenderMultiGroup(t *testing.T) {
 		A: []string{"A", "B"},
 	}
 	html := RemoveClassAndStyle(f.RenderForm(data))
-	assert.Equal(t, Clean(`
+	assert.Equal(t, RemoveSpacesInHtml(`
 <div>
 <div>
 <h3>Group 1</h3>
@@ -283,7 +283,7 @@ func TestTwoElementRenderForm(t *testing.T) {
 		B: "b",
 	}
 	html := Normalize(f.RenderForm(data))
-	assert.Equal(t, Clean(`
+	assert.Equal(t, RemoveSpacesInHtml(`
 <label>A</label>
 <input name="A" type="text" value="a"/>
 <label>B</label>
@@ -302,7 +302,7 @@ func TestTwoElementRenderFormWithError(t *testing.T) {
 
 	errors := map[string]string{"B": "B not long enough"}
 	html := Normalize(f.RenderFormWithErrors(data, errors))
-	assert.Equal(t, Clean(`
+	assert.Equal(t, RemoveSpacesInHtml(`
 <label>A</label>
 <input name="A" type="text" value="a"/>
 <label>B</label>
@@ -318,7 +318,7 @@ func TestHeaderRenderForm(t *testing.T) {
 		A: "a",
 	}
 	html := f.RenderForm(data)
-	assert.Equal(t, Clean(`
+	assert.Equal(t, RemoveSpacesInHtml(`
 <h2>A</h2>
 `), html)
 }
@@ -330,7 +330,7 @@ func TestRenderSelectForm(t *testing.T) {
 		B: 3,
 	}
 	html := Normalize(f.RenderForm(data))
-	assert.Equal(t, Clean(`
+	assert.Equal(t, RemoveSpacesInHtml(`
 <label>B</label>
 <select name="B:int">
    <option value="0">-</option>
@@ -364,7 +364,7 @@ func TestRenderSelectWithChoicesForm(t *testing.T) {
 		A: "B",
 	}
 	html := Normalize(f.RenderForm(data))
-	assert.Equal(t, Clean(`
+	assert.Equal(t, RemoveSpacesInHtml(`
 <label>A</label>
 <select name="A">
    <option value="0">-</option>
@@ -391,7 +391,7 @@ func TestRenderFormPlaceHolder(t *testing.T) {
 		A: "b",
 	}
 	html := Normalize(f.RenderForm(data))
-	assert.Equal(t, Clean(`
+	assert.Equal(t, RemoveSpacesInHtml(`
 <label>A</label>
 <input name="A" type="text" value="b" placeholder="c"/>
 `), html)
@@ -404,7 +404,7 @@ func TestRenderFormPlaceId(t *testing.T) {
 		A: "b",
 	}
 	html := Normalize(f.RenderForm(data))
-	assert.Equal(t, Clean(`
+	assert.Equal(t, RemoveSpacesInHtml(`
 <label>A</label>
 <input name="A" type="text" value="b" id="c"/>
 `), html)

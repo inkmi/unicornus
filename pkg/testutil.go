@@ -23,7 +23,11 @@ func Normalize(inputHtml string) string {
 		// Remove the class attribute from the current element
 		s.RemoveAttr("class")
 	})
-
+	// Also remove all and Style
+	doc.Find("[style]").Each(func(_ int, s *goquery.Selection) {
+		// Remove the class attribute from the current element
+		s.RemoveAttr("style")
+	})
 	html, err := doc.Find("body").Html()
 	if err != nil {
 		return err.Error()
@@ -55,7 +59,7 @@ func RemoveClassAndStyle(inputHTML string) string {
 	return html
 }
 
-func Clean(inputHTML string) string {
+func RemoveSpacesInHtml(inputHTML string) string {
 	regexPattern := `>[[:space:]]+<`
 	re := regexp.MustCompile(regexPattern)
 	cleanedHTML := re.ReplaceAllString(inputHTML, "><")

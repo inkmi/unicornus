@@ -10,10 +10,6 @@ lint: staticcheck
 	golangci-lint run
 	go vet ./...
 
-# https://github.com/fdaines/arch-go
-arch:
-	arch-go
-
 audit:
 	go list -json -deps ./... | nancy sleuth --loud
 
@@ -32,7 +28,7 @@ upgrade-deps:
 
 all:   lint sec  test
 
-example:
+examples:
 	go build -o bin ./...
 	./bin/example
 

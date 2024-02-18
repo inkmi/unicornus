@@ -6,7 +6,7 @@ import (
 )
 
 func TestClean(t *testing.T) {
-	cleaned := Clean(`
+	cleaned := RemoveSpacesInHtml(`
 <html>   <body  class="body">
 </body>
 </html>
@@ -15,7 +15,7 @@ func TestClean(t *testing.T) {
 }
 
 func TestNormalize(t *testing.T) {
-	norm := Clean(RemoveClassAndStyle(`
+	norm := RemoveSpacesInHtml(RemoveClassAndStyle(`
 <div class="a">
 <div class="b">
 </div>
