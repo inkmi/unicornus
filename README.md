@@ -48,6 +48,33 @@ Validation │ Data Model  ├──────┬──────┤ Form La
                           └───────────┘
 ```
 
+## Code Example
+
+```go
+type data struct {
+  Name string
+}
+
+d := data{
+   Name: "Unicornus",
+}
+ui := uni.NewFormLayout().
+   Add("Name", "Name")
+
+errors := map[string]string{"Name": "Name can't be Unicornus"}
+
+html := ui.RenderFormWithErrors(d, errors)
+```
+
+## Examples
+
+You can run the examples with
+
+```
+make examples
+```
+
+
 ## License information
 
 MIT License

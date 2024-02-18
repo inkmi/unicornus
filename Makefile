@@ -31,3 +31,10 @@ upgrade-deps:
 	gotestsum ./...
 
 all:   lint sec  test
+
+example:
+	go build -o bin ./...
+	./bin/example
+
+air:
+	air

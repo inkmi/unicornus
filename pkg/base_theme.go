@@ -10,8 +10,7 @@ import (
 type StyleFunc func(style *ThemeStyles)
 
 func defaultStyle() *ThemeStyles {
-	t := &ThemeStyles{}
-	return t
+	return &ThemeStyles{}
 }
 
 func NewStyles(ops ...StyleFunc) *ThemeStyles {
@@ -22,6 +21,24 @@ func NewStyles(ops ...StyleFunc) *ThemeStyles {
 	return style
 }
 
+func ErrorStyle(errorStyle string) StyleFunc {
+	return func(t *ThemeStyles) {
+		t.errorStyle = errorStyle
+	}
+}
+
+func LabelStyle(labelStyle string) StyleFunc {
+	return func(t *ThemeStyles) {
+		t.labelStyle = labelStyle
+	}
+}
+
+func InputStyle(inputStyle string) StyleFunc {
+	return func(t *ThemeStyles) {
+		t.inputStyle = inputStyle
+	}
+}
+
 func TopSeparator(separator string) StyleFunc {
 	return func(t *ThemeStyles) {
 		t.topSeparator = "margin-top: " + separator + ";"
@@ -30,53 +47,58 @@ func TopSeparator(separator string) StyleFunc {
 
 type ThemeStyles struct {
 	topSeparator string
+	errorStyle   string
+	labelStyle   string
+	inputStyle   string
 }
 
-type TailwindTheme struct {
+type BaseTheme struct {
 	styles *ThemeStyles
 }
 
-func (t TailwindTheme) themeRenderInput(r *RenderContext, e FormElement, field DataField, prefix string) {
-	r.divOpenS(t.styles.topSeparator)
+func (t BaseTheme) themeRenderInput(r *RenderContext, e FormElement, field DataField, prefix string) {
+	r.DIVopenS(t.styles.topSeparator)
 	if r.OnlyDisplay(field.Name) {
 		if len(e.Config.Label) > 0 {
-			r.DIV(e.Config.Label, "block text-sm font-medium text-gray-500")
+			r.DIVS(e.Config.Label, t.styles.labelStyle)
 		}
-		r.DIV(field.ViewVal(), "text-sm font-medium text-gray-900")
+		r.DIV(Safe(field.ViewVal()), "font-size: 0.875rem; font-weight: 500; color: #1F2937;")
 	} else {
+		// Label for input
 		if len(e.Config.Label) > 0 {
-			r.LABEL(e.Config.Label, "block text-sm font-medium text-gray-700")
+			r.LABELS(e.Config.Label, t.styles.labelStyle)
 		}
-		class := "mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
-		renderTextInput(r, field, field.Val(), e.Config, prefix, class)
+		// Render input element
+		renderTextInputS(r, field, field.Val(), e.Config, t.styles.inputStyle, t.styles.errorStyle)
+		// Render description
 		if len(e.Config.Description) > 0 {
-			r.p(e.Config.Description, "mt-2 text-sm text-gray-500")
+			r.PS(e.Config.Description, "margin-top: 0.5rem; font-size: 0.875rem; color: #6B7280; ")
 		}
 	}
-	r.divClose()
+	r.DIVclose()
 }
 
-func (t TailwindTheme) themeRenderSelect(r *RenderContext, e FormElement, field DataField, description string, prefix string) {
-	r.divOpenS(t.styles.topSeparator)
+func (t BaseTheme) themeRenderSelect(r *RenderContext, e FormElement, field DataField, description string, prefix string) {
+	r.DIVopenS(t.styles.topSeparator)
 	if r.OnlyDisplay(field.Name) {
 		if len(e.Config.Label) > 0 {
-			r.DIV(e.Config.Label, "block text-sm font-medium text-gray-700")
+			r.DIVS(e.Config.Label, t.styles.labelStyle)
 		}
-		r.DIV(field.ViewVal(), "text-sm font-medium text-gray-900")
+		r.DIV(Safe(field.ViewVal()), "font-size: 0.875rem; font-weight: 500; color: #1F2937;")
 	} else {
 		if len(e.Config.Label) > 0 {
-			r.LABEL(e.Config.Label, "block text-sm font-medium text-gray-700")
+			r.LABELS(e.Config.Label, t.styles.labelStyle)
 		}
 		class := "mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
 		renderSelect(r, field, e.Config, prefix, class, e)
 		if field.HasError() {
-			r.p(field.Errors(), "mt-2 text-sm text-red-600")
+			r.PS(field.Errors(), t.styles.errorStyle)
 		}
 	}
-	r.divClose()
+	r.DIVclose()
 }
 
-func (t TailwindTheme) themeRenderYesNo(r *RenderContext, e FormElement, field DataField, description string, prefix string) {
+func (t BaseTheme) themeRenderYesNo(r *RenderContext, e FormElement, field DataField, description string, prefix string) {
 	id := generateRandomID(10)
 	checked := ""
 	v, ok := field.Val().(bool)
@@ -105,21 +127,9 @@ func (t TailwindTheme) themeRenderYesNo(r *RenderContext, e FormElement, field D
 </div>`, "Yes"))
 }
 
-func generateRandomID(n int) string {
-	const letters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-	bytes := make([]byte, n)
-	if _, err := rand.Read(bytes); err != nil {
-		log.Fatal(err)
-	}
-	for i, b := range bytes {
-		bytes[i] = letters[b%byte(len(letters))]
-	}
-	return string(bytes)
-}
-
-func (t TailwindTheme) themeRenderCheckbox(r *RenderContext, e FormElement, field DataField, description string, prefix string) {
-	r.divOpen("py-2 px-4 sm:p-2 lg:pb-4 relative flex items-start")
-	r.divOpen("flex h-5 items-center")
+func (t BaseTheme) themeRenderCheckbox(r *RenderContext, e FormElement, field DataField, description string, prefix string) {
+	r.DIVopen("py-2 px-4 sm:p-2 lg:pb-4 relative flex items-start")
+	r.DIVopen("flex h-5 items-center")
 	if r.OnlyDisplay(field.Name) {
 		v, ok := field.Val().(bool)
 		if ok {
@@ -133,21 +143,21 @@ func (t TailwindTheme) themeRenderCheckbox(r *RenderContext, e FormElement, fiel
 		class := "h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
 		renderCheckbox(r, field, e.Config, prefix, class)
 	}
-	r.divClose()
-	r.divOpen("ml-3 text-sm")
+	r.DIVclose()
+	r.DIVopen("ml-3 text-sm")
 	if len(e.Config.Label) > 0 {
-		r.LABEL(e.Config.Label, "block text-sm font-medium text-gray-700")
+		r.LABELS(e.Config.Label, t.styles.labelStyle)
 	}
 	r.p(description, "text-gray-500")
 	if field.HasError() {
-		r.p(field.Errors(), "mt-2 text-sm text-red-600")
+		r.PS(field.Errors(), t.styles.errorStyle)
 	}
-	r.divClose()
-	r.divClose()
+	r.DIVclose()
+	r.DIVclose()
 }
 
-func (t TailwindTheme) themeRenderMulti(r *RenderContext, f DataField, e FormElement, prefix string) {
-	r.divOpenS(t.styles.topSeparator)
+func (t BaseTheme) themeRenderMulti(r *RenderContext, f DataField, e FormElement, prefix string) {
+	r.DIVopenS(t.styles.topSeparator)
 	// Should this move to Field generation?
 	if len(e.Config.Groups) > 0 {
 		for group, name := range e.Config.Groups {
@@ -156,47 +166,47 @@ func (t TailwindTheme) themeRenderMulti(r *RenderContext, f DataField, e FormEle
 	} else {
 		t.renderMultiGroup(r, f, "", "")
 	}
-	r.divClose()
+	r.DIVclose()
 }
 
-func (t TailwindTheme) renderMultiGroup(r *RenderContext, f DataField, group string, groupName string) {
-	r.divOpenS(t.styles.topSeparator)
+func (t BaseTheme) renderMultiGroup(r *RenderContext, f DataField, group string, groupName string) {
+	r.DIVopenS(t.styles.topSeparator)
 	if len(groupName) > 0 {
-		r.h3(groupName, "font-bold text-gray-900")
+		r.H3(groupName, "font-bold text-gray-900")
 	}
 	r.out.WriteString("<fieldset class=\"space-y-1\">")
 	// range copies slice
 	for _, c := range f.Choices {
 		if len(group) == 0 || c.Group == group {
 			name := f.Name + "#" + c.Val()
-			r.divOpen("relative flex items-start")
-			r.divOpen("flex h-5 items-center")
+			r.DIVopen("relative flex items-start")
+			r.DIVopen("flex h-5 items-center")
 			if c.Checked {
 				r.out.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" checked class=\"h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500\">", name))
 			} else {
 				r.out.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" class=\"h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500\">", name))
 			}
-			r.divClose()
-			r.divOpen("ml-3 text-sm")
+			r.DIVclose()
+			r.DIVopen("ml-3 text-sm")
 			r.LABEL(c.L(), "font-medium text-gray-700")
-			r.divClose()
-			r.divClose()
+			r.DIVclose()
+			r.DIVclose()
 		}
 	}
 	r.out.WriteString("</fieldset>")
-	r.divClose()
+	r.DIVclose()
 }
 
-func (t TailwindTheme) themeRenderHeader(r *RenderContext, e FormElement) {
-	r.h2No(e.Name)
+func (t BaseTheme) themeRenderHeader(r *RenderContext, e FormElement) {
+	r.H2no(e.Name)
 }
 
-func (t TailwindTheme) themeRenderGroup(r *RenderContext, m map[string]DataField, prefix string, e FormElement) {
-	r.divOpen("py-6")
-	r.h2(e.Config.Label, "text-lg leading-6 font-bold text-gray-900")
+func (t BaseTheme) themeRenderGroup(r *RenderContext, m map[string]DataField, prefix string, e FormElement) {
+	r.DIVopen("py-6")
+	r.H2(e.Config.Label, "text-lg leading-6 font-bold text-gray-900")
 	r.p(e.Config.Description, "mt-1 text-sm text-gray-500")
 	e.Config.SubLayout.renderFormToBuilder(r, prefix, m)
-	r.divClose()
+	r.DIVclose()
 }
 
 func stringToAnchor(input string) string {
@@ -209,4 +219,16 @@ func stringToAnchor(input string) string {
 	result = alphanumericRegex.ReplaceAllString(result, "")
 
 	return result
+}
+
+func generateRandomID(n int) string {
+	const letters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+	bytes := make([]byte, n)
+	if _, err := rand.Read(bytes); err != nil {
+		log.Fatal(err)
+	}
+	for i, b := range bytes {
+		bytes[i] = letters[b%byte(len(letters))]
+	}
+	return string(bytes)
 }

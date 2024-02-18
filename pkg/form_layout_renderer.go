@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"fmt"
+	"html"
 	"strings"
 )
 
@@ -11,7 +12,33 @@ type RenderContext struct {
 	ViewMode     bool
 }
 
-func (r *RenderContext) divV(content string, class ...string) {
+func Safe(str string) string {
+	return html.EscapeString(str)
+}
+
+func WriteString(s *strings.Builder, str string) {
+	s.WriteString(Safe(str))
+}
+
+func WriteValue(s *strings.Builder, value any) {
+	WriteString(s, fmt.Sprintf("%v", value))
+}
+
+func (r *RenderContext) INPUT(name string, typ string, value any, style string, config ElementOpts) {
+	r.out.WriteString("<input name=\"")
+	r.out.WriteString(name)
+	r.out.WriteString("\" type=\"")
+	r.out.WriteString(typ)
+	r.out.WriteString("\" value=\"")
+	WriteValue(r.out, value)
+	r.out.WriteString("\" ")
+	r.out.WriteString(configToHtml(config))
+	r.out.WriteString(" style=\"")
+	r.out.WriteString(style)
+	r.out.WriteString("\">")
+}
+
+func (r *RenderContext) DIVv(content string, class ...string) {
 	r.out.WriteString("<div class=\"")
 	for i := 0; i < len(class); i++ {
 		r.out.WriteString(class[i])
@@ -22,17 +49,17 @@ func (r *RenderContext) divV(content string, class ...string) {
 	r.out.WriteString("</div>")
 }
 
-func (r *RenderContext) h2No(content string) {
+func (r *RenderContext) H2no(content string) {
 	r.out.WriteString("<h2>")
 	r.out.WriteString(content)
 	r.out.WriteString("</h2>")
 }
 
-func (r *RenderContext) divClose() {
+func (r *RenderContext) DIVclose() {
 	r.out.WriteString("</div>")
 }
 
-func (r *RenderContext) h2(content string, class string) {
+func (r *RenderContext) H2(content string, class string) {
 	r.out.WriteString("<h2 class=\"")
 	r.out.WriteString(class)
 	r.out.WriteString("\">")
@@ -40,7 +67,7 @@ func (r *RenderContext) h2(content string, class string) {
 	r.out.WriteString("</h2>")
 }
 
-func (r *RenderContext) h3(content string, class string) {
+func (r *RenderContext) H3(content string, class string) {
 	r.out.WriteString("<h3 class=\"")
 	r.out.WriteString(class)
 	r.out.WriteString("\">")
@@ -56,12 +83,20 @@ func (r *RenderContext) DIV(content string, class string) {
 	r.out.WriteString("</div>")
 }
 
-func (r *RenderContext) divOpen(class string) {
+func (r *RenderContext) DIVS(content string, style string) {
+	r.out.WriteString("<div style=\"")
+	r.out.WriteString(style)
+	r.out.WriteString("\">")
+	r.out.WriteString(content)
+	r.out.WriteString("</div>")
+}
+
+func (r *RenderContext) DIVopen(class string) {
 	r.out.WriteString("<div class=\"")
 	r.out.WriteString(class)
 	r.out.WriteString("\">")
 }
-func (r *RenderContext) divOpenS(style string) {
+func (r *RenderContext) DIVopenS(style string) {
 	r.out.WriteString("<div style=\"")
 	r.out.WriteString(style)
 	r.out.WriteString("\">")
@@ -73,6 +108,22 @@ func (r *RenderContext) LABEL(content string, class string) {
 	r.out.WriteString("\">")
 	r.out.WriteString(content)
 	r.out.WriteString("</label>")
+}
+
+func (r *RenderContext) LABELS(content string, style string) {
+	r.out.WriteString("<label style=\"")
+	r.out.WriteString(style)
+	r.out.WriteString("\">")
+	r.out.WriteString(content)
+	r.out.WriteString("</label>")
+}
+
+func (r *RenderContext) PS(content string, style string) {
+	r.out.WriteString("<p style=\"")
+	r.out.WriteString(style)
+	r.out.WriteString("\">")
+	r.out.WriteString(content)
+	r.out.WriteString("</p>")
 }
 
 func (r *RenderContext) p(content string, class string) {
@@ -322,6 +373,24 @@ func renderSelect(r *RenderContext, f DataField, config ElementOpts, prefix stri
 			}
 		}
 		r.out.WriteString("</select>")
+	}
+}
+
+func renderTextInputS(r *RenderContext, f DataField, val any, config ElementOpts, style string, errorStyle string) {
+	inputType := "text"
+	name := f.Name
+	if f.Kind == "int" {
+		name = name + ":int"
+	}
+	if f.SubKind == "email" {
+		inputType = "email"
+	} else if f.SubKind == "url" {
+		inputType = "url"
+	}
+
+	r.INPUT(name, inputType, val, style, config)
+	if f.HasError() {
+		r.PS(f.Errors(), errorStyle)
 	}
 }
 
