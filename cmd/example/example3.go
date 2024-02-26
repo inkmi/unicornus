@@ -25,14 +25,14 @@ func example3(w http.ResponseWriter, req *http.Request) {
 	d := data3{
 		Name: "Unicornus",
 		Sub: subData3{
-			SubName: "Ha",
+			SubName: "Ha my name!",
 		},
 	}
 
 	// Create a FormLayout
 	// describing the form
 	ui := uni.NewFormLayout().
-		Add("Name", "Name Label", uni.WithDescription("Name Description")).
+		Add("Name", "Name Label").
 		AddGroup("Sub", "Group", "Group Description", func(f *uni.FormLayout) {
 			f.
 				Add("SubName", "Sub Label")
