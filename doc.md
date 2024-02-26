@@ -1,7 +1,5 @@
 # Documentation
 
-## Idea
-
 The idea of Unicornus is to combine a data model in Go described as structs with validation tags and a description of the form layout in Go to render an HTML form.
 
 
@@ -36,7 +34,7 @@ Validation │ Data Model  ├──────┬──────┤ Form La
 ## Simple Example
 
 
-Creating a form in Unicornus is very simple. You defined the data structure and
+Creating a form in Unicornus is very simple. You define the data structure and
 then the form layout. Then you can simply call `RenderForm` with the data on the form layout to create html.
 
 ```go
@@ -69,6 +67,8 @@ From [cmd/example/example1.go](cmd/example/example1.go)
 
 ## Displaying Errors
 
+
+Unicornus can render form with errors. Errors are `map[string]string` and contain the field which created the error and an error text. These errors together with the data are rendered with `RenderFormWithErrors`.
 
 ```go
 import (
