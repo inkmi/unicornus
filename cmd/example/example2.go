@@ -2,9 +2,13 @@ package main
 
 // S:1
 import (
+	// E:1
 	"fmt"
+	// S:1
 	uni "github.com/inkmi/unicornus/pkg"
+	// E:1
 	"net/http"
+	// S:1
 )
 
 type errorexample struct {

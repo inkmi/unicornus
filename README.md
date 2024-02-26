@@ -74,7 +74,7 @@ Validation │ Data Model  ├──────┬──────┤ Form La
 
 
 Creating a form in Unicornus is very simple. You define the data structure and
-then the form layout. Then you can simply call `RenderForm` with the data on the form layout to create html.
+then the form layout. Then you can simply call `RenderForm` with the data on the form layout to create HTML.
 
 ```go
 import (
@@ -108,9 +108,7 @@ Unicornus can render form with errors. Errors are `map[string]string` and contai
 
 ```go
 import (
-  "fmt"
   uni "github.com/inkmi/unicornus/pkg"
-  "net/http"
 )
 
 type errorexample struct {
@@ -139,4 +137,56 @@ From [cmd/example/example2.go](cmd/example/example2.go)
 Results in
 
 <img src="https://raw.githubusercontent.com/inkmi/unicornus/master/formexample.png" width="600">
+
+## Nested Data
+
+
+Data in Unicornus can be nested. A struct can have sub structs and those are rendered into HTML.
+
+```go
+import (
+  uni "github.com/inkmi/unicornus/pkg"
+)
+
+type subData3 struct {
+  Sub string
+}
+type data3 struct {
+  Name   string
+  Check  bool
+  Select int      `validate:"int|in:1,2,3" choices:"A|B|C"`
+  Multi  []string `choices:"A|B|C"`
+  Sub    subData3
+}
+
+// The data of the form
+d := data3{
+  Name:   "Unicornus",
+  Check:  true,
+  Select: 2,
+  Multi:  []string{"C"},
+  Sub: subData3{
+    Sub: "Ha",
+  },
+}
+
+// Create a FormLayout
+// describing the form
+ui := uni.NewFormLayout().
+AddHeader("Form").
+Add("Name", "Name Label", uni.WithDescription("Name Description")).
+Add("Check", "Check Label").
+Add("Select", "Select Label").
+Add("Multi", "Multi Label").
+AddGroup("Sub", "Group", "Group Description", func(f *uni.FormLayout) {
+  f.
+  Add("Sub", "Sub Label")
+})
+
+// Render form layout with data
+// to html
+html := ui.RenderForm(d)
+```
+From [cmd/example/example3.go](cmd/example/example3.go)
+
 

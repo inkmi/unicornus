@@ -1,9 +1,12 @@
 package main
 
+// S:1
 import (
+	// E:1
 	"fmt"
-	uni "github.com/inkmi/unicornus/pkg"
 	"net/http"
+	// S:1
+	uni "github.com/inkmi/unicornus/pkg"
 )
 
 type subData3 struct {
@@ -17,7 +20,10 @@ type data3 struct {
 	Sub    subData3
 }
 
+// E:1
+
 func example3(w http.ResponseWriter, req *http.Request) {
+	// S:1
 	// The data of the form
 	d := data3{
 		Name:   "Unicornus",
@@ -45,5 +51,6 @@ func example3(w http.ResponseWriter, req *http.Request) {
 	// Render form layout with data
 	// to html
 	html := ui.RenderForm(d)
+	// E:1
 	fmt.Fprintf(w, html)
 }
