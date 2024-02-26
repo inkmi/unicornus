@@ -9,22 +9,28 @@ import (
 	uni "github.com/inkmi/unicornus/pkg"
 )
 
-type subData3 struct {
+type subData4 struct {
 	Sub string
 }
-type data3 struct {
-	Name string
-	Sub  subData3
+type data4 struct {
+	Name   string
+	Check  bool
+	Select int      `validate:"int|in:1,2,3" choices:"A|B|C"`
+	Multi  []string `choices:"A|B|C"`
+	Sub    subData4
 }
 
 // E:1
 
-func example3(w http.ResponseWriter, req *http.Request) {
+func example4(w http.ResponseWriter, req *http.Request) {
 	// S:1
 	// The data of the form
-	d := data3{
-		Name: "Unicornus",
-		Sub: subData3{
+	d := data4{
+		Name:   "Unicornus",
+		Check:  true,
+		Select: 2,
+		Multi:  []string{"C"},
+		Sub: subData4{
 			Sub: "Ha",
 		},
 	}
@@ -34,6 +40,9 @@ func example3(w http.ResponseWriter, req *http.Request) {
 	ui := uni.NewFormLayout().
 		AddHeader("Form").
 		Add("Name", "Name Label", uni.WithDescription("Name Description")).
+		Add("Check", "Check Label").
+		Add("Select", "Select Label").
+		Add("Multi", "Multi Label").
 		AddGroup("Sub", "Group", "Group Description", func(f *uni.FormLayout) {
 			f.
 				Add("Sub", "Sub Label")

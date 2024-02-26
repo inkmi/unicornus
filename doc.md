@@ -103,6 +103,13 @@ Results in
 
 
 Data in Unicornus can be nested. A struct can have sub structs and those are rendered into HTML.
+An embedded struct is best layouted with `AddGroup`. The name of the group is the name of the
+embedded struct, in this case `Sub`. The label of the group is displayed as a header, the
+description of the group is displayed for explanation.
+
+The `AddGroup` is given a function `func(f *uni.FormLayout)`. Inside this function (kind of a callback)
+the layout of the group is defined. The root is the sub struct of the group.
+
 
 ```go
 import (
@@ -113,19 +120,13 @@ type subData3 struct {
   Sub string
 }
 type data3 struct {
-  Name   string
-  Check  bool
-  Select int      `validate:"int|in:1,2,3" choices:"A|B|C"`
-  Multi  []string `choices:"A|B|C"`
-  Sub    subData3
+  Name string
+  Sub  subData3
 }
 
 // The data of the form
 d := data3{
-  Name:   "Unicornus",
-  Check:  true,
-  Select: 2,
-  Multi:  []string{"C"},
+  Name: "Unicornus",
   Sub: subData3{
     Sub: "Ha",
   },
@@ -136,9 +137,6 @@ d := data3{
 ui := uni.NewFormLayout().
 AddHeader("Form").
 Add("Name", "Name Label", uni.WithDescription("Name Description")).
-Add("Check", "Check Label").
-Add("Select", "Select Label").
-Add("Multi", "Multi Label").
 AddGroup("Sub", "Group", "Group Description", func(f *uni.FormLayout) {
   f.
   Add("Sub", "Sub Label")
