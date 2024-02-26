@@ -156,7 +156,7 @@ import (
 )
 
 type subData3 struct {
-  Sub string
+  SubName string
 }
 type data3 struct {
   Name string
@@ -167,7 +167,7 @@ type data3 struct {
 d := data3{
   Name: "Unicornus",
   Sub: subData3{
-    Sub: "Ha",
+    SubName: "Ha",
   },
 }
 
@@ -177,7 +177,7 @@ ui := uni.NewFormLayout().
 Add("Name", "Name Label", uni.WithDescription("Name Description")).
 AddGroup("Sub", "Group", "Group Description", func(f *uni.FormLayout) {
   f.
-  Add("Sub", "Sub Label")
+  Add("SubName", "Sub Label")
 })
 
 // Render form layout with data
@@ -186,4 +186,6 @@ html := ui.RenderForm(d)
 ```
 From [cmd/example/example3.go](cmd/example/example3.go)
 
+The names of the fields in the HTML forms are dot seperated names of the struct. For example `Sub.SubName` is the
+name of the field in the sub struct.
 

@@ -10,7 +10,7 @@ import (
 )
 
 type subData3 struct {
-	Sub string
+	SubName string
 }
 type data3 struct {
 	Name string
@@ -25,7 +25,7 @@ func example3(w http.ResponseWriter, req *http.Request) {
 	d := data3{
 		Name: "Unicornus",
 		Sub: subData3{
-			Sub: "Ha",
+			SubName: "Ha",
 		},
 	}
 
@@ -35,7 +35,7 @@ func example3(w http.ResponseWriter, req *http.Request) {
 		Add("Name", "Name Label", uni.WithDescription("Name Description")).
 		AddGroup("Sub", "Group", "Group Description", func(f *uni.FormLayout) {
 			f.
-				Add("Sub", "Sub Label")
+				Add("SubName", "Sub Label")
 		})
 
 	// Render form layout with data

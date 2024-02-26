@@ -13,3 +13,5 @@ the layout of the group is defined. The root is the sub struct of the group.
 
 ![](cmd/example/example3.go, 1)
 
+The names of the fields in the HTML forms are dot seperated names of the struct. For example `Sub.SubName` is the
+name of the field in the sub struct.
