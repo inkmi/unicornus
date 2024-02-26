@@ -80,7 +80,6 @@ then the form layout. Then you can simply call `RenderForm` with the data on the
 import (
   "fmt"
   uni "github.com/inkmi/unicornus/pkg"
-  "net/http"
 )
 
 type simpledata struct {
