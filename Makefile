@@ -34,3 +34,7 @@ examples:
 
 air:
 	air
+
+doc:
+	@../eris/bin/eris --dir docs/ --out doc.md
+	@cat README_header.md doc.md > README.md

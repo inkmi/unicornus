@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-type data1 struct {
+type simpledata struct {
 	Name string
 }
 
@@ -14,7 +14,7 @@ func example1(w http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(w, "<!DOCTYPE html><html><body>")
 
 	// The data of the form
-	d := data1{
+	d := simpledata{
 		Name: "Unicornus",
 	}
 	// Create a FormLayout
