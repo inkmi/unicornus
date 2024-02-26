@@ -33,7 +33,6 @@ Validation │ Data Model  ├──────┬──────┤ Form La
 ## Code Example
 
 ![](cmd/example/example2.go, 1)
-See [cmd/example/example2.go](cmd/example/example2.go)
 
 Results in
 

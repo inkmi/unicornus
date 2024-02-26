@@ -60,7 +60,7 @@ errors := map[string]string{"Name": "Name can't be Unicornus"}
 // to html
 html := ui.RenderFormWithErrors(d, errors)
 ```
-See [cmd/example/example2.go](cmd/example/example2.go)
+From [cmd/example/example2.go](cmd/example/example2.go)
 
 Results in
 
