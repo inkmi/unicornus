@@ -1,6 +1,11 @@
 # Documentation
 
-The idea of Unicornus is to combine a data model in Go described as structs with validation tags and a description of the form layout in Go to render an HTML form.
+The idea of Unicornus is
+
+* define a data model in Go with structs
+* add constraints for validation tags
+* define the layout in Go
+* render data to HTML with the defined layout
 
 
 ```
