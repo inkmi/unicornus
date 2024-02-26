@@ -14,8 +14,6 @@ type errorexample struct {
 // E:1
 
 func example2(w http.ResponseWriter, req *http.Request) {
-	fmt.Fprintf(w, "<!DOCTYPE html><html><body><div>")
-
 	// S:1
 	// The data of the form
 	d := errorexample{
@@ -36,7 +34,4 @@ func example2(w http.ResponseWriter, req *http.Request) {
 	// E:1
 
 	fmt.Fprintf(w, html)
-
-	fmt.Fprintf(w, "</div></body></html>")
-
 }

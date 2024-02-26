@@ -36,5 +36,5 @@ air:
 	air
 
 doc:
-	@../eris/bin/eris --dir docs/ --out doc.md
+	@../eris/bin/eris --dir docs/ --out doc.md --leanpub=false
 	@cat README_header.md doc.md > README.md

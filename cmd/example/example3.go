@@ -18,8 +18,6 @@ type data3 struct {
 }
 
 func example3(w http.ResponseWriter, req *http.Request) {
-	fmt.Fprintf(w, "<!DOCTYPE html><html><body>")
-
 	// The data of the form
 	d := data3{
 		Name:   "Unicornus",
@@ -48,7 +46,4 @@ func example3(w http.ResponseWriter, req *http.Request) {
 	// to html
 	html := ui.RenderForm(d)
 	fmt.Fprintf(w, html)
-
-	fmt.Fprintf(w, "</body></html>")
-
 }
