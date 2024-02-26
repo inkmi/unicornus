@@ -1,4 +1,4 @@
-    
+
 ## Idea
 
 The idea of Unicornus is to combine a data model in Go described as structs with validation tags
@@ -33,6 +33,7 @@ Validation │ Data Model  ├──────┬──────┤ Form La
 ## Code Example
 
 ![](cmd/example/example2.go, 1)
+See [cmd/example/example2.go](cmd/example/example2.go)
 
 Results in
 

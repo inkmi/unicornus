@@ -1,4 +1,4 @@
-    
+
 ## Idea
 
 The idea of Unicornus is to combine a data model in Go described as structs with validation tags
@@ -60,6 +60,7 @@ errors := map[string]string{"Name": "Name can't be Unicornus"}
 // to html
 html := ui.RenderFormWithErrors(d, errors)
 ```
+See [cmd/example/example2.go](cmd/example/example2.go)
 
 Results in
 
