@@ -2,7 +2,9 @@ package main
 
 // S:1
 import (
+	// E:1
 	"fmt"
+	// S:1
 	uni "github.com/inkmi/unicornus/pkg"
 	// E:1
 	"net/http"
@@ -29,6 +31,6 @@ func example1(w http.ResponseWriter, req *http.Request) {
 	// Render form layout with data
 	// to html
 	html := ui.RenderForm(d)
-	fmt.Fprintf(w, html)
 	// E:1
+	fmt.Fprintf(w, html)
 }

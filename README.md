@@ -78,7 +78,6 @@ then the form layout. Then you can simply call `RenderForm` with the data on the
 
 ```go
 import (
-  "fmt"
   uni "github.com/inkmi/unicornus/pkg"
 )
 
@@ -98,7 +97,6 @@ Add("Name", "Name Label")
 // Render form layout with data
 // to html
 html := ui.RenderForm(d)
-fmt.Fprintf(w, html)
 ```
 From [cmd/example/example1.go](cmd/example/example1.go)
 
