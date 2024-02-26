@@ -135,7 +135,6 @@ d := data3{
 // Create a FormLayout
 // describing the form
 ui := uni.NewFormLayout().
-AddHeader("Form").
 Add("Name", "Name Label", uni.WithDescription("Name Description")).
 AddGroup("Sub", "Group", "Group Description", func(f *uni.FormLayout) {
   f.
