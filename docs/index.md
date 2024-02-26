@@ -1,4 +1,4 @@
-
+    
 ## Idea
 
 The idea of Unicornus is to combine a data model in Go described as structs with validation tags

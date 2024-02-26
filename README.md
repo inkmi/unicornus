@@ -37,7 +37,7 @@ MIT License
 
 - [Stephan Schmidt](https://github.com/StephanSchmidt): Author and maintainer
 
-
+    
 ## Idea
 
 The idea of Unicornus is to combine a data model in Go described as structs with validation tags
@@ -73,31 +73,31 @@ Validation │ Data Model  ├──────┬──────┤ Form La
 
 ```go
 import (
-	"fmt"
-	uni "github.com/inkmi/unicornus/pkg"
-	"net/http"
+  "fmt"
+  uni "github.com/inkmi/unicornus/pkg"
+  "net/http"
 )
 
 type errorexample struct {
-	Name string
+  Name string
 }
 
-	// The data of the form
-	d := errorexample{
-		Name: "Unicornus",
-	}
-	// Create a FormLayout
-	// describing the form
-	ui := uni.NewFormLayout().
-		Add("Name", "Name")
+// The data of the form
+d := errorexample{
+  Name: "Unicornus",
+}
+// Create a FormLayout
+// describing the form
+ui := uni.NewFormLayout().
+Add("Name", "Name")
 
-	// Errors are a map of string -> string
-	// with field names and error texts
-	errors := map[string]string{"Name": "Name can't be Unicornus"}
+// Errors are a map of string -> string
+// with field names and error texts
+errors := map[string]string{"Name": "Name can't be Unicornus"}
 
-	// Render form layout with data
-	// to html
-	html := ui.RenderFormWithErrors(d, errors)
+// Render form layout with data
+// to html
+html := ui.RenderFormWithErrors(d, errors)
 ```
 
 Results in
