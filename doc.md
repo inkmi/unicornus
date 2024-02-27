@@ -1,4 +1,5 @@
-<ul><li>Code Examples</li><ul><li>Simple Example</li><li>Displaying Errors</li><li>Nested Data</li></ul></ul># Documentation
+<p><b>Table Of Contents</b></p><ul><li>Code Examples</li><ul><li>Simple Example</li><li>Displaying Errors</li><li>Nested Data</li></ul></ul>
+# Documentation
 
 The idea of Unicornus is
 
