@@ -34,7 +34,9 @@ MIT License
 
 - [Stephan Schmidt](https://github.com/StephanSchmidt): Author and maintainer
 
-# Documentation<p><b>Table Of Contents</b></p><ul><li>Code Examples</li><ul><li>Simple Example</li><li>Displaying Errors</li><li>Nested Data</li></ul></ul>
+# Documentation
+
+<p><b>Table Of Contents</b></p><ul><li>Code Examples</li><ul><li>Simple Example</li><li>Displaying Errors</li><li>Nested Data</li></ul></ul>
 
 The idea of Unicornus is
 
