@@ -44,7 +44,7 @@ then the form layout. Then you can simply call `RenderForm` with the data on the
 
 ```go
 import (
-  uni "github.com/inkmi/unicornus/pkg"
+  "github.com/inkmi/unicornus/uni"
 )
 
 type simpledata struct {
@@ -74,7 +74,7 @@ Unicornus can render form with errors. Errors are `map[string]string` and contai
 
 ```go
 import (
-  uni "github.com/inkmi/unicornus/pkg"
+  "github.com/inkmi/unicornus/uni"
 )
 
 type errorexample struct {
@@ -118,7 +118,7 @@ the layout of the group is defined. The root is the sub struct of the group.
 
 ```go
 import (
-  uni "github.com/inkmi/unicornus/pkg"
+  "github.com/inkmi/unicornus/uni"
 )
 
 type subData3 struct {
@@ -152,4 +152,4 @@ html := ui.RenderForm(d)
 ```
 From [cmd/example/example3.go](cmd/example/example3.go)
 
-The names of the fields in the HTML forms are dot se
+The names of the fields in the HTML forms are dot seperated name

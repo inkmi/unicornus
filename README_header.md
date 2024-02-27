@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/inkmi/unicornus/master/UnicornusLogo.png" width="300">
+<img src="https://raw.githubusercontent.com/inkmi/unicornus/main/UnicornusLogo.png" width="300">
 
 # Unicornus: Easy Form Generation in Go
 
