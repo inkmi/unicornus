@@ -5,8 +5,9 @@ import (
 	// E:1
 	"fmt"
 	"net/http"
+
 	// S:1
-	uni "github.com/inkmi/unicornus/pkg"
+	"github.com/inkmi/unicornus/uni"
 )
 
 type subData3 struct {

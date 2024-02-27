@@ -1,4 +1,4 @@
-package pkg
+package uni
 
 type Selection struct {
 	Value          int

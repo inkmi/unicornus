@@ -1,9 +1,10 @@
-package pkg
+package uni
 
 import (
 	"reflect"
+
+	. "github.com/moznion/go-optional"
 )
-import . "github.com/moznion/go-optional"
 
 func FieldGenerator(obj interface{}, errors map[string]string) []DataField {
 	vals := make([]DataField, 0, 20)

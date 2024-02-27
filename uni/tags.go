@@ -1,9 +1,10 @@
-package pkg
+package uni
 
 import "C"
 import (
-	"github.com/fatih/structtag"
 	"strings"
+
+	"github.com/fatih/structtag"
 )
 
 func GetInValidation(v string) string {

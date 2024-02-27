@@ -1,9 +1,10 @@
-package pkg
+package uni
 
 import (
-	. "github.com/moznion/go-optional"
 	"strconv"
 	"strings"
+
+	. "github.com/moznion/go-optional"
 )
 
 type ValidationData struct {

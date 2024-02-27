@@ -3,6 +3,9 @@
 test:
 	gotestsum ./...
 
+go-imports:
+	goimports -w .
+
 staticcheck:
 	staticcheck ./pkg
 

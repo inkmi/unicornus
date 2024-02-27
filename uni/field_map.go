@@ -1,4 +1,4 @@
-package pkg
+package uni
 
 func FieldsToMap(fields []DataField) map[string]DataField {
 	m := make(map[string]DataField)

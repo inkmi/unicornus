@@ -1,4 +1,4 @@
-package pkg
+package uni
 
 type Tag struct {
 	Validation   *string

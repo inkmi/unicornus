@@ -1,10 +1,41 @@
 package main
 
 import (
+	"bufio"
+	"bytes"
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
+
+	"github.com/alecthomas/chroma/v2"
+	"github.com/alecthomas/chroma/v2/formatters/html"
+	"github.com/alecthomas/chroma/v2/lexers"
+	"github.com/alecthomas/chroma/v2/styles"
 )
+
+func highlight(source string) string {
+	lexer := lexers.Get("go")
+	if lexer == nil {
+		lexer = lexers.Fallback
+	}
+	lexer = chroma.Coalesce(lexer)
+	style := styles.Get("onedark")
+	if style == nil {
+		style = styles.Fallback
+	}
+	formatter := html.New(html.Standalone(false))
+
+	iterator, err := lexer.Tokenise(nil, source)
+	if err != nil {
+		panic(err)
+	}
+	var buf bytes.Buffer
+	if err := formatter.Format(&buf, style, iterator); err != nil {
+		panic(err)
+	}
+	return buf.String()
+}
 
 func listing(examples []example) func(w http.ResponseWriter, req *http.Request) {
 
@@ -29,6 +60,21 @@ type example struct {
 	f           examplefunc
 }
 
+func removeSpecialLines(input string) string {
+	var output bytes.Buffer
+	scanner := bufio.NewScanner(strings.NewReader(input))
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		trimmedLine := strings.TrimSpace(line)
+		if !strings.HasPrefix(trimmedLine, "// S:") && !strings.HasPrefix(trimmedLine, "// E:") {
+			output.WriteString(line + "\n")
+		}
+	}
+
+	return output.String()
+}
+
 func wrap(fileName string, f func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, req *http.Request) {
 		data, err := os.ReadFile(fileName)
@@ -36,6 +82,7 @@ func wrap(fileName string, f func(http.ResponseWriter, *http.Request)) func(http
 			panic(err)
 		}
 
+		content := highlight(removeSpecialLines(string(data)))
 		fmt.Fprintf(w, "<!DOCTYPE html><html><body>")
 		fmt.Fprintf(w, "<a href=\"/\"> <-- Back</a>")
 		fmt.Fprintf(w, "<h2>Example Form</h2>")
@@ -43,7 +90,7 @@ func wrap(fileName string, f func(http.ResponseWriter, *http.Request)) func(http
 		f(w, req)
 
 		fmt.Fprintf(w, "<h2 style=\"margin-top: 4rem;\">%s</h2>\n", fileName)
-		fmt.Fprintf(w, "<pre style=\"background:#e0e0e0;padding: 1rem;\">\n"+string(data)+"\n</pre>")
+		fmt.Fprintf(w, "<pre style=\"background:#282a36;;padding: 1rem;\">\n"+string(content)+"\n</pre>")
 		fmt.Fprintf(w, "</body></html>")
 	}
 }

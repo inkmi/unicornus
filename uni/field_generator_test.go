@@ -1,8 +1,9 @@
-package pkg
+package uni
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type TestNestG struct {

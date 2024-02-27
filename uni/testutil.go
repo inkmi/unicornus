@@ -1,9 +1,10 @@
-package pkg
+package uni
 
 import (
-	"github.com/PuerkitoBio/goquery"
 	"regexp"
 	"strings"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
 func Normalize(inputHtml string) string {

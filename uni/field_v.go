@@ -1,10 +1,11 @@
-package pkg
+package uni
 
 import (
 	"fmt"
-	"github.com/microcosm-cc/bluemonday"
 	"strconv"
 	"strings"
+
+	"github.com/microcosm-cc/bluemonday"
 )
 
 // Generate field descriptions for HTML fields
