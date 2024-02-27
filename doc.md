@@ -1,4 +1,4 @@
-# Documentation
+<ul><li>Code Examples</li><ul><li>Simple Example</li><li>Displaying Errors</li><li>Nested Data</li></ul></ul># Documentation
 
 The idea of Unicornus is
 
@@ -152,6 +152,4 @@ html := ui.RenderForm(d)
 ```
 From [cmd/example/example3.go](cmd/example/example3.go)
 
-The names of the fields in the HTML forms are dot seperated names of the struct. For example `Sub.SubName` is the
-name of the field in the sub struct.
-
+The names of the fields in the HTML
