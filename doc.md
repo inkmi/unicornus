@@ -1,4 +1,4 @@
-<p><b>Table Of Contents</b></p><ul><li><a href="#Code-Examples">Code Examples</a></li><ul><li><a href="#Simple-Example">Simple Example</a></li><li><a href="#Displaying-Errors">Displaying Errors</a></li><li><a href="#Nested-Data">Nested Data</a></li></ul></ul>
+<p><b>Table Of Contents</b></p><ul><li>Code Examples</li><ul><li>Simple Example</li><li>Displaying Errors</li><li>Nested Data</li></ul></ul>
 
 The idea of Unicornus is
 
@@ -32,11 +32,11 @@ Validation │ Data Model  ├──────┬──────┤ Form La
                           └───────────┘
 ```
 
-# Code Examples {#Code-Examples}
+# Code Examples
 
 
 
-## Simple Example {#Simple-Example}
+## Simple Example
 
 
 Creating a form in Unicornus is very simple. You define the data structure and
@@ -67,7 +67,7 @@ html := ui.RenderForm(d)
 From [cmd/example/example1.go](cmd/example/example1.go)
 
 
-## Displaying Errors {#Displaying-Errors}
+## Displaying Errors
 
 
 Unicornus can render form with errors. Errors are `map[string]string` and contain the field which created the error and an error text. These errors together with the data are rendered with `RenderFormWithErrors`.
@@ -104,7 +104,7 @@ Results in
 
 <img src="https://raw.githubusercontent.com/inkmi/unicornus/master/formexample.png" width="600">
 
-## Nested Data {#Nested-Data}
+## Nested Data
 
 
 Data in Unicornus can be nested. A struct can have sub structs and those are rendered into HTML.
@@ -150,4 +150,6 @@ AddGroup("Sub", "Group", "Group Description", func(f *uni.FormLayout) {
 // to html
 html := ui.RenderForm(d)
 ```
-From [cmd/example/example3.go](cmd/exa
+From [cmd/example/example3.go](cmd/example/example3.go)
+
+The names of the fields in the HTML forms are dot se
