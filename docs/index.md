@@ -1,5 +1,3 @@
-# Documentation
-
 The idea of Unicornus is
 
 * define a data model in Go with structs

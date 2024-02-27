@@ -34,8 +34,7 @@ MIT License
 
 - [Stephan Schmidt](https://github.com/StephanSchmidt): Author and maintainer
 
-<p><b>Table Of Contents</b></p><ul><li>Code Examples</li><ul><li>Simple Example</li><li>Displaying Errors</li><li>Nested Data</li></ul></ul>
-# Documentation
+# Documentation<p><b>Table Of Contents</b></p><ul><li>Code Examples</li><ul><li>Simple Example</li><li>Displaying Errors</li><li>Nested Data</li></ul></ul>
 
 The idea of Unicornus is
 
@@ -189,4 +188,4 @@ html := ui.RenderForm(d)
 ```
 From [cmd/example/example3.go](cmd/example/example3.go)
 
-The names of the fields in the HTML
+The names of the fields in the HTML forms are dot se

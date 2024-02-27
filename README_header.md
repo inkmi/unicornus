@@ -34,3 +34,4 @@ MIT License
 
 - [Stephan Schmidt](https://github.com/StephanSchmidt): Author and maintainer
 
+# Documentation
