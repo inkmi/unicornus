@@ -16,7 +16,12 @@ func Normalize(inputHtml string) string {
 	doc.Find("div").Each(func(index int, div *goquery.Selection) {
 		// Move the children of the div element to the parent
 		parent := div.Parent()
-		parent.AppendSelection(div.ChildrenFiltered("*"))
+		// Special case, do not replace <div>A</div>
+		if len(div.Text()) > 0 && div.Children().Length() == 0 {
+			parent.AppendHtml(div.Text())
+		} else {
+			parent.AppendSelection(div.ChildrenFiltered("*"))
+		}
 		div.Remove()
 	})
 	// Also remove all class
@@ -60,10 +65,10 @@ func RemoveClassAndStyle(inputHTML string) string {
 	return html
 }
 
-func RemoveSpacesInHtml(inputHTML string) string {
+func RemoveSpacesNewlineInHtml(inputHTML string) string {
 	regexPattern := `>[[:space:]]+<`
 	re := regexp.MustCompile(regexPattern)
 	cleanedHTML := re.ReplaceAllString(inputHTML, "><")
 	cleanedHTML = strings.TrimSpace(cleanedHTML)
-	return cleanedHTML
+	return strings.ReplaceAll(cleanedHTML, "\n", "")
 }

@@ -62,7 +62,7 @@ func (t BaseTheme) themeRenderInput(r *RenderContext, e FormElement, field DataF
 		if len(e.Config.Label) > 0 {
 			r.DIVS(e.Config.Label, t.styles.labelStyle)
 		}
-		r.DIV(Safe(field.ViewVal()), "font-weight: 500; color: #1F2937;")
+		r.DIV(Safe(field.ViewVal()), "font-size: 0.875rem; font-weight: 500; color: #1F2937;")
 	} else {
 		// Label for input
 		if len(e.Config.Label) > 0 {

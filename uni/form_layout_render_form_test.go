@@ -52,7 +52,7 @@ func TestRenderForm(t *testing.T) {
 		A: "b",
 	}
 	html := Normalize(f.RenderForm(data))
-	assert.Equal(t, RemoveSpacesInHtml(`
+	assert.Equal(t, RemoveSpacesNewlineInHtml(`
 <label>A</label>
 <input name="A" type="text" value="b"/>
 `), html)
@@ -64,7 +64,7 @@ func TestRenderValidationForm(t *testing.T) {
 		S: "b",
 	}
 	html := Normalize(f.RenderForm(data))
-	assert.Equal(t, RemoveSpacesInHtml(`
+	assert.Equal(t, RemoveSpacesNewlineInHtml(`
 <label>S</label>
 <input name="S" type="text" value="b"/>
 `), html)
@@ -75,10 +75,9 @@ func TestRenderOptionalCheckbox(t *testing.T) {
 		Add("A", "A")
 	data := TestOptionCheckbox{A: nil}
 	html := Normalize(f.RenderForm(data))
-	assert.Equal(t, RemoveSpacesInHtml(`
-<input type="checkbox" name="A"/>
-<label>A</label>
-<p></p>
+	assert.Equal(t, RemoveSpacesNewlineInHtml(`
+<label><input type="checkbox" name="A"/>
+A</label>
 `), html)
 }
 
@@ -89,10 +88,9 @@ func TestRenderCheckbox(t *testing.T) {
 		A: true,
 	}
 	html := Normalize(f.RenderForm(data))
-	assert.Equal(t, RemoveSpacesInHtml(`
-<input type="checkbox" name="A" checked=""/>
-<label>A</label>
-<p></p>
+	assert.Equal(t, RemoveSpacesNewlineInHtml(`
+<label><input type="checkbox" name="A" checked=""/>
+A</label>
 `), html)
 }
 
@@ -102,11 +100,10 @@ func TestRenderCheckboxUnchecked(t *testing.T) {
 	data := TestBool{
 		A: false,
 	}
-	html := Normalize(Normalize(f.RenderForm(data)))
-	assert.Equal(t, RemoveSpacesInHtml(`
-<input type="checkbox" name="A"/>
-<label>A</label>
-<p></p>
+	html := Normalize(f.RenderForm(data))
+	assert.Equal(t, RemoveSpacesNewlineInHtml(`
+<label><input type="checkbox" name="A"/>
+A</label>
 `), html)
 }
 
@@ -122,15 +119,16 @@ func TestRenderGroup(t *testing.T) {
 		A: TestGroup{B: true, C: &c},
 	}
 	html := RemoveClassAndStyle(f.RenderForm(data))
-	assert.Equal(t, RemoveSpacesInHtml(`
+	assert.Equal(t, RemoveSpacesNewlineInHtml(`
 <a name="formgroup-X"></a>
 <div>
 <h2>X</h2><p>Y</p>
 <div>
 <div>
-<input type="checkbox" name="A.B" checked=""/>
-</div><div>
-<label>B</label>
+<label><input type="checkbox" name="A.B" checked=""/>
+<div>B</div></label>
+</div>
+<div>
 <p>What a description</p>
 </div>
 </div>
@@ -153,32 +151,26 @@ func TestRenderMultiWithDiv(t *testing.T) {
 		A: []string{"A1", "A2"},
 	}
 	html := RemoveClassAndStyle(f.RenderForm(data))
-	assert.Equal(t, RemoveSpacesInHtml(`
+	assert.Equal(t, RemoveSpacesNewlineInHtml(`
 <div>
 <div>
 <fieldset>
 <div>
 <div>
-<input type="checkbox" name="A#A1" checked=""/>
-</div>
-<div>
-<label>A1</label>
+<label><input type="checkbox" name="A#A1" checked=""/>
+<div>A1</div></label>
 </div>
 </div>
 <div>
 <div>
-<input type="checkbox" name="A#A2" checked=""/>
-</div>
-<div>
-<label>A2</label>
+<label><input type="checkbox" name="A#A2" checked=""/>
+<div>A2</div></label>
 </div>
 </div>
 <div>
 <div>
-<input type="checkbox" name="A#A3"/>
-</div>
-<div>
-<label>A3</label>
+<label><input type="checkbox" name="A#A3"/>
+<div>A3</div></label>
 </div>
 </div>
 </fieldset>
@@ -194,15 +186,15 @@ func TestRenderMulti(t *testing.T) {
 		A: []string{"A1", "A2"},
 	}
 	html := Normalize(f.RenderForm(data))
-	assert.Equal(t, RemoveSpacesInHtml(`
+	assert.Equal(t, RemoveSpacesNewlineInHtml(`
 
 <fieldset>
-<input type="checkbox" name="A#A1" checked=""/>
-<label>A1</label>
-<input type="checkbox" name="A#A2" checked=""/>
-<label>A2</label>
-<input type="checkbox" name="A#A3"/>
-<label>A3</label>
+<label><input type="checkbox" name="A#A1" checked=""/>
+A1</label>
+<label><input type="checkbox" name="A#A2" checked=""/>
+A2</label>
+<label><input type="checkbox" name="A#A3"/>
+A3</label>
 </fieldset>
 `), html)
 }
@@ -233,26 +225,25 @@ func TestRenderMultiGroup(t *testing.T) {
 		A: []string{"A", "B"},
 	}
 	html := RemoveClassAndStyle(f.RenderForm(data))
-	assert.Equal(t, RemoveSpacesInHtml(`
+	assert.Equal(t, RemoveSpacesNewlineInHtml(`
 <div>
 <div>
 <h3>Group 1</h3>
   <fieldset>
 <div>
 <div>
+  <label>
   <input type="checkbox" name="A#A" checked=""/>
-  </div>
-  <div>
-  <label>A</label>
-  </div>
+  <div>A</div>
+</label>
+</div>
 </div>
 <div>
 <div>
-  <input type="checkbox" name="A#B" checked=""/>
-  </div>
-  <div>
-  <label>B</label>
-  </div>
+  <label><input type="checkbox" name="A#B" checked=""/>
+  <div>B</div>
+</label>
+</div>
 </div>
 </fieldset>
 </div>
@@ -261,11 +252,10 @@ func TestRenderMultiGroup(t *testing.T) {
 <fieldset>
 <div>
 <div>
-  <input type="checkbox" name="A#C"/>
-  </div>
-  <div>
-  <label>C</label>
-  </div>
+  <label><input type="checkbox" name="A#C"/>
+  <div>C</div>
+</label>
+</div>
 </div>
 </fieldset>
 </div>
@@ -282,7 +272,7 @@ func TestTwoElementRenderForm(t *testing.T) {
 		B: "b",
 	}
 	html := Normalize(f.RenderForm(data))
-	assert.Equal(t, RemoveSpacesInHtml(`
+	assert.Equal(t, RemoveSpacesNewlineInHtml(`
 <label>A</label>
 <input name="A" type="text" value="a"/>
 <label>B</label>
@@ -301,7 +291,7 @@ func TestTwoElementRenderFormWithError(t *testing.T) {
 
 	errors := map[string]string{"B": "B not long enough"}
 	html := Normalize(f.RenderFormWithErrors(data, errors))
-	assert.Equal(t, RemoveSpacesInHtml(`
+	assert.Equal(t, RemoveSpacesNewlineInHtml(`
 <label>A</label>
 <input name="A" type="text" value="a"/>
 <label>B</label>
@@ -317,7 +307,7 @@ func TestHeaderRenderForm(t *testing.T) {
 		A: "a",
 	}
 	html := f.RenderForm(data)
-	assert.Equal(t, RemoveSpacesInHtml(`
+	assert.Equal(t, RemoveSpacesNewlineInHtml(`
 <h2>A</h2>
 `), html)
 }
@@ -329,7 +319,7 @@ func TestRenderSelectForm(t *testing.T) {
 		B: 3,
 	}
 	html := Normalize(f.RenderForm(data))
-	assert.Equal(t, RemoveSpacesInHtml(`
+	assert.Equal(t, RemoveSpacesNewlineInHtml(`
 <label>B</label>
 <select name="B:int">
    <option value="0">-</option>
@@ -363,7 +353,7 @@ func TestRenderSelectWithChoicesForm(t *testing.T) {
 		A: "B",
 	}
 	html := Normalize(f.RenderForm(data))
-	assert.Equal(t, RemoveSpacesInHtml(`
+	assert.Equal(t, RemoveSpacesNewlineInHtml(`
 <label>A</label>
 <select name="A">
    <option value="0">-</option>
@@ -390,7 +380,7 @@ func TestRenderFormPlaceHolder(t *testing.T) {
 		A: "b",
 	}
 	html := Normalize(f.RenderForm(data))
-	assert.Equal(t, RemoveSpacesInHtml(`
+	assert.Equal(t, RemoveSpacesNewlineInHtml(`
 <label>A</label>
 <input name="A" type="text" value="b" placeholder="c"/>
 `), html)
@@ -403,7 +393,7 @@ func TestRenderFormPlaceId(t *testing.T) {
 		A: "b",
 	}
 	html := Normalize(f.RenderForm(data))
-	assert.Equal(t, RemoveSpacesInHtml(`
+	assert.Equal(t, RemoveSpacesNewlineInHtml(`
 <label>A</label>
 <input name="A" type="text" value="b" id="c"/>
 `), html)
