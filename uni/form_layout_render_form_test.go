@@ -128,9 +128,9 @@ func TestRenderGroup(t *testing.T) {
 <label><input type="checkbox" name="A.B" checked=""/>
 <div>B</div></label>
 </div>
+</div>
 <div>
 <p>What a description</p>
-</div>
 </div>
 <div>
 <label>C</label>

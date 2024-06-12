@@ -2,6 +2,7 @@ package uni
 
 import (
 	"fmt"
+	"github.com/davecgh/go-spew/spew"
 	"html"
 	"strings"
 )
@@ -199,6 +200,7 @@ func (f *FormLayout) RenderForm(data any) string {
 
 func (f *FormLayout) RenderFormWithErrors(data any, errors map[string]string) string {
 	m := FieldsToMap(FieldGenerator(data, errors))
+	spew.Dump(m)
 	r := NewRenderContext()
 	f.renderFormToBuilder(r, "", m)
 	return r.out.String()
@@ -233,7 +235,8 @@ func (f *FormLayout) renderElement(
 	prefix string,
 	m map[string]DataField,
 ) {
-	switch e.Kind {
+	fmt.Println(">>>> " + e.ElementDisplayType + " " + e.Name)
+	switch e.ElementDisplayType {
 	case "hidden":
 		fieldName := e.Name
 		if len(prefix) > 0 {
@@ -259,12 +262,12 @@ func (f *FormLayout) renderElement(
 	case "input":
 		// take value string from MAP of name -> DataField
 		// take type if no type is given from DataField
+
 		fieldName := e.Name
 		if len(prefix) > 0 {
 			fieldName = prefix + "." + fieldName
 		}
 		field, ok := m[fieldName]
-
 		if ok {
 			if len(e.Config.Choices) > 0 {
 				field.Choices = e.Config.Choices
@@ -287,6 +290,8 @@ func (f *FormLayout) renderElement(
 					f.Theme.themeRenderCheckbox(r, e, field, description, prefix)
 				} else if !field.Multi && len(field.Choices) > 0 {
 					f.Theme.themeRenderSelect(r, e, field, description, prefix)
+				} else if field.Kind == "Time" {
+					f.Theme.themeRenderDateTime(r, e, field, prefix)
 				} else {
 					f.Theme.themeRenderInput(r, e, field, prefix)
 				}
@@ -416,9 +421,17 @@ func renderTextInputS(r *RenderContext, f DataField, val any, config ElementOpts
 	}
 }
 
+func renderDateTimeS(r *RenderContext, f DataField, val any, config ElementOpts, style string, errorStyle string) {
+	inputType := "datetime-local"
+	name := f.Name + ":time"
+	r.INPUT(name, inputType, val, style, config)
+	if f.HasError() {
+		r.PS(f.Errors(), errorStyle)
+	}
+}
+
 func renderTextInput(r *RenderContext, f DataField, val any, config ElementOpts, prefix string, class string) {
 	inputConstraints := ""
-
 	inputType := "text"
 	name := f.Name
 	if f.Kind == "int" {
@@ -489,7 +502,7 @@ func SetChoices(setKey string, fields []FieldV, allValues []string) {
 			}
 
 			fields[i].Choices = choices
-			fields[i].Kind = "string"
+			fields[i].ElementDisplayType = "string"
 		}
 	}
 }
@@ -515,7 +528,7 @@ func SetKey(
 			}
 
 			fields[i].Choices = choices
-			fields[i].Kind = "string"
+			fields[i].ElementDisplayType = "string"
 		}
 	}
 }

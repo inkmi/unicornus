@@ -56,13 +56,38 @@ type BaseTheme struct {
 	styles *ThemeStyles
 }
 
+func (t BaseTheme) themeRenderDateTime(r *RenderContext, e FormElement, field DataField, prefix string) {
+	fmt.Println("DATETIME")
+	r.DIVopenS(t.styles.topSeparator)
+	if r.OnlyDisplay(field.Name) {
+		if len(e.Config.Label) > 0 {
+			r.DIVS(e.Config.Label, t.styles.labelStyle)
+		}
+		r.DIV(Safe(field.ViewVal()), "font-size: 0.875rem; "+
+			"font-weight: 500; color: #1F2937;")
+	} else {
+		// Label for input
+		if len(e.Config.Label) > 0 {
+			r.LABELS(e.Config.Label, t.styles.labelStyle)
+		}
+		// Render input element
+		renderDateTimeS(r, field, field.Val(), e.Config, t.styles.inputStyle, t.styles.errorStyle)
+		// Render description
+		if len(e.Config.Description) > 0 {
+			r.PS(e.Config.Description, "margin-top: 0.5rem; color: #6B7280; ")
+		}
+	}
+	r.DIVclose()
+}
+
 func (t BaseTheme) themeRenderInput(r *RenderContext, e FormElement, field DataField, prefix string) {
 	r.DIVopenS(t.styles.topSeparator)
 	if r.OnlyDisplay(field.Name) {
 		if len(e.Config.Label) > 0 {
 			r.DIVS(e.Config.Label, t.styles.labelStyle)
 		}
-		r.DIV(Safe(field.ViewVal()), "font-size: 0.875rem; font-weight: 500; color: #1F2937;")
+		r.DIV(Safe(field.ViewVal()), "font-size: 0.875rem; "+
+			"font-weight: 500; color: #1F2937;")
 	} else {
 		// Label for input
 		if len(e.Config.Label) > 0 {
@@ -131,18 +156,21 @@ func (t BaseTheme) themeRenderYesNo(r *RenderContext, e FormElement, field DataF
 }
 
 func (t BaseTheme) themeRenderCheckbox(r *RenderContext, e FormElement, field DataField, description string, prefix string) {
-	r.DIVopenS("display: flex; padding: 8px 16px; align-items: flex-start;")
-	r.DIVopenS("display: flex; height: 20px; align-items: center;")
 	if r.OnlyDisplay(field.Name) {
 		v, ok := field.Val().(bool)
 		if ok {
+			if len(e.Config.Label) > 0 {
+				r.DIVS(e.Config.Label, t.styles.labelStyle)
+			}
 			if v {
-				r.out.WriteString("[x]")
+				r.DIV("Yes", "font-weight: 500; color: #1F2937;")
 			} else {
-				r.out.WriteString("[ ]")
+				r.DIV("No", "font-weight: 500; color: #1F2937;")
 			}
 		}
 	} else {
+		r.DIVopenS("display: flex; padding: 8px 16px; align-items: flex-start;")
+		r.DIVopenS("display: flex; height: 20px; align-items: center;")
 		if len(e.Config.Label) > 0 {
 			r.LABELopenS(t.styles.labelStyle)
 		}
@@ -152,17 +180,19 @@ func (t BaseTheme) themeRenderCheckbox(r *RenderContext, e FormElement, field Da
 			r.DIVS(e.Config.Label, "display: inline; padding-left: 0.5rem;")
 			r.LABELclose()
 		}
+		r.DIVclose()
+		r.DIVclose()
 	}
-	r.DIVclose()
-	r.DIVopenS("margin-left: 12px; font-size: 14px;")
-	if len(description) > 0 {
-		r.PS(description, "margin-left: 12px; font-size: 14px;")
+	if !r.OnlyDisplay(field.Name) {
+		r.DIVopenS("margin-left: 16px; font-size: 14px;")
+		if len(description) > 0 {
+			r.PS(description, "margin-left: 16px; font-size: 14px;")
+		}
+		if field.HasError() {
+			r.PS(field.Errors(), t.styles.errorStyle)
+		}
+		r.DIVclose()
 	}
-	if field.HasError() {
-		r.PS(field.Errors(), t.styles.errorStyle)
-	}
-	r.DIVclose()
-	r.DIVclose()
 }
 
 func (t BaseTheme) themeRenderMulti(r *RenderContext, f DataField, e FormElement, prefix string) {

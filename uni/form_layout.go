@@ -31,6 +31,15 @@ func WithChoices(choices []Choice) OptFunc {
 	}
 }
 
+func WithYesNo(yes string, no string) OptFunc {
+	return func(config *ElementOpts) {
+		config.Choices = []Choice{
+			{Label: no},
+			{Label: yes},
+		}
+	}
+}
+
 func WithPlaceholder(placeholder string) OptFunc {
 	return func(config *ElementOpts) {
 		config.Placeholder = placeholder
@@ -55,9 +64,9 @@ type FormLayout struct {
 }
 
 type FormElement struct {
-	Kind   string
-	Name   string
-	Config ElementOpts
+	ElementDisplayType string
+	Name               string
+	Config             ElementOpts
 }
 
 func NewFormLayout() *FormLayout {
@@ -65,7 +74,7 @@ func NewFormLayout() *FormLayout {
 		Theme: BaseTheme{
 			// TopSeparator
 			NewStyles(
-				InputStyle("width: 95%%; margin-top: 0.25rem; border: 1px solid #D1D5DB; border-radius: 0.375rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); padding-top: 0.5rem; padding-bottom: 0.5rem; padding-left: 0.75rem; padding-right: 0.75rem; outline: none;"),
+				InputStyle("box-sizing: border-box; width: 95%; margin-top: 0.25rem; border: 1px solid #D1D5DB; border-radius: 0.375rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); padding-top: 0.5rem; padding-bottom: 0.5rem; padding-left: 0.75rem; padding-right: 0.75rem; outline: none;"),
 				LabelStyle("display: block; font-size: 0.875rem; font-weight: 500; color: #6B7280"),
 				ErrorStyle("margin-top: 0.5rem; font-size: 0.875rem; color: #e3342f;"),
 				TopSeparator("1.5rem"),
@@ -77,8 +86,8 @@ func NewFormLayout() *FormLayout {
 
 func (f *FormLayout) AddHeader(name string) *FormLayout {
 	e := FormElement{
-		Kind: "header",
-		Name: name,
+		ElementDisplayType: "header",
+		Name:               name,
 	}
 	f.elements = append(f.elements, e)
 	return f
@@ -86,8 +95,8 @@ func (f *FormLayout) AddHeader(name string) *FormLayout {
 
 func (f *FormLayout) AddHidden(name string) *FormLayout {
 	e := FormElement{
-		Kind: "hidden",
-		Name: name,
+		ElementDisplayType: "hidden",
+		Name:               name,
 	}
 	f.elements = append(f.elements, e)
 	return f
@@ -103,7 +112,7 @@ func (f *FormLayout) findByName(name string) *FormElement {
 		// Check if the current element matches the first part of the name
 		if element.Name == parts[0] {
 			// If it's a direct match or not a group, return the element
-			if len(parts) == 1 || element.Kind != "group" {
+			if len(parts) == 1 || element.ElementDisplayType != "group" {
 				return &element
 			}
 			// If it's a group and there are more parts, search in the SubLayout
@@ -122,8 +131,8 @@ func (f *FormLayout) AddViewOnlyGroup(name string,
 ) *FormLayout {
 	l := NewFormLayout()
 	e := FormElement{
-		Kind: "group",
-		Name: name,
+		ElementDisplayType: "group",
+		Name:               name,
 		Config: ElementOpts{
 			SubLayout:   l,
 			Label:       label,
@@ -143,8 +152,8 @@ func (f *FormLayout) AddGroup(name string,
 ) *FormLayout {
 	l := NewFormLayout()
 	e := FormElement{
-		Kind: "group",
-		Name: name,
+		ElementDisplayType: "group",
+		Name:               name,
 		Config: ElementOpts{
 			SubLayout:   l,
 			Label:       label,
@@ -166,9 +175,9 @@ func (f *FormLayout) Add(name string, label string, config ...OptFunc) *FormLayo
 		c.Label = label
 	}
 	e := FormElement{
-		Kind:   "input",
-		Name:   name,
-		Config: *c,
+		ElementDisplayType: "input",
+		Name:               name,
+		Config:             *c,
 	}
 	f.elements = append(f.elements, e)
 	return f
@@ -185,9 +194,9 @@ func (f *FormLayout) AddDropdown(name string, label string, config ...OptFunc) *
 		c.Label = label
 	}
 	e := FormElement{
-		Kind:   "dropdown",
-		Name:   name,
-		Config: *c,
+		ElementDisplayType: "dropdown",
+		Name:               name,
+		Config:             *c,
 	}
 	f.elements = append(f.elements, e)
 	return f
@@ -202,9 +211,9 @@ func (f *FormLayout) AddYesNo(name string, label string, config ...OptFunc) *For
 		c.Label = label
 	}
 	e := FormElement{
-		Kind:   "yesno",
-		Name:   name,
-		Config: *c,
+		ElementDisplayType: "yesno",
+		Name:               name,
+		Config:             *c,
 	}
 	f.elements = append(f.elements, e)
 	return f

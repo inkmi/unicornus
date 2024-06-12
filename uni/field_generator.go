@@ -2,9 +2,12 @@ package uni
 
 import (
 	"reflect"
+	"time"
 
 	. "github.com/moznion/go-optional"
 )
+
+// Converts a struct and errors into a slice of DataFields
 
 func FieldGenerator(obj interface{}, errors map[string]string) []DataField {
 	vals := make([]DataField, 0, 20)
@@ -34,13 +37,14 @@ func translateRecursive(vals []DataField, prefix string, original reflect.Value,
 
 func translateStruct(prefix string, vals []DataField, original reflect.Value, errors map[string]string) []DataField {
 	for i := 0; i < original.NumField(); i += 1 {
+		stopRecursion := false
+
 		df := DataField{}
 		if len(prefix) == 0 {
 			df.Name = original.Type().Field(i).Name
 		} else {
 			df.Name = prefix + "." + original.Type().Field(i).Name
 		}
-
 		if errorMsg, hasError := errors[df.Name]; hasError {
 			df.ErrorMessages = []string{errorMsg}
 		}
@@ -85,7 +89,7 @@ func translateStruct(prefix string, vals []DataField, original reflect.Value, er
 			}
 		} else {
 			typ := ""
-			// it seems that the Kind of the Option is Slice
+			// it seems that the ElementDisplayType of the Option is Slice
 			// so check with the type we got with Name
 			if !optionalValue && original.Type().Field(i).Type.Kind() == reflect.Slice {
 				df.Multi = true
@@ -105,7 +109,13 @@ func translateStruct(prefix string, vals []DataField, original reflect.Value, er
 		if len(prefix) == 0 {
 			newPrefix = original.Type().Field(i).Name
 		}
-		vals = translateRecursive(vals, newPrefix, original.Field(i), nil)
+
+		if df.Kind == "Time" {
+			stopRecursion = true
+		}
+		if !stopRecursion {
+			vals = translateRecursive(vals, newPrefix, original.Field(i), nil)
+		}
 	}
 	return vals
 }
@@ -117,7 +127,13 @@ func setValue(df *DataField, original reflect.Value, i int) {
 		setBool(original, i, df)
 	} else if df.Kind == "int" {
 		setInt(original, i, df)
+	} else if df.Kind == "Time" {
+		setTime(original, i, df)
 	}
+}
+
+func setTime(original reflect.Value, i int, f *DataField) {
+	f.Value = original.Field(i).Interface().(time.Time).Format("2006-01-02T15:04")
 }
 
 func setString(original reflect.Value, i int, f *DataField) {

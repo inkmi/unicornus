@@ -11,4 +11,5 @@ type Theme interface {
 	themeRenderMulti(sb *strings.Builder, field DataField, e FormElement, prefix string)
 	themeRenderHeader(sb *strings.Builder, e FormElement)
 	themeRenderGroup(sb *strings.Builder, data any, prefix string, e FormElement)
+	themeRenderDateTime(r *RenderContext, e FormElement, field DataField, prefix string)
 }
