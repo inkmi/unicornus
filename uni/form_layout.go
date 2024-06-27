@@ -11,6 +11,8 @@ type ElementOpts struct {
 	Groups      map[string]string
 	SubLayout   *FormLayout
 	ViewOnly    bool
+	EmptyView   string
+	ViewPrefix  string
 }
 
 type OptFunc func(config *ElementOpts)
@@ -46,6 +48,18 @@ func WithPlaceholder(placeholder string) OptFunc {
 	}
 }
 
+func WithViewPrefix(viewPrefix string) OptFunc {
+	return func(config *ElementOpts) {
+		config.ViewPrefix = viewPrefix
+	}
+}
+
+func WithEmpyView(empty string) OptFunc {
+	return func(config *ElementOpts) {
+		config.EmptyView = empty
+	}
+}
+
 func WithId(id string) OptFunc {
 	return func(config *ElementOpts) {
 		config.Id = id
@@ -78,6 +92,7 @@ func NewFormLayout() *FormLayout {
 				LabelStyle("display: block; font-size: 0.875rem; font-weight: 500; color: #6B7280"),
 				ErrorStyle("margin-top: 0.5rem; font-size: 0.875rem; color: #e3342f;"),
 				TopSeparator("1.5rem"),
+				TopViewSeparator("0.8rem"),
 			),
 		},
 	}

@@ -2,7 +2,6 @@ package uni
 
 import (
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
 	"html"
 	"strings"
 )
@@ -180,14 +179,9 @@ func NewRenderContext(config ...RenderContextFunc) *RenderContext {
 	return c
 }
 
-func (f *FormLayout) RenderView(data ...any) string {
+func (f *FormLayout) RenderView(data any) string {
 	errors := make(map[string]string)
-	datas := make([]DataField, 0)
-	for _, d := range data {
-		// [:]... MAGIC from chatgpt
-		datas = append(datas, FieldGenerator(d, errors)[:]...)
-	}
-	m := FieldsToMap(datas)
+	m := FieldsToMap(FieldGenerator(data, errors))
 	r := NewRenderContext(WithDisplayMode())
 	f.renderFormToBuilder(r, "", m)
 	return r.out.String()
@@ -200,7 +194,6 @@ func (f *FormLayout) RenderForm(data any) string {
 
 func (f *FormLayout) RenderFormWithErrors(data any, errors map[string]string) string {
 	m := FieldsToMap(FieldGenerator(data, errors))
-	spew.Dump(m)
 	r := NewRenderContext()
 	f.renderFormToBuilder(r, "", m)
 	return r.out.String()
@@ -235,7 +228,6 @@ func (f *FormLayout) renderElement(
 	prefix string,
 	m map[string]DataField,
 ) {
-	fmt.Println(">>>> " + e.ElementDisplayType + " " + e.Name)
 	switch e.ElementDisplayType {
 	case "hidden":
 		fieldName := e.Name
