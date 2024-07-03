@@ -1,10 +1,9 @@
 package uni
 
 import (
+	. "github.com/moznion/go-optional"
 	"reflect"
 	"time"
-
-	. "github.com/moznion/go-optional"
 )
 
 // Converts a struct and errors into a slice of DataFields
@@ -36,6 +35,7 @@ func translateRecursive(vals []DataField, prefix string, original reflect.Value,
 }
 
 func translateStruct(prefix string, vals []DataField, original reflect.Value, errors map[string]string) []DataField {
+
 	for i := 0; i < original.NumField(); i += 1 {
 		stopRecursion := false
 
@@ -114,7 +114,7 @@ func translateStruct(prefix string, vals []DataField, original reflect.Value, er
 			stopRecursion = true
 		}
 		if !stopRecursion {
-			vals = translateRecursive(vals, newPrefix, original.Field(i), nil)
+			vals = translateRecursive(vals, newPrefix, original.Field(i), errors)
 		}
 	}
 	return vals
