@@ -35,17 +35,17 @@ func translateRecursive(vals []DataField, prefix string, original reflect.Value,
 }
 
 func translateStruct(prefix string, vals []DataField, original reflect.Value, errors map[string]string) []DataField {
-
 	for i := 0; i < original.NumField(); i += 1 {
 		stopRecursion := false
 
 		df := DataField{}
+		name := original.Type().Field(i).Name
 		if len(prefix) == 0 {
-			df.Name = original.Type().Field(i).Name
+			df.Name = name
 		} else {
-			df.Name = prefix + "." + original.Type().Field(i).Name
+			df.Name = prefix + "." + name
 		}
-		if errorMsg, hasError := errors[df.Name]; hasError {
+		if errorMsg, hasError := errors[name]; hasError {
 			df.ErrorMessages = []string{errorMsg}
 		}
 

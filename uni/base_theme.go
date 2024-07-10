@@ -88,6 +88,8 @@ func (t BaseTheme) themeRenderDateTime(r *RenderContext, e FormElement, field Da
 }
 
 func (t BaseTheme) themeRenderInput(r *RenderContext, e FormElement, field DataField, prefix string) {
+	fmt.Println("themeRenderInput: " + field.Name)
+	fmt.Println(field.Errors())
 	if r.OnlyDisplay(field.Name) {
 		r.DIVopenS(t.styles.topSeparatorView)
 		if len(e.Config.Label) > 0 {
