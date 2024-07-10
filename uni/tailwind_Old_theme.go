@@ -121,7 +121,11 @@ func (t TailwindOldTheme) themeRenderMulti(rctx *RenderContext, f DataField, e F
 	rctx.out.WriteString("<div class=\"mt-6\">")
 	// Should this move to Field generation?
 	if len(e.Config.Groups) > 0 {
-		for group, name := range e.Config.Groups {
+		for _, group := range e.Config.GroupsOrder {
+			name, ok := e.Config.Groups[group]
+			if !ok {
+				continue
+			}
 			t.renderMultiGroup(rctx, f, group, name)
 		}
 	} else {

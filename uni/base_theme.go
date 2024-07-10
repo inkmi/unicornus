@@ -88,8 +88,6 @@ func (t BaseTheme) themeRenderDateTime(r *RenderContext, e FormElement, field Da
 }
 
 func (t BaseTheme) themeRenderInput(r *RenderContext, e FormElement, field DataField, prefix string) {
-	fmt.Println("themeRenderInput: " + field.Name)
-	fmt.Println(field.Errors())
 	if r.OnlyDisplay(field.Name) {
 		r.DIVopenS(t.styles.topSeparatorView)
 		if len(e.Config.Label) > 0 {
@@ -239,10 +237,15 @@ func (t BaseTheme) themeRenderCheckbox(r *RenderContext, e FormElement, field Da
 }
 
 func (t BaseTheme) themeRenderMulti(r *RenderContext, f DataField, e FormElement, prefix string) {
+	fmt.Println("Render multi theme: " + f.Name)
 	r.DIVopenS(t.styles.topSeparator)
 	// Should this move to Field generation?
 	if len(e.Config.Groups) > 0 {
-		for group, name := range e.Config.Groups {
+		for _, group := range e.Config.GroupsOrder {
+			name, ok := e.Config.Groups[group]
+			if !ok {
+				continue
+			}
 			t.renderMultiGroup(r, f, group, name)
 		}
 	} else {

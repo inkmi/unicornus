@@ -9,6 +9,7 @@ type ElementOpts struct {
 	Description string
 	Choices     []Choice
 	Groups      map[string]string
+	GroupsOrder []string
 	SubLayout   *FormLayout
 	ViewOnly    bool
 	EmptyView   string
@@ -66,8 +67,9 @@ func WithId(id string) OptFunc {
 	}
 }
 
-func WithGroups(groups map[string]string) OptFunc {
+func WithGroups(order []string, groups map[string]string) OptFunc {
 	return func(config *ElementOpts) {
+		config.GroupsOrder = order
 		config.Groups = groups
 	}
 }
