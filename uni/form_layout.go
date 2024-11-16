@@ -14,6 +14,7 @@ type ElementOpts struct {
 	ViewOnly    bool
 	EmptyView   string
 	ViewPrefix  string
+	BulletsView bool
 }
 
 type OptFunc func(config *ElementOpts)
@@ -31,6 +32,13 @@ func WithDescription(description string) OptFunc {
 func WithChoices(choices []Choice) OptFunc {
 	return func(config *ElementOpts) {
 		config.Choices = choices
+	}
+}
+
+
+func WithBulletChoices() OptFunc {
+	return func(config *ElementOpts) {
+		config.BulletsView = true
 	}
 }
 
@@ -212,6 +220,23 @@ func (f *FormLayout) AddDropdown(name string, label string, config ...OptFunc) *
 	}
 	e := FormElement{
 		ElementDisplayType: "dropdown",
+		Name:               name,
+		Config:             *c,
+	}
+	f.elements = append(f.elements, e)
+	return f
+}
+
+func (f *FormLayout) AddTextarea(name string, label string, config ...OptFunc) *FormLayout {
+	c := defaultOpts()
+	for _, con := range config {
+		con(c)
+	}
+	if len(c.Label) == 0 {
+		c.Label = label
+	}
+	e := FormElement{
+		ElementDisplayType: "textarea",
 		Name:               name,
 		Config:             *c,
 	}

@@ -105,7 +105,7 @@ func translateStruct(prefix string, vals []DataField, original reflect.Value, er
 		}
 
 		vals = append(vals, df)
-		newPrefix := prefix + " ." + original.Type().Field(i).Name
+		newPrefix := prefix + "." + original.Type().Field(i).Name
 		if len(prefix) == 0 {
 			newPrefix = original.Type().Field(i).Name
 		}

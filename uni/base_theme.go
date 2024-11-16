@@ -121,6 +121,46 @@ func (t BaseTheme) themeRenderInput(r *RenderContext, e FormElement, field DataF
 	}
 }
 
+func (t BaseTheme) themeRenderTextarea(r *RenderContext, e FormElement, field DataField, description string, prefix string) {
+	if r.OnlyDisplay(field.Name) {
+		r.DIVopenS(t.styles.topSeparatorView)
+		if len(e.Config.Label) > 0 {
+			r.DIVS(e.Config.Label, t.styles.labelStyle)
+		}
+		if len(field.ViewVal()) == 0 || field.ViewVal() == "0" {
+			r.DIV(Safe(e.Config.EmptyView), "font-size: 0.875rem; "+
+				"font-weight: 500; color: #1F2937;")
+		} else {
+			value := field.ViewVal()
+			if len(e.Config.ViewPrefix) > 0 {
+				value = e.Config.ViewPrefix + " " + value
+			}
+			r.DIV(Safe(value), "font-size: 0.875rem; "+
+				"font-weight: 500; color: #1F2937;")
+		}
+		if len(description) > 0 {
+			r.PS(description, "margin-top: 0.5rem; color: #6B7280; ")
+		}
+		if len(e.Config.Description) > 0 {
+			r.PS(e.Config.Description, "margin-top: 0.5rem; color: #6B7280; ")
+		}
+		r.DIVclose()
+	} else {
+		r.DIVopenS(t.styles.topSeparator)
+		// Label for input
+		if len(e.Config.Label) > 0 {
+			r.LABELS(e.Config.Label, t.styles.labelStyle)
+		}
+		// Render input element
+		renderTextareaS(r, field, field.Val(), e.Config, t.styles.inputStyle, t.styles.errorStyle)
+		// Render description
+		if len(e.Config.Description) > 0 {
+			r.PS(e.Config.Description, "margin-top: 0.5rem; color: #6B7280; ")
+		}
+		r.DIVclose()
+	}
+}
+
 func (t BaseTheme) themeRenderSelect(r *RenderContext, e FormElement, field DataField, description string, prefix string) {
 	if r.OnlyDisplay(field.Name) {
 		r.DIVopenS(t.styles.topSeparatorView)
@@ -246,35 +286,66 @@ func (t BaseTheme) themeRenderMulti(r *RenderContext, f DataField, e FormElement
 			if !ok {
 				continue
 			}
-			t.renderMultiGroup(r, f, group, name)
+			t.renderMultiGroup(r, f, e, group, name)
 		}
 	} else {
-		t.renderMultiGroup(r, f, "", "")
+		t.renderMultiGroup(r, f, e, "", "")
 	}
 	r.DIVclose()
 }
 
-func (t BaseTheme) renderMultiGroup(r *RenderContext, f DataField, group string, groupName string) {
+func (t BaseTheme) renderMultiGroup(r *RenderContext, f DataField, e FormElement, group string, groupName string) {
 	if r.OnlyDisplay(f.Name) {
 		if len(groupName) > 0 {
 			r.H3(groupName, "font-bold text-gray-900")
-		}
-		first := true
-		var builder strings.Builder
-		for _, c := range f.Choices {
-			if c.Checked {
-				if !first {
-					builder.WriteString(", ")
-				}
-				builder.WriteString(c.Label)
-				first = false
+		} else if len(e.Config.Label) > 0 {
+			r.H3(e.Config.Label, "font-bold text-gray-900")
+			if len(e.Config.Description) > 0 {
+				r.p(e.Config.Description, "mt-1 mb-2 text-sm text-gray-500")
 			}
 		}
-		r.DIV(builder.String(), "")
+		valuesExist := false
+		if e.Config.BulletsView {
+			var builder strings.Builder
+			builder.WriteString("<ul class=\"px-4\" style=\"list-style-type: disc;\">")
+			for _, c := range f.Choices {
+				if c.Checked {
+					valuesExist = true
+					builder.WriteString("<li>" + c.Label + "</li>")
+				}
+			}
+			builder.WriteString("</ul>")
+			if !valuesExist {
+				builder.WriteString("-")
+			}
+			r.DIV(builder.String(), "")
+		} else {
+			first := true
+			var builder strings.Builder
+			for _, c := range f.Choices {
+				if c.Checked {
+					valuesExist = true
+					if !first {
+						builder.WriteString(", ")
+					}
+					builder.WriteString(c.Label)
+					first = false
+				}
+			}
+			if !valuesExist {
+				builder.WriteString("-")
+			}
+			r.DIV(builder.String(), "")
+		}
 	} else {
 		r.DIVopenS(t.styles.topSeparator)
 		if len(groupName) > 0 {
 			r.H3(groupName, "font-bold text-gray-900")
+		} else if len(e.Config.Label) > 0 {
+			r.H3(e.Config.Label, "font-bold text-gray-900")
+			if len(e.Config.Description) > 0 {
+				r.p(e.Config.Description, "mt-1 mb-2 text-sm text-gray-500")
+			}
 		}
 		r.out.WriteString("<fieldset class=\"space-y-1\">")
 		// range copies slice

@@ -24,6 +24,18 @@ func WriteValue(s *strings.Builder, value any) {
 	WriteString(s, fmt.Sprintf("%v", value))
 }
 
+func (r *RenderContext) TEXTAREA(name string, value any, style string, config ElementOpts) {
+	r.out.WriteString("<textarea name=\"")
+	r.out.WriteString(name)
+	r.out.WriteString("\" ")
+	r.out.WriteString(configToHtml(config))
+	r.out.WriteString(" style=\"")
+	r.out.WriteString(style)
+	r.out.WriteString("\">")
+	WriteValue(r.out, value)
+	r.out.WriteString("</textarea>")
+}
+
 func (r *RenderContext) INPUT(name string, typ string, value any, style string, config ElementOpts) {
 	r.out.WriteString("<input name=\"")
 	r.out.WriteString(name)
@@ -180,20 +192,44 @@ func NewRenderContext(config ...RenderContextFunc) *RenderContext {
 }
 
 func (f *FormLayout) RenderView(data any) string {
+	return f.RenderMultiView([]any{data})
+}
+
+func (f *FormLayout) RenderMultiView(data []any) string {
 	errors := make(map[string]string)
-	m := FieldsToMap(FieldGenerator(data, errors))
+	fields := make([]DataField, 0)
+	for _,d := range data {
+		dataFields := FieldGenerator(d, errors)
+		fields = append(fields, dataFields...)
+	}
+	m := FieldsToMap(fields)
 	r := NewRenderContext(WithDisplayMode())
 	f.renderFormToBuilder(r, "", m)
 	return r.out.String()
 }
 
 func (f *FormLayout) RenderForm(data any) string {
-	errors := make(map[string]string)
-	return f.RenderFormWithErrors(data, errors)
+	return f.RenderFormMulti( []any{data})
 }
 
-func (f *FormLayout) RenderFormWithErrors(data any, errors map[string]string) string {
-	m := FieldsToMap(FieldGenerator(data, errors))
+
+func (f *FormLayout) RenderFormMulti(
+	data []any,
+) string {
+	errors := make(map[string]string)
+	return f.RenderFormWithErrors(errors, data)
+}
+
+func (f *FormLayout) RenderFormWithErrors(
+	errors map[string]string,
+	data []any,
+) string {
+	fields := make([]DataField, 0)
+	for _,d := range data {
+		dataFields := FieldGenerator(d, errors)
+		fields = append(fields, dataFields...)
+	}
+	m := FieldsToMap(fields)
 	r := NewRenderContext()
 	f.renderFormToBuilder(r, "", m)
 	return r.out.String()
@@ -201,11 +237,15 @@ func (f *FormLayout) RenderFormWithErrors(data any, errors map[string]string) st
 
 func (f *FormLayout) RenderElementWithErrors(
 	name string,
-	data any,
 	errors map[string]string,
+	data ...any,
 ) string {
 	e := f.findByName(name)
-	m := FieldsToMap(FieldGenerator(data, errors))
+	fields := make([]DataField, 0)
+	for _, d := range data {
+		fields = append(fields, FieldGenerator(d, errors)...)
+	}
+	m := FieldsToMap(fields)
 	var sb strings.Builder
 	r := RenderContext{
 		out: &sb,
@@ -289,7 +329,23 @@ func (f *FormLayout) renderElement(
 				}
 			}
 		}
-	case "yesno":
+	case "textarea":
+		// take value string from MAP of name -> DataField
+		// take type if no type is given from DataField
+		fieldName := e.Name
+		if len(prefix) > 0 {
+			fieldName = prefix + "." + fieldName
+		}
+		field, ok := m[fieldName]
+
+		if ok {
+			description := e.Config.Description
+			if len(e.Config.Description) > 0 {
+				description = e.Config.Description
+			}
+			f.Theme.themeRenderTextarea(r, e, field, description, prefix)
+		}
+	case "yesno": 
 		// take value string from MAP of name -> DataField
 		// take type if no type is given from DataField
 		fieldName := e.Name
@@ -395,7 +451,29 @@ func renderSelect(r *RenderContext, f DataField, config ElementOpts, prefix stri
 	}
 }
 
-func renderTextInputS(r *RenderContext, f DataField, val any, config ElementOpts, style string, errorStyle string) {
+func renderTextareaS(
+	r *RenderContext,
+	f DataField,
+	val any,
+	config ElementOpts,
+	style string,
+	errorStyle string,
+) {
+	name := f.Name
+	r.TEXTAREA(name, val, style, config)
+	if f.HasError() {
+		r.PS(f.Errors(), errorStyle)
+	}
+}
+
+func renderTextInputS(
+	r *RenderContext,
+	f DataField,
+	val any,
+	config ElementOpts,
+	style string,
+	errorStyle string,
+) {
 	inputType := "text"
 	name := f.Name
 	if f.Kind == "int" {
