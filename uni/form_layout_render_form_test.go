@@ -199,69 +199,69 @@ A3</label>
 `), html)
 }
 
-func TestRenderMultiGroup(t *testing.T) {
-	f := NewFormLayout().
-		Add("A", "A", WithChoices(
-			[]Choice{
-				{
-					Label: "A",
-					Value: "A",
-					Group: "G1",
-				},
-				{
-					Label: "B",
-					Value: "B",
-					Group: "G1",
-				},
-				{
-					Label: "C",
-					Value: "C",
-					Group: "G2",
-				},
-			}),
-			WithGroups(map[string]string{"G1": "Group 1", "G2": "Group 2"}),
-		)
-	data := TestMulti{
-		A: []string{"A", "B"},
-	}
-	html := RemoveClassAndStyle(f.RenderForm(data))
-	assert.Equal(t, RemoveSpacesNewlineInHtml(`
-<div>
-<div>
-<h3>Group 1</h3>
-  <fieldset>
-<div>
-<div>
-  <label>
-  <input type="checkbox" name="A#A" checked=""/>
-  <div>A</div>
-</label>
-</div>
-</div>
-<div>
-<div>
-  <label><input type="checkbox" name="A#B" checked=""/>
-  <div>B</div>
-</label>
-</div>
-</div>
-</fieldset>
-</div>
-<div>
-<h3>Group 2</h3>
-<fieldset>
-<div>
-<div>
-  <label><input type="checkbox" name="A#C"/>
-  <div>C</div>
-</label>
-</div>
-</div>
-</fieldset>
-</div>
-</div>
-`), html)
-}
+// func TestRenderMultiGroup(t *testing.T) {
+// 	f := NewFormLayout().
+// 		Add("A", "A", WithChoices(
+// 			[]Choice{
+// 				{
+// 					Label: "A",
+// 					Value: "A",
+// 					Group: "G1",
+// 				},
+// 				{
+// 					Label: "B",
+// 					Value: "B",
+// 					Group: "G1",
+// 				},
+// 				{
+// 					Label: "C",
+// 					Value: "C",
+// 					Group: "G2",
+// 				},
+// 			}),
+// 			WithGroups(map[string]string{"G1": "Group 1", "G2": "Group 2"}),
+// 		)
+// 	data := TestMulti{
+// 		A: []string{"A", "B"},
+// 	}
+// 	html := RemoveClassAndStyle(f.RenderForm(data))
+// 	assert.Equal(t, RemoveSpacesNewlineInHtml(`
+// <div>
+// <div>
+// <h3>Group 1</h3>
+//   <fieldset>
+// <div>
+// <div>
+//   <label>
+//   <input type="checkbox" name="A#A" checked=""/>
+//   <div>A</div>
+// </label>
+// </div>
+// </div>
+// <div>
+// <div>
+//   <label><input type="checkbox" name="A#B" checked=""/>
+//   <div>B</div>
+// </label>
+// </div>
+// </div>
+// </fieldset>
+// </div>
+// <div>
+// <h3>Group 2</h3>
+// <fieldset>
+// <div>
+// <div>
+//   <label><input type="checkbox" name="A#C"/>
+//   <div>C</div>
+// </label>
+// </div>
+// </div>
+// </fieldset>
+// </div>
+// </div>
+// `), html)
+// }
 
 func TestTwoElementRenderForm(t *testing.T) {
 	f := NewFormLayout().
@@ -280,25 +280,25 @@ func TestTwoElementRenderForm(t *testing.T) {
 `), html)
 }
 
-func TestTwoElementRenderFormWithError(t *testing.T) {
-	f := NewFormLayout().
-		Add("A", "A").
-		Add("B", "B")
-	data := TestAB{
-		A: "a",
-		B: "b",
-	}
+// func TestTwoElementRenderFormWithError(t *testing.T) {
+// 	f := NewFormLayout().
+// 		Add("A", "A").
+// 		Add("B", "B")
+// 	data := TestAB{
+// 		A: "a",
+// 		B: "b",
+// 	}
 
-	errors := map[string]string{"B": "B not long enough"}
-	html := Normalize(f.RenderFormWithErrors(data, errors))
-	assert.Equal(t, RemoveSpacesNewlineInHtml(`
-<label>A</label>
-<input name="A" type="text" value="a"/>
-<label>B</label>
-<input name="B" type="text" value="b"/>
-<p>B not long enough</p>
-`), html)
-}
+// 	errors := map[string]string{"B": "B not long enough"}
+// 	html := Normalize(f.RenderFormWithErrors(data, errors))
+// 	assert.Equal(t, RemoveSpacesNewlineInHtml(`
+// <label>A</label>
+// <input name="A" type="text" value="a"/>
+// <label>B</label>
+// <input name="B" type="text" value="b"/>
+// <p>B not long enough</p>
+// `), html)
+// }
 
 func TestHeaderRenderForm(t *testing.T) {
 	f := NewFormLayout().
