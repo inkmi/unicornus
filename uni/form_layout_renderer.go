@@ -6,12 +6,17 @@ import (
 	"strings"
 )
 
+// RenderContext holds rendering state shared across a single render pass
+// (output buffer and global flags such as ViewMode). Construct one with
+// NewRenderContext; it is not intended for concurrent use.
 type RenderContext struct {
 	out          *strings.Builder
 	AnchorGroups bool
 	ViewMode     bool
 }
 
+// Safe HTML-escapes str (&, <, >, ", ') for safe embedding in HTML
+// attribute values and text nodes.
 func Safe(str string) string {
 	return html.EscapeString(str)
 }
@@ -24,46 +29,59 @@ func WriteValue(s *strings.Builder, value any) {
 	WriteString(s, fmt.Sprintf("%v", value))
 }
 
+func WriteUnsafeValue(s *strings.Builder, value any) {
+	s.WriteString(fmt.Sprintf("%v", value))
+}
+
 func (r *RenderContext) TEXTAREA(name string, value any, style string, config ElementOpts) {
 	r.out.WriteString("<textarea name=\"")
-	r.out.WriteString(name)
+	r.out.WriteString(Safe(name))
 	r.out.WriteString("\" ")
 	r.out.WriteString(configToHtml(config))
 	r.out.WriteString(" style=\"")
-	r.out.WriteString(style)
+	r.out.WriteString(Safe(style))
 	r.out.WriteString("\">")
-	WriteValue(r.out, value)
+	if config.NoEscape {
+		WriteUnsafeValue(r.out, value)
+	} else {
+		WriteValue(r.out, value)
+	}
 	r.out.WriteString("</textarea>")
 }
 
 func (r *RenderContext) INPUT(name string, typ string, value any, style string, config ElementOpts) {
 	r.out.WriteString("<input name=\"")
-	r.out.WriteString(name)
+	r.out.WriteString(Safe(name))
 	r.out.WriteString("\" type=\"")
-	r.out.WriteString(typ)
+	r.out.WriteString(Safe(typ))
 	r.out.WriteString("\" value=\"")
 	WriteValue(r.out, value)
 	r.out.WriteString("\" ")
 	r.out.WriteString(configToHtml(config))
 	r.out.WriteString(" style=\"")
-	r.out.WriteString(style)
+	r.out.WriteString(Safe(style))
 	r.out.WriteString("\">")
 }
 
 func (r *RenderContext) DIVv(content string, class ...string) {
 	r.out.WriteString("<div class=\"")
 	for i := 0; i < len(class); i++ {
-		r.out.WriteString(class[i])
+		r.out.WriteString(Safe(class[i]))
 		r.out.WriteString(" ")
 	}
 	r.out.WriteString("\">")
-	r.out.WriteString(content)
+	r.out.WriteString(Safe(content))
 	r.out.WriteString("</div>")
+}
+func (r *RenderContext) H1no(content string) {
+	r.out.WriteString("<h1>")
+	r.out.WriteString(Safe(content))
+	r.out.WriteString("</h1>")
 }
 
 func (r *RenderContext) H2no(content string) {
 	r.out.WriteString("<h2>")
-	r.out.WriteString(content)
+	r.out.WriteString(Safe(content))
 	r.out.WriteString("</h2>")
 }
 
@@ -73,23 +91,33 @@ func (r *RenderContext) DIVclose() {
 
 func (r *RenderContext) H2(content string, class string) {
 	r.out.WriteString("<h2 class=\"")
-	r.out.WriteString(class)
+	r.out.WriteString(Safe(class))
 	r.out.WriteString("\">")
-	r.out.WriteString(content)
+	r.out.WriteString(Safe(content))
 	r.out.WriteString("</h2>")
 }
 
 func (r *RenderContext) H3(content string, class string) {
 	r.out.WriteString("<h3 class=\"")
-	r.out.WriteString(class)
+	r.out.WriteString(Safe(class))
 	r.out.WriteString("\">")
-	r.out.WriteString(content)
+	r.out.WriteString(Safe(content))
 	r.out.WriteString("</h3>")
 }
 
 func (r *RenderContext) DIV(content string, class string) {
 	r.out.WriteString("<div class=\"")
-	r.out.WriteString(class)
+	r.out.WriteString(Safe(class))
+	r.out.WriteString("\">")
+	r.out.WriteString(Safe(content))
+	r.out.WriteString("</div>")
+}
+
+// DIVRaw writes `content` unescaped. Use ONLY when `content` is already
+// a trusted HTML fragment produced by this package. `class` is still escaped.
+func (r *RenderContext) DIVRaw(content string, class string) {
+	r.out.WriteString("<div class=\"")
+	r.out.WriteString(Safe(class))
 	r.out.WriteString("\">")
 	r.out.WriteString(content)
 	r.out.WriteString("</div>")
@@ -97,42 +125,42 @@ func (r *RenderContext) DIV(content string, class string) {
 
 func (r *RenderContext) DIVS(content string, style string) {
 	r.out.WriteString("<div style=\"")
-	r.out.WriteString(style)
+	r.out.WriteString(Safe(style))
 	r.out.WriteString("\">")
-	r.out.WriteString(content)
+	r.out.WriteString(Safe(content))
 	r.out.WriteString("</div>")
 }
 
 func (r *RenderContext) DIVopen(class string) {
 	r.out.WriteString("<div class=\"")
-	r.out.WriteString(class)
+	r.out.WriteString(Safe(class))
 	r.out.WriteString("\">")
 }
 func (r *RenderContext) DIVopenS(style string) {
 	r.out.WriteString("<div style=\"")
-	r.out.WriteString(style)
+	r.out.WriteString(Safe(style))
 	r.out.WriteString("\">")
 }
 
 func (r *RenderContext) LABEL(content string, class string) {
 	r.out.WriteString("<label class=\"")
-	r.out.WriteString(class)
+	r.out.WriteString(Safe(class))
 	r.out.WriteString("\">")
-	r.out.WriteString(content)
+	r.out.WriteString(Safe(content))
 	r.out.WriteString("</label>")
 }
 
 func (r *RenderContext) LABELS(content string, style string) {
 	r.out.WriteString("<label style=\"")
-	r.out.WriteString(style)
+	r.out.WriteString(Safe(style))
 	r.out.WriteString("\">")
-	r.out.WriteString(content)
+	r.out.WriteString(Safe(content))
 	r.out.WriteString("</label>")
 }
 
 func (r *RenderContext) LABELopenS(style string) {
 	r.out.WriteString("<label style=\"")
-	r.out.WriteString(style)
+	r.out.WriteString(Safe(style))
 	r.out.WriteString("\">")
 }
 func (r *RenderContext) LABELclose() {
@@ -142,17 +170,17 @@ func (r *RenderContext) LABELclose() {
 
 func (r *RenderContext) PS(content string, style string) {
 	r.out.WriteString("<p style=\"")
-	r.out.WriteString(style)
+	r.out.WriteString(Safe(style))
 	r.out.WriteString("\">")
-	r.out.WriteString(content)
+	r.out.WriteString(Safe(content))
 	r.out.WriteString("</p>")
 }
 
 func (r *RenderContext) p(content string, class string) {
 	r.out.WriteString("<p class=\"")
-	r.out.WriteString(class)
+	r.out.WriteString(Safe(class))
 	r.out.WriteString("\">")
-	r.out.WriteString(content)
+	r.out.WriteString(Safe(content))
 	r.out.WriteString("</p>")
 }
 
@@ -191,14 +219,18 @@ func NewRenderContext(config ...RenderContextFunc) *RenderContext {
 	return c
 }
 
+// RenderView renders a read-only HTML representation of data using this
+// layout. Use RenderForm for an editable form.
 func (f *FormLayout) RenderView(data any) string {
 	return f.RenderMultiView([]any{data})
 }
 
+// RenderMultiView is like RenderView but merges fields from multiple
+// structs into a single read-only view.
 func (f *FormLayout) RenderMultiView(data []any) string {
 	errors := make(map[string]string)
 	fields := make([]DataField, 0)
-	for _,d := range data {
+	for _, d := range data {
 		dataFields := FieldGenerator(d, errors)
 		fields = append(fields, dataFields...)
 	}
@@ -208,11 +240,14 @@ func (f *FormLayout) RenderMultiView(data []any) string {
 	return r.out.String()
 }
 
+// RenderForm renders an editable HTML form for data using this layout.
+// Field values, types, and grouping are discovered by reflection from data.
 func (f *FormLayout) RenderForm(data any) string {
-	return f.RenderFormMulti( []any{data})
+	return f.RenderFormMulti([]any{data})
 }
 
-
+// RenderFormMulti is like RenderForm but merges fields from multiple
+// structs into a single form.
 func (f *FormLayout) RenderFormMulti(
 	data []any,
 ) string {
@@ -220,12 +255,14 @@ func (f *FormLayout) RenderFormMulti(
 	return f.RenderFormWithErrors(errors, data)
 }
 
+// RenderFormWithErrors renders an editable form and displays per-field
+// validation messages from errors (keyed by field name).
 func (f *FormLayout) RenderFormWithErrors(
 	errors map[string]string,
 	data []any,
 ) string {
 	fields := make([]DataField, 0)
-	for _,d := range data {
+	for _, d := range data {
 		dataFields := FieldGenerator(d, errors)
 		fields = append(fields, dataFields...)
 	}
@@ -241,6 +278,9 @@ func (f *FormLayout) RenderElementWithErrors(
 	data ...any,
 ) string {
 	e := f.findByName(name)
+	if e == nil {
+		return ""
+	}
 	fields := make([]DataField, 0)
 	for _, d := range data {
 		fields = append(fields, FieldGenerator(d, errors)...)
@@ -262,6 +302,13 @@ func (f *FormLayout) renderFormToBuilder(r *RenderContext, prefix string, m map[
 	}
 }
 
+func prefixed(prefix, name string) string {
+	if len(prefix) > 0 {
+		return prefix + "." + name
+	}
+	return name
+}
+
 func (f *FormLayout) renderElement(
 	e FormElement,
 	r *RenderContext,
@@ -270,126 +317,116 @@ func (f *FormLayout) renderElement(
 ) {
 	switch e.ElementDisplayType {
 	case "hidden":
-		fieldName := e.Name
-		if len(prefix) > 0 {
-			fieldName = prefix + "." + fieldName
-		}
-		field, ok := m[fieldName]
-		if ok {
-			r.out.WriteString(fmt.Sprintf("<input type=\"hidden\" name=\"%s\" value=\"%v\" />", fieldName, field.Val()))
-		}
+		f.renderHidden(e, r, prefix, m)
 	case "header":
 		f.Theme.themeRenderHeader(r, e)
 	case "group":
-		if (!e.Config.ViewOnly) || r.ViewMode {
-			newPrefix := e.Name
-			if len(prefix) > 0 {
-				newPrefix = prefix + "." + newPrefix
-			}
-			if r.AnchorGroups {
-				r.out.WriteString(fmt.Sprintf("<a name=\"formgroup-%s\"></a>", stringToAnchor(e.Config.Label)))
-			}
-			f.Theme.themeRenderGroup(r, m, newPrefix, e)
-		}
+		f.renderGroup(e, r, prefix, m)
 	case "input":
-		// take value string from MAP of name -> DataField
-		// take type if no type is given from DataField
-
-		fieldName := e.Name
-		if len(prefix) > 0 {
-			fieldName = prefix + "." + fieldName
-		}
-		field, ok := m[fieldName]
-		if ok {
-			if len(e.Config.Choices) > 0 {
-				field.Choices = e.Config.Choices
-			}
-			if field.Multi {
-				values := field.Value.([]string)
-				for i := 0; i < len(field.Choices); i++ {
-					choice := &field.Choices[i]
-					if containsString(values, choice.Value) {
-						choice.Checked = true
-					}
-				}
-				f.Theme.themeRenderMulti(r, field, e, prefix)
-			} else {
-				description := e.Config.Description
-				if len(e.Config.Description) > 0 {
-					description = e.Config.Description
-				}
-				if field.Kind == "bool" {
-					f.Theme.themeRenderCheckbox(r, e, field, description, prefix)
-				} else if !field.Multi && len(field.Choices) > 0 {
-					f.Theme.themeRenderSelect(r, e, field, description, prefix)
-				} else if field.Kind == "Time" {
-					f.Theme.themeRenderDateTime(r, e, field, prefix)
-				} else {
-					f.Theme.themeRenderInput(r, e, field, prefix)
-				}
-			}
-		}
+		f.renderInput(e, r, prefix, m)
 	case "textarea":
-		// take value string from MAP of name -> DataField
-		// take type if no type is given from DataField
-		fieldName := e.Name
-		if len(prefix) > 0 {
-			fieldName = prefix + "." + fieldName
-		}
-		field, ok := m[fieldName]
-
-		if ok {
-			description := e.Config.Description
-			if len(e.Config.Description) > 0 {
-				description = e.Config.Description
-			}
-			f.Theme.themeRenderTextarea(r, e, field, description, prefix)
-		}
-	case "yesno": 
-		// take value string from MAP of name -> DataField
-		// take type if no type is given from DataField
-		fieldName := e.Name
-		if len(prefix) > 0 {
-			fieldName = prefix + "." + fieldName
-		}
-		field, ok := m[fieldName]
-
-		if ok {
-			if len(e.Config.Choices) > 0 {
-				field.Choices = e.Config.Choices
-			}
-			description := e.Config.Description
-			if len(e.Config.Description) > 0 {
-				description = e.Config.Description
-			}
-			f.Theme.themeRenderYesNo(r, e, field, description, prefix)
-		}
+		f.renderTextareaElement(e, r, prefix, m)
+	case "yesno":
+		f.renderYesNo(e, r, prefix, m)
 	case "dropdown":
-		// take value string from MAP of name -> DataField
-		// take type if no type is given from DataField
-		fieldName := e.Name
-		if len(prefix) > 0 {
-			fieldName = prefix + "." + fieldName
-		}
-		field, ok := m[fieldName]
-		if ok {
-			if len(e.Config.Choices) > 0 {
-				field.Choices = e.Config.Choices
-			}
-			//if field.Multi {
-			//	values := field.Value.([]string)
-			//	for i := 0; i < len(field.Choices); i++ {
-			//		choice := &field.Choices[i]
-			//		if containsString(values, choice.Value) {
-			//			choice.Checked = true
-			//		}
-			//	}
-			//	f.Theme.themeRenderMulti(sb, field, e, prefix)
-			//} else {
-			f.Theme.themeRenderSelect(r, e, field, e.Config.Description, prefix)
-			//}
+		f.renderDropdown(e, r, prefix, m)
+	}
+}
+
+func (f *FormLayout) renderHidden(e FormElement, r *RenderContext, prefix string, m map[string]DataField) {
+	fieldName := prefixed(prefix, e.Name)
+	field, ok := m[fieldName]
+	if !ok {
+		return
+	}
+	r.out.WriteString(fmt.Sprintf("<input type=\"hidden\" name=\"%s\" value=\"%s\" />", Safe(fieldName), Safe(fmt.Sprintf("%v", field.Val()))))
+}
+
+func (f *FormLayout) renderGroup(e FormElement, r *RenderContext, prefix string, m map[string]DataField) {
+	if e.Config.ViewOnly && !r.ViewMode {
+		return
+	}
+	newPrefix := prefixed(prefix, e.Name)
+	if r.AnchorGroups {
+		r.out.WriteString(fmt.Sprintf("<a name=\"formgroup-%s\"></a>", Safe(stringToAnchor(e.Config.Label))))
+	}
+	f.Theme.themeRenderGroup(r, m, newPrefix, e)
+}
+
+func (f *FormLayout) renderInput(e FormElement, r *RenderContext, prefix string, m map[string]DataField) {
+	fieldName := prefixed(prefix, e.Name)
+	field, ok := m[fieldName]
+	if !ok {
+		return
+	}
+	if len(e.Config.Choices) > 0 {
+		field.Choices = e.Config.Choices
+	}
+	if field.Multi {
+		f.renderMultiInput(e, r, prefix, field)
+		return
+	}
+	f.renderSingleInput(e, r, prefix, field)
+}
+
+func (f *FormLayout) renderMultiInput(e FormElement, r *RenderContext, prefix string, field DataField) {
+	values := field.Value.([]string)
+	for i := 0; i < len(field.Choices); i++ {
+		choice := &field.Choices[i]
+		if containsString(values, choice.Value) {
+			choice.Checked = true
 		}
 	}
+	f.Theme.themeRenderMulti(r, field, e, prefix)
+}
+
+func (f *FormLayout) renderSingleInput(e FormElement, r *RenderContext, prefix string, field DataField) {
+	description := e.Config.Description
+	switch {
+	case field.Kind == "bool":
+		f.Theme.themeRenderCheckbox(r, e, field, description, prefix)
+	case len(field.Choices) > 0:
+		f.Theme.themeRenderSelect(r, e, field, description, prefix)
+	case field.Kind == "Time":
+		f.Theme.themeRenderDateTime(r, e, field, prefix)
+	case field.Kind == "Date":
+		f.Theme.themeRenderDate(r, e, field, prefix)
+	default:
+		f.Theme.themeRenderInput(r, e, field, prefix)
+	}
+}
+
+func (f *FormLayout) renderTextareaElement(e FormElement, r *RenderContext, prefix string, m map[string]DataField) {
+	fieldName := prefixed(prefix, e.Name)
+	field, ok := m[fieldName]
+	if !ok {
+		return
+	}
+	f.Theme.themeRenderTextarea(r, e, field, e.Config.Description, prefix)
+}
+
+func (f *FormLayout) renderYesNo(e FormElement, r *RenderContext, prefix string, m map[string]DataField) {
+	fieldName := prefixed(prefix, e.Name)
+	field, ok := m[fieldName]
+	if !ok {
+		return
+	}
+	if len(e.Config.Choices) > 0 {
+		field.Choices = e.Config.Choices
+	}
+	f.Theme.themeRenderYesNo(r, e, field, e.Config.Description, prefix)
+}
+
+func (f *FormLayout) renderDropdown(e FormElement, r *RenderContext, prefix string, m map[string]DataField) {
+	fieldName := prefixed(prefix, e.Name)
+	field, ok := m[fieldName]
+	if !ok {
+		return
+	}
+	if len(e.Config.Choices) > 0 {
+		field.Choices = e.Config.Choices
+	}
+	f.Theme.themeRenderSelect(r, e, field, e.Config.Description, prefix)
 }
 
 func renderCheckboxS(r *RenderContext, f DataField, config ElementOpts, prefix string, style string) {
@@ -401,7 +438,7 @@ func renderCheckboxS(r *RenderContext, f DataField, config ElementOpts, prefix s
 		}
 	}
 	name := f.Name
-	r.out.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" style=\"%s\" %s%s/>", name, style, checked, configToHtml(config)))
+	r.out.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" style=\"%s\" %s%s/>", Safe(name), Safe(style), checked, configToHtml(config)))
 }
 
 func renderCheckbox(r *RenderContext, f DataField, config ElementOpts, prefix string, class string) {
@@ -413,7 +450,7 @@ func renderCheckbox(r *RenderContext, f DataField, config ElementOpts, prefix st
 		}
 	}
 	name := f.Name
-	r.out.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" class=\"%s\" %s%s/>", name, class, checked, configToHtml(config)))
+	r.out.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" class=\"%s\" %s%s/>", Safe(name), Safe(class), checked, configToHtml(config)))
 }
 
 func renderSelect(r *RenderContext, f DataField, config ElementOpts, prefix string, style string, e FormElement) {
@@ -423,15 +460,15 @@ func renderSelect(r *RenderContext, f DataField, config ElementOpts, prefix stri
 	}
 	// optgroup https://developer.mozilla.org/en-US/docs/Web/HTML/Element/optgroup
 	if len(e.Config.Groups) > 0 {
-		r.out.WriteString(fmt.Sprintf("<select name=\"%s\" style=\"%s\"><option value=\"0\">-</option>", name, style))
-		for group, name := range e.Config.Groups {
-			r.out.WriteString(fmt.Sprintf("<optgroup LABEL=\"%s\">", name))
+		r.out.WriteString(fmt.Sprintf("<select name=\"%s\" style=\"%s\"><option value=\"0\">-</option>", Safe(name), Safe(style)))
+		for group, groupLabel := range e.Config.Groups {
+			r.out.WriteString(fmt.Sprintf("<optgroup LABEL=\"%s\">", Safe(groupLabel)))
 			for _, c := range f.Choices {
 				if len(group) == 0 || c.Group == group {
 					if c.IsSelected(f.Value) {
-						r.out.WriteString(fmt.Sprintf("<option value=\"%s\" selected=\"selected\">%s</option>", c.Val(), c.L()))
+						r.out.WriteString(fmt.Sprintf("<option value=\"%s\" selected=\"selected\">%s</option>", Safe(c.Val()), Safe(c.L())))
 					} else {
-						r.out.WriteString(fmt.Sprintf("<option value=\"%s\">%s</option>", c.Val(), c.L()))
+						r.out.WriteString(fmt.Sprintf("<option value=\"%s\">%s</option>", Safe(c.Val()), Safe(c.L())))
 					}
 				}
 			}
@@ -439,12 +476,12 @@ func renderSelect(r *RenderContext, f DataField, config ElementOpts, prefix stri
 		}
 		r.out.WriteString("</select>")
 	} else {
-		r.out.WriteString(fmt.Sprintf("<select name=\"%s\" style=\"%s\"><option value=\"0\">-</option>", name, style))
+		r.out.WriteString(fmt.Sprintf("<select name=\"%s\" style=\"%s\"><option value=\"0\">-</option>", Safe(name), Safe(style)))
 		for _, c := range f.Choices {
 			if c.IsSelected(f.Value) {
-				r.out.WriteString(fmt.Sprintf("<option value=\"%s\" selected=\"selected\">%s</option>", c.Val(), c.L()))
+				r.out.WriteString(fmt.Sprintf("<option value=\"%s\" selected=\"selected\">%s</option>", Safe(c.Val()), Safe(c.L())))
 			} else {
-				r.out.WriteString(fmt.Sprintf("<option value=\"%s\">%s</option>", c.Val(), c.L()))
+				r.out.WriteString(fmt.Sprintf("<option value=\"%s\">%s</option>", Safe(c.Val()), Safe(c.L())))
 			}
 		}
 		r.out.WriteString("</select>")
@@ -500,6 +537,15 @@ func renderDateTimeS(r *RenderContext, f DataField, val any, config ElementOpts,
 	}
 }
 
+func renderDateS(r *RenderContext, f DataField, val any, config ElementOpts, style string, errorStyle string) {
+	inputType := "date"
+	name := f.Name + ":date"
+	r.INPUT(name, inputType, val, style, config)
+	if f.HasError() {
+		r.PS(f.Errors(), errorStyle)
+	}
+}
+
 func renderTextInput(r *RenderContext, f DataField, val any, config ElementOpts, prefix string, class string) {
 	inputConstraints := ""
 	inputType := "text"
@@ -524,11 +570,11 @@ func renderTextInput(r *RenderContext, f DataField, val any, config ElementOpts,
 	//	sb.WriteString("</div>")
 	//
 	//} else {
-	r.out.WriteString(fmt.Sprintf("<input name=\"%s\" type=\"%s\"%s value=\"%v\"%s class=\"%s\"/>",
-		name, inputType,
-		strings.TrimSpace(inputConstraints), val, configToHtml(config), class))
+	r.out.WriteString(fmt.Sprintf("<input name=\"%s\" type=\"%s\"%s value=\"%s\"%s class=\"%s\"/>",
+		Safe(name), Safe(inputType),
+		strings.TrimSpace(inputConstraints), Safe(fmt.Sprintf("%v", val)), configToHtml(config), Safe(class)))
 	if f.HasError() {
-		r.out.WriteString(fmt.Sprintf("<p class=\"mt-2 text-sm text-red-600\">%s</p>", f.Errors()))
+		r.out.WriteString(fmt.Sprintf("<p class=\"mt-2 text-sm text-red-600\">%s</p>", Safe(f.Errors())))
 		//}
 	}
 
@@ -537,11 +583,11 @@ func renderTextInput(r *RenderContext, f DataField, val any, config ElementOpts,
 func configToHtml(config ElementOpts) string {
 	id := ""
 	if len(config.Id) > 0 {
-		id = fmt.Sprintf(" id=\"%s\"", config.Id)
+		id = fmt.Sprintf(" id=\"%s\"", Safe(config.Id))
 	}
 	placeholder := ""
 	if len(config.Placeholder) > 0 {
-		placeholder = fmt.Sprintf(" placeholder=\"%s\"", config.Placeholder)
+		placeholder = fmt.Sprintf(" placeholder=\"%s\"", Safe(config.Placeholder))
 	}
 	configStr := fmt.Sprintf("%s%s", id, placeholder)
 	return configStr

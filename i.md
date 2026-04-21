@@ -1,3 +1,0 @@
-## Some example
-
-`Yes really`

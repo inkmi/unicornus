@@ -1,7 +1,14 @@
+// Package uni generates HTML forms and read-only views from Go structs.
+//
+// A FormLayout describes the order, grouping, and rendering options for
+// fields. Values, types, and validation errors are discovered via reflection
+// from the struct you pass to RenderForm or RenderView. A Theme controls the
+// HTML output.
 package uni
 
 import "strings"
 
+// ElementOpts configures rendering of a single form element.
 type ElementOpts struct {
 	Placeholder string
 	Id          string
@@ -15,6 +22,7 @@ type ElementOpts struct {
 	EmptyView   string
 	ViewPrefix  string
 	BulletsView bool
+	NoEscape    bool
 }
 
 type OptFunc func(config *ElementOpts)
@@ -34,7 +42,6 @@ func WithChoices(choices []Choice) OptFunc {
 		config.Choices = choices
 	}
 }
-
 
 func WithBulletChoices() OptFunc {
 	return func(config *ElementOpts) {
@@ -69,6 +76,12 @@ func WithEmpyView(empty string) OptFunc {
 	}
 }
 
+func DANGER__NoEscape() OptFunc {
+	return func(config *ElementOpts) {
+		config.NoEscape = true
+	}
+}
+
 func WithId(id string) OptFunc {
 	return func(config *ElementOpts) {
 		config.Id = id
@@ -82,17 +95,22 @@ func WithGroups(order []string, groups map[string]string) OptFunc {
 	}
 }
 
+// FormLayout is the declarative description of a form.
+// Build one with NewFormLayout and the AddX / AddGroup methods, then render
+// it against a struct value with RenderForm or RenderView.
 type FormLayout struct {
 	Theme    BaseTheme
 	elements []FormElement
 }
 
+// FormElement is one entry in a FormLayout (an input, group, header, etc.).
 type FormElement struct {
 	ElementDisplayType string
 	Name               string
 	Config             ElementOpts
 }
 
+// NewFormLayout returns an empty FormLayout with the default BaseTheme.
 func NewFormLayout() *FormLayout {
 	fl := &FormLayout{
 		Theme: BaseTheme{
@@ -133,6 +151,9 @@ func (f *FormLayout) findByName(name string) *FormElement {
 	}
 	// Split the name by the first dot to handle nested group names
 	parts := strings.SplitN(name, ".", 2)
+	if len(parts) == 0 {
+		return nil
+	}
 	for _, element := range f.elements {
 		// Check if the current element matches the first part of the name
 		if element.Name == parts[0] {

@@ -4,6 +4,9 @@ import (
 	"strings"
 )
 
+// Theme renders individual form elements. All methods are package-internal;
+// to use a different look, compose or wrap BaseTheme instead of implementing
+// this interface directly.
 type Theme interface {
 	themeRenderInput(sb *strings.Builder, e FormElement, field DataField, prefix string)
 	themeRenderSelect(sb *strings.Builder, e FormElement, field DataField, prefix string)
@@ -12,4 +15,5 @@ type Theme interface {
 	themeRenderHeader(sb *strings.Builder, e FormElement)
 	themeRenderGroup(sb *strings.Builder, data any, prefix string, e FormElement)
 	themeRenderDateTime(r *RenderContext, e FormElement, field DataField, prefix string)
+	themeRenderDate(r *RenderContext, e FormElement, field DataField, prefix string)
 }

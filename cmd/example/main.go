@@ -4,9 +4,12 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/alecthomas/chroma/v2"
 	"github.com/alecthomas/chroma/v2/formatters/html"
@@ -45,9 +48,7 @@ func listing(examples []example) func(w http.ResponseWriter, req *http.Request) 
 	}
 
 	return func(w http.ResponseWriter, req *http.Request) {
-		fmt.Fprintf(w, "<html><body>"+
-			listing+
-			"</body></html>")
+		fmt.Fprint(w, "<html><body>"+listing+"</body></html>")
 	}
 }
 
@@ -75,9 +76,20 @@ func removeSpecialLines(input string) string {
 	return output.String()
 }
 
+var exampleFiles = map[string]struct{}{
+	"cmd/example/example1.go": {},
+	"cmd/example/example2.go": {},
+	"cmd/example/example3.go": {},
+	"cmd/example/example4.go": {},
+}
+
 func wrap(fileName string, f func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
+	clean := filepath.Clean(fileName)
+	if _, ok := exampleFiles[clean]; !ok {
+		panic("wrap: fileName not in allow-list: " + fileName)
+	}
 	return func(w http.ResponseWriter, req *http.Request) {
-		data, err := os.ReadFile(fileName)
+		data, err := os.ReadFile(clean)
 		if err != nil {
 			panic(err)
 		}
@@ -85,15 +97,15 @@ func wrap(fileName string, f func(http.ResponseWriter, *http.Request)) func(http
 		content := highlight(removeSpecialLines(string(data)))
 		fmt.Fprintf(w, "<!DOCTYPE html><html><body>")
 		fmt.Fprintf(w, "<a href=\"/\"> <-- Back</a>")
-		fmt.Fprintf(w, "<div style=\"display: flex;\"><div>")
-		fmt.Fprintf(w, "<h2>Example Form</h2>")
+		fmt.Fprint(w, "<div style=\"display: flex;\"><div>")
+		fmt.Fprint(w, "<h2>Example Form</h2>")
 		f(w, req)
-		fmt.Fprintf(w, "</div><div style=\"width:5rem;\">")
-		fmt.Fprintf(w, "</div><div>")
+		fmt.Fprint(w, "</div><div style=\"width:5rem;\">")
+		fmt.Fprint(w, "</div><div>")
 		fmt.Fprintf(w, "<h2 style=\"\">%s</h2>\n", fileName)
-		fmt.Fprintf(w, "<div style=\"background:#282a36;padding: 1rem;\">\n"+string(content)+"\n</div>")
-		fmt.Fprintf(w, "</div>")
-		fmt.Fprintf(w, "</body></html>")
+		fmt.Fprint(w, "<div style=\"background:#282a36;padding: 1rem;\">\n"+content+"\n</div>")
+		fmt.Fprint(w, "</div>")
+		fmt.Fprint(w, "</body></html>")
 	}
 }
 
@@ -123,6 +135,15 @@ func main() {
 	}
 	http.HandleFunc("/", listing(examples))
 
-	fmt.Println("http://127.0.01:8090")
-	http.ListenAndServe("127.0.0.1:8090", nil)
+	fmt.Println("http://127.0.0.1:8090")
+	srv := &http.Server{
+		Addr:              "127.0.0.1:8090",
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       10 * time.Second,
+		WriteTimeout:      10 * time.Second,
+		IdleTimeout:       60 * time.Second,
+	}
+	if err := srv.ListenAndServe(); err != nil {
+		log.Fatal(err)
+	}
 }

@@ -36,6 +36,10 @@ func ParseTag(tag string) Tag {
 				v := t.Value()
 				tg.ErrorMessage = &v
 			}
+			if t.Key == "uni" {
+				v := t.Value()
+				tg.InputType = &v
+			}
 		}
 		if choices != nil && tg.Validation != nil {
 			in := GetInValidation(*tg.Validation)

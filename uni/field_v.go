@@ -8,9 +8,9 @@ import (
 	"github.com/microcosm-cc/bluemonday"
 )
 
-// Generate field descriptions for HTML fields
-// from annotated structs
-
+// DataField is the reflected description of a single struct field used
+// during rendering. It carries the field's name, Go kind, current value,
+// validation state, and (for select/multi fields) the set of Choices.
 type DataField struct {
 	Name    string
 	Kind    string

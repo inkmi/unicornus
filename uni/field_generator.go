@@ -1,9 +1,10 @@
 package uni
 
 import (
-	. "github.com/moznion/go-optional"
 	"reflect"
 	"time"
+
+	. "github.com/moznion/go-optional"
 )
 
 // Converts a struct and errors into a slice of DataFields
@@ -36,88 +37,95 @@ func translateRecursive(vals []DataField, prefix string, original reflect.Value,
 
 func translateStruct(prefix string, vals []DataField, original reflect.Value, errors map[string]string) []DataField {
 	for i := 0; i < original.NumField(); i += 1 {
-		stopRecursion := false
-
-		df := DataField{}
-		name := original.Type().Field(i).Name
-		if len(prefix) == 0 {
-			df.Name = name
-		} else {
-			df.Name = prefix + "." + name
-		}
-		if errorMsg, hasError := errors[name]; hasError {
-			df.ErrorMessages = []string{errorMsg}
-		}
-
-		// parse Tag for validation, choices and error messages
-		tagS := string(original.Type().Field(i).Tag)
-		if tagS != "" {
-			t := ParseTag(tagS)
-			if t.Optional {
-				df.Optional = t.Optional
-			}
-			if t.Validation != nil {
-				df.Validation = *t.Validation
-			}
-			if t.ErrorMessage != nil {
-				df.ErrorMessage = *t.ErrorMessage
-			}
-			if t.Choices != nil && len(t.Choices) > 0 {
-				df.Choices = t.Choices
-			}
-		}
-
-		// Optional:
-		// 1: With Type e.g. Option[int]
-		// 2: By pointer, e.g. *bool
-		// 3: By validation, e.g. "validate:"optional"
-
-		optionalValue := df.Optional || hasOptional(original.Type().Field(i).Type.Name())
-		// Handle setFromStructPtr of type
-		// those are handled as optional
-		// *bool
-		// *int
-		if original.Type().Field(i).Type.Kind() == reflect.Ptr {
-			df.Kind = original.Type().Field(i).Type.Elem().Name()
-			df.Optional = true
-			if original.Type().Field(i).Type.Elem().ConvertibleTo(reflect.TypeOf(0)) {
-				df.Kind = "int"
-				setValue(&df, original, i)
-			} else if original.Type().Field(i).Type.Elem().ConvertibleTo(reflect.TypeOf(true)) {
-				df.Kind = "bool"
-				setValue(&df, original, i)
-			}
-		} else {
-			typ := ""
-			// it seems that the ElementDisplayType of the Option is Slice
-			// so check with the type we got with Name
-			if !optionalValue && original.Type().Field(i).Type.Kind() == reflect.Slice {
-				df.Multi = true
-				typ = original.Type().Field(i).Type.Elem().Name()
-			} else {
-				typ = original.Type().Field(i).Type.Name()
-			}
-			if !df.Optional {
-				df.Optional = hasOptional(typ)
-			}
-			df.Kind = removeOptional(typ)
-			setValue(&df, original, i)
-		}
-
+		df, fieldType := buildDataField(prefix, original, i, errors)
 		vals = append(vals, df)
-		newPrefix := prefix + "." + original.Type().Field(i).Name
-		if len(prefix) == 0 {
-			newPrefix = original.Type().Field(i).Name
-		}
 
-		if df.Kind == "Time" {
-			stopRecursion = true
+		if df.Kind == "Time" || df.Kind == "Date" {
+			continue
 		}
-		if !stopRecursion {
-			vals = translateRecursive(vals, newPrefix, original.Field(i), errors)
-		}
+		newPrefix := df.Name
+		_ = fieldType
+		vals = translateRecursive(vals, newPrefix, original.Field(i), errors)
 	}
 	return vals
+}
+
+func buildDataField(prefix string, original reflect.Value, i int, errors map[string]string) (DataField, reflect.Type) {
+	df := DataField{}
+	fieldType := original.Type().Field(i)
+	name := fieldType.Name
+	if len(prefix) == 0 {
+		df.Name = name
+	} else {
+		df.Name = prefix + "." + name
+	}
+	if errorMsg, hasError := errors[name]; hasError {
+		df.ErrorMessages = []string{errorMsg}
+	}
+
+	parsedTag := applyTag(&df, string(fieldType.Tag))
+
+	if fieldType.Type.Kind() == reflect.Ptr {
+		applyPtrKind(&df, original, i)
+	} else {
+		applyValueKind(&df, original, i, parsedTag)
+	}
+	return df, fieldType.Type
+}
+
+func applyTag(df *DataField, tagS string) *Tag {
+	if tagS == "" {
+		return nil
+	}
+	t := ParseTag(tagS)
+	if t.Optional {
+		df.Optional = t.Optional
+	}
+	if t.Validation != nil {
+		df.Validation = *t.Validation
+	}
+	if t.ErrorMessage != nil {
+		df.ErrorMessage = *t.ErrorMessage
+	}
+	if len(t.Choices) > 0 {
+		df.Choices = t.Choices
+	}
+	return &t
+}
+
+func applyPtrKind(df *DataField, original reflect.Value, i int) {
+	elem := original.Type().Field(i).Type.Elem()
+	df.Kind = elem.Name()
+	df.Optional = true
+	if elem.ConvertibleTo(reflect.TypeOf(0)) {
+		df.Kind = "int"
+		setValue(df, original, i)
+	} else if elem.ConvertibleTo(reflect.TypeOf(true)) {
+		df.Kind = "bool"
+		setValue(df, original, i)
+	}
+}
+
+func applyValueKind(df *DataField, original reflect.Value, i int, parsedTag *Tag) {
+	fieldType := original.Type().Field(i).Type
+	optionalValue := df.Optional || hasOptional(fieldType.Name())
+	typ := ""
+	if !optionalValue && fieldType.Kind() == reflect.Slice {
+		df.Multi = true
+		typ = fieldType.Elem().Name()
+	} else {
+		typ = fieldType.Name()
+	}
+	if !df.Optional {
+		df.Optional = hasOptional(typ)
+	}
+	df.Kind = removeOptional(typ)
+
+	if df.Kind == "Time" && parsedTag != nil && parsedTag.InputType != nil && *parsedTag.InputType == "date" {
+		df.Kind = "Date"
+	}
+
+	setValue(df, original, i)
 }
 
 func setValue(df *DataField, original reflect.Value, i int) {
@@ -129,11 +137,17 @@ func setValue(df *DataField, original reflect.Value, i int) {
 		setInt(original, i, df)
 	} else if df.Kind == "Time" {
 		setTime(original, i, df)
+	} else if df.Kind == "Date" {
+		setDate(original, i, df)
 	}
 }
 
 func setTime(original reflect.Value, i int, f *DataField) {
 	f.Value = original.Field(i).Interface().(time.Time).Format("2006-01-02T15:04")
+}
+
+func setDate(original reflect.Value, i int, f *DataField) {
+	f.Value = original.Field(i).Interface().(time.Time).Format("2006-01-02")
 }
 
 func setString(original reflect.Value, i int, f *DataField) {

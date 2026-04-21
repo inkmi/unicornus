@@ -154,6 +154,7 @@ func TestRenderMultiWithDiv(t *testing.T) {
 	assert.Equal(t, RemoveSpacesNewlineInHtml(`
 <div>
 <div>
+<h3>A</h3>
 <fieldset>
 <div>
 <div>
@@ -187,7 +188,7 @@ func TestRenderMulti(t *testing.T) {
 	}
 	html := Normalize(f.RenderForm(data))
 	assert.Equal(t, RemoveSpacesNewlineInHtml(`
-
+<h3>A</h3>
 <fieldset>
 <label><input type="checkbox" name="A#A1" checked=""/>
 A1</label>
@@ -308,7 +309,7 @@ func TestHeaderRenderForm(t *testing.T) {
 	}
 	html := f.RenderForm(data)
 	assert.Equal(t, RemoveSpacesNewlineInHtml(`
-<h2>A</h2>
+<h1>A</h1>
 `), html)
 }
 

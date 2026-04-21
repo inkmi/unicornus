@@ -5,6 +5,7 @@ import (
 	// E:1
 	"fmt"
 	"net/http"
+
 	// S:1
 	"github.com/inkmi/unicornus/uni"
 )
@@ -30,5 +31,5 @@ func example1(w http.ResponseWriter, req *http.Request) {
 	// to html
 	html := ui.RenderForm(d)
 	// E:1
-	fmt.Fprintf(w, html)
+	fmt.Fprint(w, html)
 }

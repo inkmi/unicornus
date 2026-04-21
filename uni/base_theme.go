@@ -87,6 +87,29 @@ func (t BaseTheme) themeRenderDateTime(r *RenderContext, e FormElement, field Da
 	r.DIVclose()
 }
 
+func (t BaseTheme) themeRenderDate(r *RenderContext, e FormElement, field DataField, prefix string) {
+	r.DIVopenS(t.styles.topSeparator)
+	if r.OnlyDisplay(field.Name) {
+		if len(e.Config.Label) > 0 {
+			r.DIVS(e.Config.Label, t.styles.labelStyle)
+		}
+		r.DIV(Safe(field.ViewVal()), "font-size: 0.875rem; "+
+			"font-weight: 500; color: #1F2937;")
+	} else {
+		// Label for input
+		if len(e.Config.Label) > 0 {
+			r.LABELS(e.Config.Label, t.styles.labelStyle)
+		}
+		// Render input element
+		renderDateS(r, field, field.Val(), e.Config, t.styles.inputStyle, t.styles.errorStyle)
+		// Render description
+		if len(e.Config.Description) > 0 {
+			r.PS(e.Config.Description, "margin-top: 0.5rem; color: #6B7280; ")
+		}
+	}
+	r.DIVclose()
+}
+
 func (t BaseTheme) themeRenderInput(r *RenderContext, e FormElement, field DataField, prefix string) {
 	if r.OnlyDisplay(field.Name) {
 		r.DIVopenS(t.styles.topSeparatorView)
@@ -221,8 +244,8 @@ func (t BaseTheme) themeRenderYesNo(r *RenderContext, e FormElement, field DataF
   <div class="block pb-3 font-medium text-gray-900">%s</div>
   <label for="%s" class="inline-flex cursor-pointer items-center space-x-4 text-gray-900">
     <span class="text-sm font-medium text-gray-700">%s</span>
-    <span class="relative">`, e.Config.Label, id, "No"))
-		r.out.WriteString(fmt.Sprintf("<input id=\"%s\" type=\"checkbox\" name=\"%s\" class=\"hidden peer\" %s%s/>", id, name, checked,
+    <span class="relative">`, Safe(e.Config.Label), Safe(id), "No"))
+		r.out.WriteString(fmt.Sprintf("<input id=\"%s\" type=\"checkbox\" name=\"%s\" class=\"hidden peer\" %s%s/>", Safe(id), Safe(name), checked,
 			configToHtml(e.Config)))
 		r.out.WriteString(fmt.Sprintf(`
 <div class="h-7 w-11 rounded-full shadow-inner bg-gray-200 peer-checked:bg-indigo-500"></div>
@@ -296,89 +319,109 @@ func (t BaseTheme) themeRenderMulti(r *RenderContext, f DataField, e FormElement
 
 func (t BaseTheme) renderMultiGroup(r *RenderContext, f DataField, e FormElement, group string, groupName string) {
 	if r.OnlyDisplay(f.Name) {
-		if len(groupName) > 0 {
-			r.H3(groupName, "font-bold text-gray-900")
-		} else if len(e.Config.Label) > 0 {
-			r.H3(e.Config.Label, "font-bold text-gray-900")
-			if len(e.Config.Description) > 0 {
-				r.p(e.Config.Description, "mt-1 mb-2 text-sm text-gray-500")
-			}
+		t.renderMultiGroupView(r, f, e, groupName)
+		return
+	}
+	t.renderMultiGroupEdit(r, f, e, group, groupName)
+}
+
+func (t BaseTheme) renderMultiGroupHeading(r *RenderContext, e FormElement, groupName string) {
+	if len(groupName) > 0 {
+		r.H3(groupName, "")
+		return
+	}
+	if len(e.Config.Label) > 0 {
+		r.H3(e.Config.Label, "")
+		if len(e.Config.Description) > 0 {
+			r.p(e.Config.Description, "")
 		}
-		valuesExist := false
-		if e.Config.BulletsView {
-			var builder strings.Builder
-			builder.WriteString("<ul class=\"px-4\" style=\"list-style-type: disc;\">")
-			for _, c := range f.Choices {
-				if c.Checked {
-					valuesExist = true
-					builder.WriteString("<li>" + c.Label + "</li>")
-				}
-			}
-			builder.WriteString("</ul>")
-			if !valuesExist {
-				builder.WriteString("-")
-			}
-			r.DIV(builder.String(), "")
-		} else {
-			first := true
-			var builder strings.Builder
-			for _, c := range f.Choices {
-				if c.Checked {
-					valuesExist = true
-					if !first {
-						builder.WriteString(", ")
-					}
-					builder.WriteString(c.Label)
-					first = false
-				}
-			}
-			if !valuesExist {
-				builder.WriteString("-")
-			}
-			r.DIV(builder.String(), "")
-		}
-	} else {
-		r.DIVopenS(t.styles.topSeparator)
-		if len(groupName) > 0 {
-			r.H3(groupName, "font-bold text-gray-900")
-		} else if len(e.Config.Label) > 0 {
-			r.H3(e.Config.Label, "font-bold text-gray-900")
-			if len(e.Config.Description) > 0 {
-				r.p(e.Config.Description, "mt-1 mb-2 text-sm text-gray-500")
-			}
-		}
-		r.out.WriteString("<fieldset class=\"space-y-1\">")
-		// range copies slice
-		for _, c := range f.Choices {
-			if len(group) == 0 || c.Group == group {
-				name := f.Name + "#" + c.Val()
-				r.DIVopen("relative flex items-start")
-				r.DIVopen("flex h-5 items-center")
-				r.LABELopenS(t.styles.labelStyle)
-				if c.Checked {
-					r.out.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" checked class=\"h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500\">", name))
-				} else {
-					r.out.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" class=\"h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500\">", name))
-				}
-				r.DIVS(c.L(), "display: inline; padding-left: 0.5rem;")
-				r.LABELclose()
-				r.DIVclose()
-				r.DIVclose()
-			}
-		}
-		r.out.WriteString("</fieldset>")
-		r.DIVclose()
 	}
 }
 
+func (t BaseTheme) renderMultiGroupView(r *RenderContext, f DataField, e FormElement, groupName string) {
+	t.renderMultiGroupHeading(r, e, groupName)
+	if e.Config.BulletsView {
+		r.DIVRaw(renderMultiBullets(f), "")
+	} else {
+		r.DIVRaw(renderMultiInline(f), "")
+	}
+}
+
+func renderMultiBullets(f DataField) string {
+	var builder strings.Builder
+	builder.WriteString("<ul class=\"px-4\" style=\"list-style-type: disc;\">")
+	valuesExist := false
+	for _, c := range f.Choices {
+		if c.Checked {
+			valuesExist = true
+			builder.WriteString("<li>" + Safe(c.Label) + "</li>")
+		}
+	}
+	builder.WriteString("</ul>")
+	if !valuesExist {
+		builder.WriteString("-")
+	}
+	return builder.String()
+}
+
+func renderMultiInline(f DataField) string {
+	var builder strings.Builder
+	first := true
+	valuesExist := false
+	for _, c := range f.Choices {
+		if c.Checked {
+			valuesExist = true
+			if !first {
+				builder.WriteString(", ")
+			}
+			builder.WriteString(Safe(c.Label))
+			first = false
+		}
+	}
+	if !valuesExist {
+		builder.WriteString("-")
+	}
+	return builder.String()
+}
+
+func (t BaseTheme) renderMultiGroupEdit(r *RenderContext, f DataField, e FormElement, group string, groupName string) {
+	r.DIVopenS(t.styles.topSeparator)
+	t.renderMultiGroupHeading(r, e, groupName)
+	r.out.WriteString("<fieldset class=\"space-y-1\">")
+	for _, c := range f.Choices {
+		if len(group) != 0 && c.Group != group {
+			continue
+		}
+		t.renderMultiChoice(r, f, c)
+	}
+	r.out.WriteString("</fieldset>")
+	r.DIVclose()
+}
+
+func (t BaseTheme) renderMultiChoice(r *RenderContext, f DataField, c Choice) {
+	name := f.Name + "#" + c.Val()
+	r.DIVopen("relative flex items-start")
+	r.DIVopen("flex h-5 items-center")
+	r.LABELopenS(t.styles.labelStyle)
+	if c.Checked {
+		r.out.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\" checked>", Safe(name)))
+	} else {
+		r.out.WriteString(fmt.Sprintf("<input type=\"checkbox\" name=\"%s\">", Safe(name)))
+	}
+	r.DIVS(c.L(), "display: inline; padding-left: 0.5rem;")
+	r.LABELclose()
+	r.DIVclose()
+	r.DIVclose()
+}
+
 func (t BaseTheme) themeRenderHeader(r *RenderContext, e FormElement) {
-	r.H2no(e.Name)
+	r.H1no(e.Name)
 }
 
 func (t BaseTheme) themeRenderGroup(r *RenderContext, m map[string]DataField, prefix string, e FormElement) {
 	r.DIVopenS(t.styles.topSeparator)
-	r.H2(e.Config.Label, "text-lg leading-6 font-bold text-gray-900")
-	r.p(e.Config.Description, "mt-1 text-sm text-gray-500")
+	r.H2(e.Config.Label, "")
+	r.p(e.Config.Description, "")
 	e.Config.SubLayout.renderFormToBuilder(r, prefix, m)
 	r.DIVclose()
 }
